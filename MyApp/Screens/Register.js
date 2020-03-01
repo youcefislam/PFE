@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState } from 'react'
-import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
+import { Text, View, StyleSheet, TextInput, TouchableOpacity,KeyboardAvoidingView } from 'react-native'
 const Register = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -27,9 +27,8 @@ const Register = () => {
             })
     }
     return (
-        <View style={styles.container}>
-            
-            <View style={{ flex: 1, marginTop : 100 }}>
+        <KeyboardAvoidingView style={styles.container} behavior="position">
+            <View style={{marginTop:"50%"}}>
                 <TextInput
                     style={styles.input}
                     placeholder="Email"
@@ -44,14 +43,14 @@ const Register = () => {
                     placeholder="password"
                     onChangeText={(val) => setPassword(val)} />
             </View>
-            <View style={{ flex: 1, }}>
+            <View style={{}}>
                 <TouchableOpacity onPress={handleRegister}>
                     <View style={styles.button}>
                         <Text style={styles.buttonText}>Register</Text>
                     </View>
                 </TouchableOpacity>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 const styles = StyleSheet.create({
@@ -63,11 +62,10 @@ const styles = StyleSheet.create({
         width: 150,
     },
     button: {
-        backgroundColor: '#2196F3',
+        backgroundColor: '#8c1515',
         margin: 20,
     },
     buttonText: {
-        backgroundColor: '#8c1515',
         fontSize: 20,
         paddingHorizontal: 10,
     },

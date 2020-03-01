@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import Login from './Screens/Login';
 import Register from './Screens/Register';
-
+import Home from './Screens/Home'
+import Post from "./Screens/Post"
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -21,6 +22,8 @@ const App = () => {
       <Stack.Navigator>
         <Stack.Screen name="login" component={Login}/>
         <Stack.Screen name="Register" component={Register}/>
+        <Stack.Screen name="home" component={Home}/>
+        <Stack.Screen name="post" component={Post}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

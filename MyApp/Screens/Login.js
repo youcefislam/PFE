@@ -10,6 +10,7 @@ import {
   TextInput,
   Button,
   TouchableOpacity,
+  KeyboardAvoidingView
 } from 'react-native';
 
 
@@ -30,7 +31,7 @@ const Login = ({ navigation }) => {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        if (responseJson.stat == 'success') alert("Logged In");
+        if (responseJson.stat == 'success') {navigation.navigate("home")}
         else alert("Username or Password is incorrect. ");
       })
       .catch((error) => {
@@ -38,11 +39,11 @@ const Login = ({ navigation }) => {
       })};
   
   return (
-      <View style={styles.container}>
+      <KeyboardAvoidingView style={styles.container} behavior='padding'>
         <View style={styles.title}>
           <Text>place holder for title/logo</Text>
         </View>
-        <View style={{ flex: 1, }}>
+        <View style={{}}>
           <TextInput
             style={styles.input}
             placeholder="Username"
@@ -53,7 +54,7 @@ const Login = ({ navigation }) => {
             placeholder="password"
             onChangeText={(val) => setPassword(val)} />
         </View>
-        <View style={{ flex: 1, flexDirection: "row", }}>
+        <View style={{flexDirection: "row", }}>
           <TouchableOpacity onPress={handleLogin}>
             <View style={styles.button}>
               <Text style={styles.buttonText}>login</Text>
@@ -67,7 +68,7 @@ const Login = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-      </View>
+      </KeyboardAvoidingView>
     );
   };
 
@@ -81,14 +82,14 @@ const Login = ({ navigation }) => {
       paddingHorizontal: 10,
     },
     title: {
-      flex: 1,
       justifyContent: 'center',
+      marginBottom: "30%"
     },
     container: {
       flex: 1,
       backgroundColor: 'white',
       alignItems: 'center',
-      justifyContent: "space-between",
+      justifyContent: "center",
     },
     input: {
       marginBottom: 20,
