@@ -3,13 +3,9 @@ import React, { useState } from 'react'
 import { Text, View, StyleSheet, TextInput, TouchableOpacity,KeyboardAvoidingView } from 'react-native'
 const Register = () => {
     const [username, setUsername] = useState("");
-    const [validUsername, setValidUsername] = useState(true)
     const [email, setEmail] = useState("");
-    const [validEmail, setValidEmail] = useState(true)
     const [password, setPassword] = useState("");
-    const [validPassword, setValidPassword] = useState(true)
     const [passwordConfirm, setPasswordConfirm] = useState("")
-    const [validPasswordConfirm, setValidPasswordConfirm] = useState(true)
 
 
     const handleRegister = () => {
@@ -34,71 +30,46 @@ const Register = () => {
     }
     const handleEmail = () => {
         const reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if(reg.test(email)){
-            alert("email valid")
-            setValidEmail(true)
-        }
-        else { 
-            alert("email error");
-            setValidEmail(false)}
+        return reg.test(email);
     }
     const handleUsername = () => {
         const reg =/^(?![0-9])[a-zA-Z0-9](?=.{8,})/;
-        if(reg.test(username)){
-            setValidUsername(true);
-            alert("valid username");
-            return;
-        }
-        alert("invalid username");
-        setValidUsername(false);
+        return reg.test(username);
     }
     const handlePassword = () => {
         const reg = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
-        if(reg.test(password)){
-            setValidPassword(true);
-            alert("password vlid")
-            return;
-        }else{
-        alert("password invlid")
-        setValidPassword(false);
-        }
+        return reg.test(password);
     }
     const handlePasswordConfirm = () => {
-        if(password==passwordConfirm){
-            alert("passwordconfirmed");
-            setValidPasswordConfirm(true);
-            return;
-        }
-        alert("password not confirmed")
-        setValidPasswordConfirm(false);
+        return password==passwordConfirm;
     }
     return (
         <KeyboardAvoidingView style={styles.container} behavior="position">
             <View style={{marginTop:"50%"}}>
                 <TextInput
-                    style={validEmail ?styles.input:styles.inputError}
-                    onEndEditing={()=> handleEmail()}
+                    style={handleEmail() ?styles.input:styles.inputError}
+                    //onEndEditing={()=> handleEmail()}
                     placeholder="Email"
                     autoCompleteType="email"
                     onChangeText={(val) => setEmail(val)} />
                 <TextInput
-                    style={styles.input}
+                    style={handleUsername() ?styles.input:styles.inputError}
                     autoCompleteType="username"
                     onEndEditing={()=> handleUsername()}
                     placeholder="Username"
                     onChangeText={(val) => setUsername(val)} />
                 <TextInput
+                    style={handlePassword() ?styles.input:styles.inputError}
                     secureTextEntry
                     autoCompleteType="password"
                     onEndEditing={()=> handlePassword()}
-                    style={styles.input}
                     placeholder="password"
                     onChangeText={(val) => setPassword(val)} />
                 <TextInput
+                    style={handlePasswordConfirm()?styles.input:styles.inputError}
                     secureTextEntry
                     autoCompleteType="password"
                     onEndEditing={()=> handlePasswordConfirm()}
-                    style={styles.input}
                     placeholder="confirm password"
                     onChangeText={(val) => setPasswordConfirm(val)} />
             </View>
