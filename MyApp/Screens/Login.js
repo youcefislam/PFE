@@ -18,7 +18,8 @@ const Login = ({ navigation }) => {
   const [password, setPassword] = useState("")
 
   const handleLogin = () => {
-
+    navigation.navigate("home");
+    return;
     const data = { username : username , password : password};
 
     fetch('http://192.168.43.82:3000/users/l', {

@@ -31,9 +31,6 @@ app.post('/users/r',(req,res)=>
         res.send(JSON.stringify({ stat : 'success' }));
     });
 })
-
-
-
 app.post('/users/l',(req,res)=>{
     console.log("i got a request");
     console.log(req.body);
@@ -60,7 +57,50 @@ app.post('/users/l',(req,res)=>{
     })
     console.log(res1); 
 })
+app.get('/specialite',(req,res)=>{
+    const sql = 'SELECT * FROM specialites';
+    db.query(sql,req.body,(err,result)=>{
+    if(err) throw err;
+    res.send(result)
+    });
+})
 
+app.get('/SousSpecialite',(req,res)=>{
+    const sql = 'SELECT * FROM SousSpecialite where specialite=?';
+    db.query(sql,req.body,req.body,(err,result)=>{
+        if(err) throw err;
+        res.send(result)
+        });
+})
+
+app.get('/document',(req,res)=>{
+    const sql = 'SELECT * from DOCUMENT where sousspecialite=?'
+    db.query(sql,req.body,(err,result)=>{
+        if(err) throw err;
+        res.send(result)
+        });
+})
+app.get('/post',(req,res)=>{
+    const sql = 'SELECT * from Document where id=?'
+    db.query(sql,req.body,(err,result)=>{
+        if(err) throw err;
+        res.send(result)
+        });
+})
+app.get('/comment',(req,res)=>{
+    const sql = 'SELECT * from comment where Post=?'
+    db.query(sql,req.body,(err,result)=>{
+        if(err) throw err;
+        res.send(result)
+        });
+})
+app.get('/replies',(req,res)=>{
+    const sql = 'SELECT * from replies where id=?'
+    db.query(sql,req.body,(err,result)=>{
+        if(err) throw err;
+        res.send(result)
+        });
+})
 app.listen(3000,() =>
 {
     console.log("server connected on port 3000");

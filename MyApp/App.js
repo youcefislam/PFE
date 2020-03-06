@@ -14,6 +14,8 @@ import Login from './Screens/Login';
 import Register from './Screens/Register';
 import Home from './Screens/Home'
 import Post from "./Screens/Post"
+import SousSpecialite from "./Screens/SousSpecialite"
+import ListeDocument from "./Screens/ListeDocument"
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -24,6 +26,8 @@ const App = () => {
         <Stack.Screen name="Register" component={Register}/>
         <Stack.Screen name="home" component={Home}/>
         <Stack.Screen name="post" component={Post}/>
+        <Stack.Screen name="sousSpecialite" component={SousSpecialite}/>
+        <Stack.Screen name="document" component={ListeDocument}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
