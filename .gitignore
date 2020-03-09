@@ -32,7 +32,7 @@ local.properties
 # node.js
 #
 /MyApp/node_modules/
-/server/node_modules/
+/Server/node_modules/
 npm-debug.log
 yarn-error.log
 
