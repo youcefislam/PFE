@@ -17,6 +17,8 @@ import Signin from './Screens/Signin';
 import SignUp from './Screens/SignUp';
 import Home from './Screens/Home'
 import Post from "./Screens/Post"
+import SousSpecialite from "./Screens/SousSpecialite"
+import ListeDocument from "./Screens/ListeDocument"
 const Stack = createStackNavigator();
 
 const App = () => {
