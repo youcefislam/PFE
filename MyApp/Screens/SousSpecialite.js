@@ -1,7 +1,7 @@
 import React,{useState} from 'react'
 import { View,Text,FlatList, StyleSheet,TouchableHighlight } from 'react-native'
 const requestSousSpecialite = (idSpecialite) => {
-    return[{title:"informatique",id:"1"},{title:"biologie",id:"2"},{title:"chimie",id:"3"},{title:"mathematiques",id:"4"},{title:"phisique",id:"5"},{title:"genie civil",id:"6"}];    
+    return[{title:"ISIL",id:"1"},{title:"ACAD",id:"2"},{title:"chimie",id:"3"},{title:"GTR",id:"4"}];    
 
     fetch('http://192.168.43.82:3000/SousSpecialite', {
         method: 'get',
@@ -27,7 +27,7 @@ const Home = ({route,navigation}) => {
                 keyExtractor= {(item)=> item.id}
                 renderItem={({item}) => {
                         return (
-                        <TouchableHighlight style={Styles.specialityCard} onPress={()=>{navigation.navigate("document",{SousSpecialiteid:item.id})}}>
+                        <TouchableHighlight style={Styles.specialityCard} onPress={()=>{navigation.navigate("ListeDocument",{SousSpecialiteid:item.id})}}>
                             <View  >
                                 <Text style={Styles.specialityCardContent}>{item.title}</Text>
                             </View>

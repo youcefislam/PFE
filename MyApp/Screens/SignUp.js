@@ -17,7 +17,7 @@ const SignUp = ({ navigation }) => {
         const data = { username: username, password: password, email: email };
 
 
-        fetch('http://192.168.43.82:3000/users/registre', {
+        fetch('http://192.168.43.82:3000/users/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -26,8 +26,8 @@ const SignUp = ({ navigation }) => {
         })
             .then((response) => response.json())
             .then((responseJson) => {
-                if (responseJson.stat == 'success') alert("your account has been created");
-                else alert("your account has not been created");
+                alert(responseJson.message);
+                if(!responseJson.error) navigation.navigate("Signin");
             })
             .catch((error) => {
                 console.error(error);
