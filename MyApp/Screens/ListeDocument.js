@@ -1,34 +1,42 @@
-import React,{useState} from 'react'
+import React,{useState,useEffect} from 'react'
 import { View,Text,FlatList, StyleSheet,TouchableHighlight } from 'react-native'
-const requestListeDocument = (SousSpecialiteid) => {
-    return[{title:"Course 1",id:"1"},{title:"Course 2",id:"2"},{title:"Course 3",id:"3"},{title:"Course 4",id:"4"},{title:"Course 5",id:"5"},{title:"Course 6",id:"6"}];    
-
-    fetch('http://192.168.43.82:3000/document', {
-        method: 'get',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(SousSpecialiteid),
-    })
-        .then((response) =>{ return response;})
+const Home = ({route,navigation}) => {
+    const requestListeDocument = (SousSpecialiteid) => {
+        fetch('http://192.168.43.5:3000/document', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({SousSpecialiteid:SousSpecialiteid}),
+        })
+        .then((response) =>{
+            const resu = response.json();
+            return resu;})
+        .then((responseJSON)=>{
+            console.log(responseJSON)
+            setListeDocument(responseJSON)
+        })
         .catch((error) => {
             console.error(error);
         })
-}
-const Home = ({route,navigation}) => {
+    }
+    
     const SousSpecialite = route.params;
-    const [ListeDocument, setListeDocument] = useState(requestListeDocument(SousSpecialite.SousSpecialiteid));
+    const [ListeDocument, setListeDocument] = useState([]);
+    useEffect(() => {
+        requestListeDocument(SousSpecialite.SousSpecialiteid)
+    },[])
     return (
         <View style={{flex:1}} >
             <FlatList style={{flex:1}}
                 numColumns={1}
                 data={ListeDocument}
-                keyExtractor= {(item)=> item.id}
+                keyExtractor= {(item)=> item.id_document}
                 renderItem={({item}) => {
                         return (
-                        <TouchableHighlight style={Styles.specialityCard} onPress={()=>{navigation.navigate("post",{document:item.id})}}>
+                        <TouchableHighlight style={Styles.specialityCard} onPress={()=>{navigation.navigate("post",{documentid:item.id_document})}}>
                             <View  >
-                                <Text style={Styles.specialityCardContent}>{item.title}</Text>
+                                <Text style={Styles.specialityCardContent}>{item.titre}</Text>
                             </View>
                         </TouchableHighlight>
                         )}}

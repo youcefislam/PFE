@@ -30,9 +30,10 @@ const SignInSchema = Joi.object({
 var db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'password',
-    database: 'testing'
+    password: 'yesser',
+    database: 'mydb'
 });
+console.log("smthn")
 db.connect();
 
 
@@ -131,64 +132,62 @@ app.post('/users/login', (req, res) => {
     }
 
 })
-app.get('/specialite', verifyToken, (req, res) => {
+app.post('/specialite',(req,res)=>{
+    const sql = 'SELECT * FROM specialites';
+    db.query(sql,req.body,(err,result)=>{
+    if(err) throw err;
+    resultJSON = result.map(v => Object.assign({}, v))
+    console.log(resultJSON)
+    res.send(resultJSON)
+    });
+})
+
+app.post('/SousSpecialite',(req,res)=>{
+    const sql = 'SELECT * FROM sous_specialites WHERE id_specialite= ?';
+    db.query(sql,req.body.idSpecialite,(err,result)=>{
+    if(err) throw err;
+    resultJSON = result.map(v => Object.assign({}, v))
+    console.log(resultJSON)
+    res.send(resultJSON)
+    });
+})
+
+app.post('/document',(req,res)=>{
+    const sql = 'SELECT * from document where id_sous_specialite=?'
+    db.query(sql,req.body.SousSpecialiteid,(err,result)=>{
+        if(err) throw err;
+        resultJSON = result.map(v => Object.assign({}, v))
+        console.log(resultJSON)
+        res.send(resultJSON)
+        });
+})
+app.post('/post',(req,res)=>{
+    const sql = 'SELECT * from Document where id_document=?'
+    db.query(sql,req.body.Documentid,(err,result)=>{
+        if(err) throw err;
+        res.send(result)
+    });
+})
+app.post('/commentaires',(req,res)=>{
+    const sql = 'SELECT * from reponses where id_reponse in (SELECT id_commentaire from commentaires where id_document=?)'
+    db.query(sql,req.body.Documentid,(err,result)=>{
+        if(err) throw err;
+        console.log(result)
+        resultJSON = result.map(v => Object.assign({}, v))
+        console.log(resultJSON)
+        res.send(resultJSON)
+        });
+})
+app.post('/reponses',(req,res)=>{
+    console.log("smthn smthn smthn")
     console.log(req.body);
-    jwt.verify(req.token, MySecretKey, (err, authData) => {
-        if (err) {
-            res.sendStatus(403);
-        } else {
-            res.send([{ title: "informatique", id: "1" }, { title: "biologie", id: "2" }, { title: "chimie", id: "3" }, { title: "mathematiques", id: "4" }, { title: "phisique", id: "5" }, { title: "genie civil", id: "6" }]);
-            // const sql = 'SELECT * FROM specialites';
-            // db.query(sql, req.body, (err, result) => {
-            //     if (err) throw err;
-            //     res.send(result)
-            // });
-        }
-    })
-})
-
-app.get('/SousSpecialite', (req, res) => {
-
-    jwt.verify(req.token, MySecretKey, (err, authData) => {
-        if (err) {
-            res.sendStatus(403);
-        } else {
-            const sql = 'SELECT * FROM SousSpecialite where specialite=?';
-            db.query(sql, req.body, req.body, (err, result) => {
-                if (err) throw err;
-                res.send(result)
-            });
-        }
-    })
-})
-
-app.get('/document', (req, res) => {
-    const sql = 'SELECT * from DOCUMENT where sousspecialite=?'
-    db.query(sql, req.body, (err, result) => {
-        if (err) throw err;
-        res.send(result)
-    });
-})
-app.get('/post', (req, res) => {
-    const sql = 'SELECT * from Document where id=?'
-    db.query(sql, req.body, (err, result) => {
-        if (err) throw err;
-        res.send(result)
-    });
-})
-app.get('/comment', (req, res) => {
-    const sql = 'SELECT * from comment where Post=?'
-    db.query(sql, req.body, (err, result) => {
-        if (err) throw err;
-        res.send(result)
-    });
-})
-app.get('/replies', (req, res) => {
-    const sql = 'SELECT * from replies where id=?'
-    db.query(sql, req.body, (err, result) => {
-        if (err) throw err;
-        res.send(result)
-    });
+    const sql = 'SELECT * from reponses where id_precedent=?'
+    db.query(sql,req.body.Commentid,(err,result)=>{
+        if(err) throw err;
+        resultJSON = result.map(v => Object.assign({}, v))
+        console.log(resultJSON)
+        res.send(resultJSON)
+        });
 })
 app.listen(3000, () => {
     console.log("server connected on port 3000");

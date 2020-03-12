@@ -1,36 +1,42 @@
-import React,{useState} from 'react'
-import { View,Text,FlatList, StyleSheet,TouchableHighlight, AsyncStorage } from 'react-native'
-const requestSpecialite = () => {
-    return[{title:"informatique",id:"1"},{title:"biologie",id:"2"},{title:"chimie",id:"3"},{title:"mathematiques",id:"4"},{title:"phisique",id:"5"},{title:"genie civil",id:"6"}];    
-    fetch('http://192.168.43.82:3000/specialite', {
-        method: 'get',
-        headers: {
-            'Content-Type': 'application/json',
-            
-        },
-        body: JSON.stringify(data),
-    })
-        .then((response) =>{ 
-            alert(response.json());
-        })
-        .catch((error) => {
-            console.error(error);
-        })
-}
-const Home = ({navigation}) => {
-    const [specialities, setSpecialities] = useState(requestSpecialite);
+import React,{useState,useEffect} from 'react'
+import { View,Text,FlatList, StyleSheet,TouchableHighlight } from 'react-native'
 
+
+const Home = ({navigation}) => {
+
+    const requestSpecialite = () => {
+        //return[{title:"informatique",id:"1"},{title:"biologie",id:"2"},{title:"chimie",id:"3"},{title:"mathematiques",id:"4"},{title:"phisique",id:"5"},{title:"genie civil",id:"6"}];    
+        return fetch('http://192.168.43.5:3000/specialite', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then((response) =>{
+                const resu = response.json();
+                 return resu;})
+            .then((responseJSON)=>{
+            setSpecialities(responseJSON);
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+    }
+    const [specialities, setSpecialities] = useState([]);
+    useEffect(() => {
+        requestSpecialite()
+    },[])
     return (
         <View style={{ flex: 1 }} >
             <FlatList style={{ flex: 1 }}
                 numColumns={2}
                 data={specialities}
-                keyExtractor= {(item)=> item.id}
+                keyExtractor= {(item)=> item.id_specialite}
                 renderItem={({item}) => {
                         return (
-                        <TouchableHighlight style={Styles.specialityCard} onPress={()=>{navigation.navigate("SousSpecialite",{specialiteid:item.id,title:item.title})}}>
+                        <TouchableHighlight style={Styles.specialityCard} onPress={()=>{navigation.navigate("sousSpecialite",{specialiteid:item.id_specialite,title:item.nom})}}>
                             <View  >
-                                <Text style={Styles.specialityCardContent}>{item.title}</Text>
+                                <Text style={Styles.specialityCardContent}>{item.nom}</Text>
                             </View>
                         </TouchableHighlight>
                     )
@@ -38,6 +44,7 @@ const Home = ({navigation}) => {
             />
         </View>
     )
+
 }
 
 export default Home
