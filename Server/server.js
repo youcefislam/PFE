@@ -1,6 +1,5 @@
 const express = require('express');
 const mysql = require('mysql');
-const session = require('express-session');
 const bcrypt = require("bcryptjs");
 
 const saltRounds = 10;
@@ -13,9 +12,10 @@ var jwt = require("jsonwebtoken");
 var db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'password',
-    database: 'testing'
+    password: 'yesser',
+    database: 'mydb'
 });
+console.log("smthn")
 db.connect();
 
 app.use(express.json({ limit: '1mb' }));
@@ -99,48 +99,61 @@ app.post('/users/login', (req, res) => {
     }
 
 })
-app.get('/specialite',(req,res)=>{
+app.post('/specialite',(req,res)=>{
     const sql = 'SELECT * FROM specialites';
     db.query(sql,req.body,(err,result)=>{
     if(err) throw err;
-    res.send(result)
+    resultJSON = result.map(v => Object.assign({}, v))
+    console.log(resultJSON)
+    res.send(resultJSON)
     });
 })
 
-app.get('/SousSpecialite',(req,res)=>{
-    const sql = 'SELECT * FROM SousSpecialite where specialite=?';
-    db.query(sql,req.body,req.body,(err,result)=>{
-        if(err) throw err;
-        res.send(result)
-        });
+app.post('/SousSpecialite',(req,res)=>{
+    const sql = 'SELECT * FROM sous_specialites WHERE id_specialite= ?';
+    db.query(sql,req.body.idSpecialite,(err,result)=>{
+    if(err) throw err;
+    resultJSON = result.map(v => Object.assign({}, v))
+    console.log(resultJSON)
+    res.send(resultJSON)
+    });
 })
 
-app.get('/document',(req,res)=>{
-    const sql = 'SELECT * from DOCUMENT where sousspecialite=?'
-    db.query(sql,req.body,(err,result)=>{
+app.post('/document',(req,res)=>{
+    const sql = 'SELECT * from document where id_sous_specialite=?'
+    db.query(sql,req.body.SousSpecialiteid,(err,result)=>{
+        if(err) throw err;
+        resultJSON = result.map(v => Object.assign({}, v))
+        console.log(resultJSON)
+        res.send(resultJSON)
+        });
+})
+app.post('/post',(req,res)=>{
+    const sql = 'SELECT * from Document where id_document=?'
+    db.query(sql,req.body.Documentid,(err,result)=>{
         if(err) throw err;
         res.send(result)
         });
 })
-app.get('/post',(req,res)=>{
-    const sql = 'SELECT * from Document where id=?'
-    db.query(sql,req.body,(err,result)=>{
+app.post('/commentaires',(req,res)=>{
+    const sql = 'SELECT * from reponses where id_reponse in (SELECT id_commentaire from commentaires where id_document=?)'
+    db.query(sql,req.body.Documentid,(err,result)=>{
         if(err) throw err;
-        res.send(result)
+        console.log(result)
+        resultJSON = result.map(v => Object.assign({}, v))
+        console.log(resultJSON)
+        res.send(resultJSON)
         });
 })
-app.get('/comment',(req,res)=>{
-    const sql = 'SELECT * from comment where Post=?'
-    db.query(sql,req.body,(err,result)=>{
+app.post('/reponses',(req,res)=>{
+    console.log("smthn smthn smthn")
+    console.log(req.body);
+    const sql = 'SELECT * from reponses where id_precedent=?'
+    db.query(sql,req.body.Commentid,(err,result)=>{
         if(err) throw err;
-        res.send(result)
-        });
-})
-app.get('/replies',(req,res)=>{
-    const sql = 'SELECT * from replies where id=?'
-    db.query(sql,req.body,(err,result)=>{
-        if(err) throw err;
-        res.send(result)
+        resultJSON = result.map(v => Object.assign({}, v))
+        console.log(resultJSON)
+        res.send(resultJSON)
         });
 })
 app.listen(3000,() =>
