@@ -1,21 +1,35 @@
-import React,{useState,useEffect} from 'react'
-import { View,Text,FlatList, StyleSheet,TouchableHighlight } from 'react-native'
+import React,{useState,useEffect} from 'react';
+import { View,Text,FlatList, StyleSheet,TouchableHighlight} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import {MyAddress} from '../address';
+import { AuthContext } from '../App';
+
+
 const Home = ({route,navigation}) => {
-    const requestSousSpecialite = (idSpecialite) => {
-        fetch('http://192.168.43.5:3000/SousSpecialite', {
+
+    const {signOut} = React.useContext(AuthContext);
+
+    const requestSousSpecialite = async (idSpecialite) => {
+        
+        const token = await AsyncStorage.getItem('Token');
+        fetch(MyAddress+'/SousSpecialite', {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization' : 'Bearer '+token
             },
             body: JSON.stringify({idSpecialite:idSpecialite}),
         })
             .then((response) =>{
-                console.log("response "+response.body)
-                const resu = response.json();
-                return resu;
+                if(response.status !== 403) {
+                    return response.json();   
+                }
+                else{
+                    alert('You are not sign In');
+                    signOut();
+                }
             })
             .then((responseJSON)=>{
-                console.log("responseJSON" +responseJSON)
                 setSousSpecialities(responseJSON);
                 })
             .catch((error) => {
@@ -29,14 +43,13 @@ const Home = ({route,navigation}) => {
     },[])
     return (
         <View style={{flex:1}} >
-            <View><Text>smthn {specialite.title}</Text></View>
             <FlatList style={{flex:1}}
                 numColumns={2}
                 data={SousSpecialities}
-                keyExtractor= {(item)=> item.id_sous_specialite}
+                keyExtractor= {(item)=> item.id_sous_specialite.toString()}
                 renderItem={({item}) => {
                         return (
-                        <TouchableHighlight style={Styles.specialityCard} onPress={()=>{navigation.navigate("document",{SousSpecialiteid:item.id_sous_specialite})}}>
+                        <TouchableHighlight style={Styles.specialityCard} onPress={()=>{navigation.navigate("ListeDocument",{SousSpecialiteid:item.id_sous_specialite})}}>
                             <View  >
                                 <Text style={Styles.specialityCardContent}>{item.nom}</Text>
                             </View>

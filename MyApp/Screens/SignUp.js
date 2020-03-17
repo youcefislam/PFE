@@ -1,8 +1,7 @@
 import 'react-native-gesture-handler';
 import React, { useState } from 'react'
-import { Text, View, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView } from 'react-native'
-
-
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import {MyAddress} from '../address';
 
 
 
@@ -15,9 +14,7 @@ const SignUp = ({ navigation }) => {
 
     const handleRegister = () => {
         const data = { username: username, password: password, email: email };
-
-
-        fetch('http://192.168.43.82:3000/users/register', {
+        fetch(MyAddress + '/users/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,7 +24,7 @@ const SignUp = ({ navigation }) => {
             .then((response) => response.json())
             .then((responseJson) => {
                 alert(responseJson.message);
-                if(!responseJson.error) navigation.navigate("Signin");
+                if (!responseJson.error) navigation.navigate("Signin");
             })
             .catch((error) => {
                 console.error(error);
@@ -50,57 +47,53 @@ const SignUp = ({ navigation }) => {
     }
     return (
         <View style={styles.container}>
-            <View style={{width:'100%'}}>
-            <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-                <TextInput
-                    //style={handleEmail() ? styles.input : styles.inputError}
-                    //onEndEditing={()=> handleEmail()}
-                    style={styles.input}
-                    placeholder="Email"
-                    placeholderTextColor="#F2EEF8"
-                    autoCompleteType="email"
-                    onChangeText={(val) => setEmail(val)} />
-                <TextInput
-                    //style={handleUsername() ? styles.input : styles.inputError}
-                    style={styles.input}
-                    autoCompleteType="username"
-                    onEndEditing={() => handleUsername()}
-                    placeholder="Username"
-                    placeholderTextColor="#F2EEF8"
-                    onChangeText={(val) => setUsername(val)} />
-                <TextInput
-                    //style={handlePassword() ? styles.input : styles.inputError}
-                    style={styles.input}
-                    secureTextEntry
-                    autoCompleteType="password"
-                    placeholderTextColor="#F2EEF8"
-                    onEndEditing={() => handlePassword()}
-                    placeholder="Password"
-                    onChangeText={(val) => setPassword(val)} />
-                <TextInput
-                    //style={handlePasswordConfirm() ? styles.input : styles.inputError}
-                    style={styles.input}
-                    secureTextEntry
-                    autoCompleteType="password"
-                    onEndEditing={() => handlePasswordConfirm()}
-                    placeholder="Confirm password"
-                    placeholderTextColor="#F2EEF8"
-                    onChangeText={(val) => setPasswordConfirm(val)} />
-            </ScrollView>
-            </View>            
-            <View style={{ alignItems: 'center' }}>
-                <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                    <View style={{}}>
-                        <Text style={styles.buttonText}>Sign Up</Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
-            <View >
-                <TouchableOpacity style={{}} onPress={() => navigation.navigate("Signin")}>
-                    <View style={{}}>
-                        <Text style={{ color: 'white', textDecorationLine: 'underline' }}>already have account ?</Text>
-                    </View>
-                </TouchableOpacity>
+            <View style={{ width: '100%' }}>
+                <ScrollView contentContainerStyle={{ alignItems: 'center', padding : 20}}  >
+                    <TextInput
+                        //style={handleEmail() ? styles.input : styles.inputError}
+                        //onEndEditing={()=> handleEmail()}
+                        style={styles.input}
+                        placeholder="Email"
+                        placeholderTextColor="#F2EEF8"
+                        autoCompleteType="email"
+                        onChangeText={(val) => setEmail(val)} />
+                    <TextInput
+                        //style={handleUsername() ? styles.input : styles.inputError}
+                        style={styles.input}
+                        autoCompleteType="username"
+                        onEndEditing={() => handleUsername()}
+                        placeholder="Username"
+                        placeholderTextColor="#F2EEF8"
+                        onChangeText={(val) => setUsername(val)} />
+                    <TextInput
+                        //style={handlePassword() ? styles.input : styles.inputError}
+                        style={styles.input}
+                        secureTextEntry
+                        autoCompleteType="password"
+                        placeholderTextColor="#F2EEF8"
+                        onEndEditing={() => handlePassword()}
+                        placeholder="Password"
+                        onChangeText={(val) => setPassword(val)} />
+                    <TextInput
+                        //style={handlePasswordConfirm() ? styles.input : styles.inputError}
+                        style={styles.input}
+                        secureTextEntry
+                        autoCompleteType="password"
+                        onEndEditing={() => handlePasswordConfirm()}
+                        placeholder="Confirm password"
+                        placeholderTextColor="#F2EEF8"
+                        onChangeText={(val) => setPasswordConfirm(val)} />
+                    <TouchableOpacity style={styles.button} onPress={handleRegister}>
+                        <View style={{}}>
+                            <Text style={styles.buttonText}>Sign Up</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{}} onPress={() => navigation.navigate("Signin")}>
+                        <View style={{}}>
+                            <Text style={{ color: 'white', textDecorationLine: 'underline',margin:10 }}>already have account ?</Text>
+                        </View>
+                    </TouchableOpacity>
+                </ScrollView>
             </View>
         </View>
     )
@@ -110,7 +103,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#1a1155',
         alignItems: 'center',
-        justifyContent: "center",
+        justifyContent: "space-evenly",
     },
 
     input: {

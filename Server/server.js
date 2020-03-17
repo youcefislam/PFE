@@ -30,10 +30,9 @@ const SignInSchema = Joi.object({
 var db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'yesser',
+    password: 'password',
     database: 'mydb'
 });
-console.log("smthn")
 db.connect();
 
 
@@ -43,6 +42,7 @@ db.connect();
 function verifyToken(req, res, next) {
     //get auth header value 
     const bearerHeader = req.headers['authorization'];
+    
     if (typeof bearerHeader !== 'undefined') {
         //splite the bearerHeaser
         const bearer = bearerHeader.split(" ");
@@ -60,7 +60,7 @@ function verifyToken(req, res, next) {
 
 
 // registre request 
-app.post('/users/register', async (req, res) => {
+app.post('/users/register', (req, res) => {
 
     let Responsemessage = { errors: true, message: '' };
     // validating the data 
@@ -70,14 +70,15 @@ app.post('/users/register', async (req, res) => {
         res.send(JSON.stringify(Responsemessage));
     }
     else {
-        bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
+        bcrypt.hash(req.body.password, saltRounds, (err, hash) => {         // hashing the password 
             if (err) throw err;
             const sql = 'insert into users (email,password,username) values (?,?,?)';
             try {
-                db.query(sql, [req.body.email, hash, req.body.username], (err, result) => {
+                db.query(sql, [req.body.email, hash, req.body.username], (err, result) => {    // inserting the account 
                     if (err) {
                         if (err.sqlMessage.includes('username')) Responsemessage.message = 'username already in use';
                         else if (err.sqlMessage.includes('email')) Responsemessage.message = 'email already in use';
+                        else throw err;
                     } else {
                         Responsemessage.errors = false;
                         Responsemessage.message = 'Your account has been created !';
@@ -86,6 +87,7 @@ app.post('/users/register', async (req, res) => {
                 })
             } catch (err) {
                 console.log(err);
+                res.json({ message: 'something went wrong to the api server !!' });
             };
         })
 
@@ -95,26 +97,25 @@ app.post('/users/register', async (req, res) => {
 
 //login request 
 app.post('/users/login', (req, res) => {
-
+    let Responsemessage = { errors: true, message: '' };
+    // validating the data 
     const { error, value } = SignInSchema.validate(req.body);
     if (error) {
         Responsemessage.message = error.message;
         res.send(JSON.stringify(Responsemessage));
-    };
-    const username = req.body.username;
-    const password = req.body.password;
+    } else {
 
-    if (username && password) {
         const sql = 'SELECT * FROM users where username=?';
         try {
             db.query(sql, req.body.username, (err, result) => {
                 var data = { stat: 'failed', message: 'username or password incorect' };
                 if (err) throw err;
                 if (result[0] !== undefined) {
-                    bcrypt.compare(req.body.password, result[0].password, function (err, result) {
+                    bcrypt.compare(req.body.password, result[0].password, async (err, result)=> {
                         if (err) throw err;
                         if (result) {
-                            jwt.sign({ user: result[0] }, MySecretKey, (err, token) => {
+                            const user = { id: result.id_user, username: result.username }
+                            await jwt.sign({ user: user }, MySecretKey, (err, token) => {
                                 if (err) throw err;
                                 res.send({ token: token });
                             })
@@ -123,72 +124,98 @@ app.post('/users/login', (req, res) => {
                             res.send(JSON.stringify(data));
                         }
                     });
+                }else{
+                    res.send(JSON.stringify(data));
                 }
+                
             })
         } catch (err) { console.log(err); }
     }
-    else {
-        res.send(JSONstringfy({ message: 'please enter Username and Password' }));
-    }
-
 })
-app.post('/specialite',(req,res)=>{
-    const sql = 'SELECT * FROM specialites';
-    db.query(sql,req.body,(err,result)=>{
-    if(err) throw err;
-    resultJSON = result.map(v => Object.assign({}, v))
-    console.log(resultJSON)
-    res.send(resultJSON)
+app.post('/specialite', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+            const sql = 'SELECT * FROM specialites';
+            db.query(sql, req.body, (err, result) => {
+                if (err) throw err;
+                resultJSON = result.map(v => Object.assign({}, v))
+                res.send(resultJSON)
+            });
+        }
     });
 })
 
-app.post('/SousSpecialite',(req,res)=>{
-    const sql = 'SELECT * FROM sous_specialites WHERE id_specialite= ?';
-    db.query(sql,req.body.idSpecialite,(err,result)=>{
-    if(err) throw err;
-    resultJSON = result.map(v => Object.assign({}, v))
-    console.log(resultJSON)
-    res.send(resultJSON)
-    });
+app.post('/SousSpecialite', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+            const sql = 'SELECT * FROM sous_specialites WHERE id_specialite= ?';
+            db.query(sql, req.body.idSpecialite, (err, result) => {
+                if (err) throw err;
+                resultJSON = result.map(v => Object.assign({}, v))
+                res.send(resultJSON)
+            });
+        }
+    })
 })
 
-app.post('/document',(req,res)=>{
-    const sql = 'SELECT * from document where id_sous_specialite=?'
-    db.query(sql,req.body.SousSpecialiteid,(err,result)=>{
-        if(err) throw err;
-        resultJSON = result.map(v => Object.assign({}, v))
-        console.log(resultJSON)
-        res.send(resultJSON)
-        });
+app.post('/document', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+            const sql = 'SELECT * from document where id_sous_specialite=?'
+            db.query(sql, req.body.SousSpecialiteid, (err, result) => {
+                if (err) throw err;
+                resultJSON = result.map(v => Object.assign({}, v))
+                res.send(resultJSON)
+            });
+        }
+    })
 })
-app.post('/post',(req,res)=>{
-    const sql = 'SELECT * from Document where id_document=?'
-    db.query(sql,req.body.Documentid,(err,result)=>{
-        if(err) throw err;
-        res.send(result)
-    });
+
+app.post('/post', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+            const sql = 'SELECT * from Document where id_document=?'
+            db.query(sql, req.body.Documentid, (err, result) => {
+                if (err) throw err;
+                res.send(result)
+            });
+        }
+    })
 })
-app.post('/commentaires',(req,res)=>{
-    const sql = 'SELECT * from reponses where id_reponse in (SELECT id_commentaire from commentaires where id_document=?)'
-    db.query(sql,req.body.Documentid,(err,result)=>{
-        if(err) throw err;
-        console.log(result)
-        resultJSON = result.map(v => Object.assign({}, v))
-        console.log(resultJSON)
-        res.send(resultJSON)
-        });
+
+app.post('/commentaires', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+            const sql = 'SELECT * from reponses where id_reponse in (SELECT id_commentaire from commentaires where id_document=?)'
+            db.query(sql, req.body.Documentid, (err, result) => {
+                if (err) throw err;
+                resultJSON = result.map(v => Object.assign({}, v))
+                res.send(resultJSON)
+            });
+        }
+    })
 })
-app.post('/reponses',(req,res)=>{
-    console.log("smthn smthn smthn")
-    console.log(req.body);
-    const sql = 'SELECT * from reponses where id_precedent=?'
-    db.query(sql,req.body.Commentid,(err,result)=>{
-        if(err) throw err;
-        resultJSON = result.map(v => Object.assign({}, v))
-        console.log(resultJSON)
-        res.send(resultJSON)
-        });
+
+app.post('/reponses', verifyToken, (req, res) => {
+    
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+                const sql = 'SELECT * from reponses where id_precedent=?'
+                db.query(sql, req.body.comment, (err, result) => {
+                    if (err) throw err;
+                    resultJSON = result.map(v => Object.assign({}, v))
+                    res.send(resultJSON)
+                });
+        }
+    })
 })
+
 app.listen(3000, () => {
     console.log("server connected on port 3000");
 })

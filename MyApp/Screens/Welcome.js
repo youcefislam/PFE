@@ -10,8 +10,7 @@ import {
 
 
 const Welcome = ({ navigation }) => {
-
-
+    
     return (
         <KeyboardAvoidingView style={styles.container} behavior='padding'>
             <View style={{}}>

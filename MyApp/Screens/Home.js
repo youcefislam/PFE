@@ -1,22 +1,36 @@
-import React,{useState,useEffect} from 'react'
-import { View,Text,FlatList, StyleSheet,TouchableHighlight } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { View, Text, FlatList, StyleSheet, TouchableHighlight } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-community/async-storage';
+import {MyAddress} from '../address';
+import { AuthContext } from '../App';
 
 
-const Home = ({navigation}) => {
+const Home = ({ navigation }) => {
 
-    const requestSpecialite = () => {
+    const {signOut} = React.useContext(AuthContext);
+    
+    const requestSpecialite = async () => {
         //return[{title:"informatique",id:"1"},{title:"biologie",id:"2"},{title:"chimie",id:"3"},{title:"mathematiques",id:"4"},{title:"phisique",id:"5"},{title:"genie civil",id:"6"}];    
-        return fetch('http://192.168.43.5:3000/specialite', {
+        const token = await AsyncStorage.getItem('Token');
+        return fetch(MyAddress + '/specialite', {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization' : 'Bearer '+token
             },
         })
-            .then((response) =>{
-                const resu = response.json();
-                 return resu;})
-            .then((responseJSON)=>{
-            setSpecialities(responseJSON);
+            .then((response) => {
+                if(response.status !== 403) {
+                    return response.json();   
+                }
+                else{
+                    alert('You are not sign In');
+                    signOut();
+                }
+            })
+            .then((responseJSON) => {
+                setSpecialities(responseJSON);
             })
             .catch((error) => {
                 console.error(error);
@@ -25,16 +39,16 @@ const Home = ({navigation}) => {
     const [specialities, setSpecialities] = useState([]);
     useEffect(() => {
         requestSpecialite()
-    },[])
+    }, [])
     return (
         <View style={{ flex: 1 }} >
             <FlatList style={{ flex: 1 }}
                 numColumns={2}
                 data={specialities}
-                keyExtractor= {(item)=> item.id_specialite}
-                renderItem={({item}) => {
-                        return (
-                        <TouchableHighlight style={Styles.specialityCard} onPress={()=>{navigation.navigate("sousSpecialite",{specialiteid:item.id_specialite,title:item.nom})}}>
+                keyExtractor={(item) => item.id_specialite.toString()}
+                renderItem={({ item }) => {
+                    return (
+                        <TouchableHighlight style={Styles.specialityCard} onPress={() => { navigation.navigate("SousSpecialite", { specialiteid: item.id_specialite, title: item.nom }) }}>
                             <View  >
                                 <Text style={Styles.specialityCardContent}>{item.nom}</Text>
                             </View>

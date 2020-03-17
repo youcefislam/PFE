@@ -1,32 +1,44 @@
 import React, { useState,useEffect } from 'react'
-import { View, Text, FlatList } from 'react-native'
-import Test from './Test'
+import { View, Text, FlatList } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import {MyAddress} from '../address';
+import { AuthContext } from '../App';
+
+
 
 const CommentSection = (props) => {
-    const requestReplies = (Comment) => {
-        //return[{title:"informatique",id:"1"},{title:"biologie",id:"2"},{title:"chimie",id:"3"},{title:"mathematiques",id:"4"},{title:"phisique",id:"5"},{title:"genie civil",id:"6"}];    
-    
-        fetch('http://192.168.43.5:3000/reponses', {
+
+    const {signOut} = React.useContext(AuthContext);
+    const requestReplies = async (comment) => {
+
+        const token = await AsyncStorage.getItem('Token');
+        fetch(MyAddress+'/reponses', {
             method: 'post',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json',                
+                'authorization' : 'Bearer '+token
             },
-            body: JSON.stringify(Comment),
+            body: JSON.stringify({comment:comment}),
         })
         .then((response) =>{
-            const resu = response.json();
-            return resu;})
+            if(response.status !== 403) {
+                return response.json();   
+            }
+            else{
+                alert('You are not sign In');
+                signOut();
+            }
+        })
         .then((responseJSON)=>{
-            console.log(responseJSON)
             setReplies(responseJSON)
         })
         .catch((error) => {
             console.error(error);
         })
     }
-    const [replies, setReplies] = useState(requestReplies())
+    const [replies, setReplies] = useState()
     useEffect(() => {
-        requestReplies(props)
+        requestReplies(props.idComment);
     },[])
     return (
         <View style={{ paddingLeft: "5%", borderLeftColor: "#ac1111", borderLeftWidth: 3 }}>
@@ -34,12 +46,10 @@ const CommentSection = (props) => {
                 data={replies}
                 keyExtractor= {(item)=> item.id_reponse.toString()}
                 renderItem={({item}) => {
-                        //replaceTest with Comment when making the right  select in the state
-                        //<CommentSection idComment={item.id}/>
                     return (
                         <View>
                             <Text>{item.contenu}</Text> 
-                            <Test idComment={item.id_reponse}/>
+                            <CommentSection idComment={item.id_reponse}/>
                         </View>
                     )
                 }}

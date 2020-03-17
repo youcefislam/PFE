@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import 'react-native-gesture-handler';
 import CheckBox from '@react-native-community/checkbox';
+import {MyAddress} from '../address';
+import { AuthContext } from '../App';
+
 import {
   StyleSheet,
   View,
@@ -8,20 +10,24 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
-  AsyncStorage
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 
 const Signin = ({ navigation }) => {
+
+
+  const {signIn} = React.useContext(AuthContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [upCase, setupCase] = useState(false)
+  const [upCase, setupCase] = useState(false);
+
 
   const handleLogin = () => {
 
     const data = { username: username, password: password };
 
-    fetch('http://192.168.43.82:3000/users/login', {
+    fetch(MyAddress+'/users/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -29,11 +35,15 @@ const Signin = ({ navigation }) => {
       body: JSON.stringify(data),
     })
       .then((response) => response.json())
-      .then((responseJson) => {
+      .then( async (responseJson) => {
         if (responseJson.token) 
         {
-          AsyncStorage.setItem('token',responseJson);
-          navigation.navigate("home"); 
+          try {
+            await AsyncStorage.setItem('Token', responseJson.token);
+            signIn(responseJson.token);
+          } catch (error) {
+            console.error(err);
+          }
         } 
         else if(responseJson.message)
         {

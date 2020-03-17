@@ -1,59 +1,78 @@
-import React, { useState,useEffect } from 'react'
-import { View, ScrollView, Text, FlatList, StyleSheet, TouchableHighlight } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import {MyAddress} from '../address';
 import CommentSection from './CommentSection'
+import { AuthContext } from '../App';
 
-const Post = ({route,navigation}) => {
+
+
+const Post = ({ route, navigation }) => {
+
+    const {signOut} = React.useContext(AuthContext);
     const requestPost = (Documentid) => {
-        //return [{content:"first",id:"1"},{content:"second",id:"2"}];
-        fetch('http://192.168.43.5:3000/post', {
+        
+        fetch(MyAddress + '/post', {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
             },
-            body: JSON.stringify({Documentid:Documentid}),
+            body: JSON.stringify({ Documentid: Documentid }),
         })
-        .then((response) =>{
-            const resu = response.json();
-            return resu;})
-        .then((responseJSON)=>{
-            console.log(responseJSON)
-            setPost(responseJSON)
-        })
-        .catch((error) => {
-            console.error(error);
-        })
+            .then((response) => {
+                if (response.status !== 200) {
+                    return response.json();
+                }
+                else {
+                    alert('You are not sign In');
+                    signOut();
+                }
+            })
+            .then((responseJSON) => {
+                console.log(responseJSON)
+                setPost(responseJSON)
+            })
+            .catch((error) => {
+                console.error(error);
+            })
     }
-    const requestComments = (Documentid) => {
-        //return[{title:"informatique",id:"1"},{title:"biologie",id:"2"},{title:"chimie",id:"3"},{title:"mathematiques",id:"4"},{title:"phisique",id:"5"},{title:"genie civil",id:"6"}];    
-    
-        fetch('http://192.168.43.5:3000/commentaires', {
+
+    const requestComments = async (Documentid) => {
+
+        const token = await AsyncStorage.getItem('Token');
+        fetch(MyAddress + '/commentaires', {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
             },
-            body: JSON.stringify({Documentid:Documentid}),
+            body: JSON.stringify({ Documentid: Documentid }),
         })
-        .then((response) =>{
-            console.log(response)
-            const resu = response.json();
-            return resu;})
-        .then((responseJSON)=>{
-            console.log(responseJSON)
-            setComments(responseJSON)
-        })
-          .catch((error) => {
-            console.error(error);
-        })
+            .then((response) => {
+                if (response.status !== 403) {
+                    return response.json();
+                }
+                else {
+                    alert('You are not sign In');
+                    signOut();
+                }
+            })
+            .then((responseJSON) => {
+                setComments(responseJSON);
+            })
+            .catch((error) => {
+                console.error(error);
+            })
     }
     const [comments, setComments] = useState([])
     const [post, setPost] = useState({})
-    const document= route.params;
+    const document = route.params;
     useEffect(() => {
         requestComments(document.documentid)
-    },[])
+    }, [])
     return (
         <View style={{}} >
-
             <FlatList
                 data={comments}
                 keyExtractor={(item) => item.id_reponse.toString()}
@@ -67,7 +86,6 @@ const Post = ({route,navigation}) => {
                     )
                 }}
             />
-
         </View>
     )
 }
