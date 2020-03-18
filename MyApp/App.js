@@ -1,20 +1,19 @@
 import 'react-native-gesture-handler';
-import React, { useState } from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import MyAddress from './address';
+import {MyAddress} from './address';
 import AsyncStorage from '@react-native-community/async-storage';
 export const AuthContext = React.createContext();
 import {
   StyleSheet,
-  View,
-  ActivityIndicator,
   ToastAndroid
 } from 'react-native';
 
 import Welcome from './Screens/Welcome';
 import Signin from './Screens/Signin';
 import SignUp from './Screens/SignUp';
+import MoreAboutMe from './Screens/MoreAboutMe';
 import Home from './Screens/Home';
 import Post from "./Screens/Post";
 import SousSpecialite from "./Screens/SousSpecialite"
@@ -23,8 +22,6 @@ import SplashScreen from './Screens/SplashScreen'
 const Stack = createStackNavigator();
 
 const App = () => {
-
-
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
       switch (action.type) {
@@ -64,7 +61,8 @@ const App = () => {
       let userToken;
 
       try {         // verify the token validity
-        userToken = await AsyncStorage.getItem('Token');
+        // userToken = await AsyncStorage.getItem('Token');
+        userToken = null;
         if (userToken !== null) {
           fetch(MyAddress + '/specialite', {
             method: 'post',
@@ -122,9 +120,10 @@ const App = () => {
           {
             state.userToken === null ? (
               <>
-                <Stack.Screen name="Welcome" component={Welcome} />
-                <Stack.Screen name="Signin" component={Signin} />
-                <Stack.Screen name="SignUp" component={SignUp} />
+                {/* <Stack.Screen name="Welcome" component={Welcome} />
+                <Stack.Screen name="Signin" component={Signin} /> */}
+                {/* <Stack.Screen name="SignUp" component={SignUp} /> */}
+                <Stack.Screen name="MoreAboutMe" component={MoreAboutMe} />
               </>
             ) : (
                 <>

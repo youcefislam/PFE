@@ -1,4 +1,3 @@
-import 'react-native-gesture-handler';
 import React, { useState } from 'react'
 import { Text, View, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import {MyAddress} from '../address';
