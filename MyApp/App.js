@@ -61,8 +61,7 @@ const App = () => {
       let userToken;
 
       try {         // verify the token validity
-        // userToken = await AsyncStorage.getItem('Token');
-        userToken = null;
+        userToken = await AsyncStorage.getItem('Token');
         if (userToken !== null) {
           fetch(MyAddress + '/specialite', {
             method: 'post',
@@ -120,9 +119,9 @@ const App = () => {
           {
             state.userToken === null ? (
               <>
-                {/* <Stack.Screen name="Welcome" component={Welcome} />
-                <Stack.Screen name="Signin" component={Signin} /> */}
-                {/* <Stack.Screen name="SignUp" component={SignUp} /> */}
+                <Stack.Screen name="Welcome" component={Welcome} />
+                <Stack.Screen name="Signin" component={Signin} />
+                <Stack.Screen name="SignUp" component={SignUp} />
                 <Stack.Screen name="MoreAboutMe" component={MoreAboutMe} />
               </>
             ) : (
@@ -131,6 +130,7 @@ const App = () => {
                   <Stack.Screen name="SousSpecialite" component={SousSpecialite} />
                   <Stack.Screen name="ListeDocument" component={ListeDocument} />
                   <Stack.Screen name="post" component={Post} />
+                  <Stack.Screen name="MoreAboutMe" component={MoreAboutMe} />
                 </>
               )}
         </Stack.Navigator>

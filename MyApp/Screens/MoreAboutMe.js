@@ -5,6 +5,7 @@ import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'reac
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import RNPickerSelect from 'react-native-picker-select';
 import ImagePicker from 'react-native-image-picker';
+import AsyncStorage from '@react-native-community/async-storage';
 import { MyAddress } from '../address';
 
 
@@ -17,23 +18,25 @@ const MoreAboutMe = () => {
             skipBackup: true,
             path: 'images',
         },
-        mediaType: 'photo'
+        mediaType: 'photo',
+        maxWidth: 300,
+        maxHeight: 300
     };
 
 
     const [FirstName, setFirstName] = useState("");
     const [SecondName, setSecondName] = useState("");
     const [Sex, setSex] = useState("Male");
-    const [BirthDay, setBirthDay] = useState('please Enter your Birthday');
+    const [BirthDay, setBirthDay] = useState('');
     const [Profession, setProfession] = useState('');
     const [University, setUniversity] = useState('');
     const [Specialty, setSpecialty] = useState('');
     const [subspecialty, setsubspecialty] = useState('')
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-    const [state, setState] = useState({ avatarSource: {} })
+    const [state, setState] = useState({ srcImg: {}, uri: '', fileName: ''})
 
     const showDatePicker = async () => {
-
+        setDatePickerVisibility(true);
     };
 
     const hideDatePicker = () => {
@@ -46,7 +49,51 @@ const MoreAboutMe = () => {
     };
 
 
+    const uploadInfo = async () => {
 
+        const data = new FormData();
+        const token = await AsyncStorage.getItem('Token');
+        if(state.uri){
+            data.append('fileToUpload', {
+                uri: state.uri,
+                type: 'image/jpeg',
+                name: state.fileName,
+            });
+        }
+        
+
+        data.append('Info',JSON.stringify({
+            FirstName,
+            SecondName,
+            Sex,
+            BirthDay,
+            Profession,
+            University,
+            Specialty,
+            subspecialty
+        }));
+
+        await fetch(MyAddress + '/users/info', {
+            method: 'post',
+            headers: {
+                'authorization': 'Bearer ' + token
+            },
+            body: data
+        })
+            .then((response) => {
+                return response.json()
+            }
+            )
+            .then((responseJSON)=>{
+                if(responseJSON.success)
+                {
+                    alert('thanks');
+                }else{
+                    alert("something went wrong");
+                }
+            })
+            
+    };
 
 
 
@@ -56,13 +103,13 @@ const MoreAboutMe = () => {
                 <TextInput
                     style={{ height: 40, borderColor: 'white', borderWidth: 1, margin: 10, color: 'white' }}
                     onChangeText={text => setFirstName(text)}
-                    placeholder="Username"
+                    placeholder="First Name"
                     placeholderTextColor="white"
                 />
                 <TextInput
                     style={{ height: 40, borderColor: 'white', borderWidth: 1, margin: 10, color: 'white' }}
                     onChangeText={text => setSecondName(text)}
-                    placeholder="Username"
+                    placeholder="Second Name"
                     placeholderTextColor="white"
                 />
                 <View>
@@ -84,7 +131,7 @@ const MoreAboutMe = () => {
                     <View>
                         <View style={{ alignItems: 'center' }}>
                             <TouchableOpacity style={{ alignItems: 'center', borderWidth: 2, borderColor: 'white', width: '50%' }} onPress={showDatePicker}>
-                                <Text style={{ padding: 5, color: 'white' }}>{BirthDay}</Text>
+                                <Text style={{ padding: 5, color: 'white' }}>{BirthDay ?(BirthDay):('Please Enter Your Birthday')}</Text>
                             </TouchableOpacity>
                         </View>
                         <DateTimePickerModal
@@ -144,19 +191,25 @@ const MoreAboutMe = () => {
                 }
             </View>
             <View key="3" style={{ flex: 1, alignItems: 'center', justifyContent: "space-around" }}>
-                <Image source={state.avatarSource} style={{ width: 300, height: 300, borderWidth: 1, borderColor: 'white', borderRadius: 200 }} />
+                <Image source={state.srcImg} style={{ width: 300, height: 300, borderWidth: 1, borderColor: 'white', borderRadius: 200 }} />
                 <View style={{ alignItems: 'center' }}>
                     <TouchableOpacity style={{ alignItems: 'center', borderWidth: 2, borderColor: 'white', width: '50%' }} onPress={async () => {
                         await ImagePicker.showImagePicker(options, (response) => {
-                            const source = { uri: 'data:image/jpeg;base64,' + response.data };
-                            setState({
-                                avatarSource: source,
-                            });
+                            if (!response.didCancel) {
+                                setState({
+                                    srcImg: { uri: response.uri },
+                                    uri: response.uri,
+                                    fileName: response.fileName
+                                });
+                            }
                         })
                     }}>
                         <Text style={{ padding: 5, color: 'white' }}>Choose your Profile Picture</Text>
                     </TouchableOpacity>
                 </View>
+                <TouchableOpacity style={{ alignItems: 'center', borderWidth: 2, borderColor: 'white', width: '50%' }} onPress={uploadInfo}>
+                    <Text style={{ padding: 5, color: 'white' }}>Send File</Text>
+                </TouchableOpacity>
             </View>
         </ViewPager>
     );

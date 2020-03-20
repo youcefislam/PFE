@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
-
+const multer = require('multer');
+const path = require('path');
 // used for hashing password
 const bcrypt = require("bcryptjs");
 const saltRounds = 10;
@@ -36,13 +37,48 @@ var db = mysql.createConnection({
 db.connect();
 
 
+// recieving images with multer
+//set storage Engine
+const storage = multer.diskStorage({
+    destination: './public/uploads',
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+})
+// init upload 
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 1000000 },
+    fileFilter: function (res, file, cb) {
+        checkFileType(file, cb);
+    }
+}).single('fileToUpload');
+
+
+
+//Check File Type
+function checkFileType(file, cb) {
+    //extantion accepted 
+    const filetype = /jpeg|jpg|png|gif/;
+    //check ext
+    const extname = filetype.test(path.extname(file.originalname).toLowerCase());
+    //check the mimetype
+    const mimetype = filetype.test(file.mimetype);
+
+    if (extname && mimetype) {
+        return cb(null, true);
+    } else {
+        cb('Error : Image Only');
+    }
+}
+
 
 
 // middleware Verify token
 function verifyToken(req, res, next) {
     //get auth header value 
     const bearerHeader = req.headers['authorization'];
-    
+
     if (typeof bearerHeader !== 'undefined') {
         //splite the bearerHeaser
         const bearer = bearerHeader.split(" ");
@@ -94,6 +130,30 @@ app.post('/users/register', (req, res) => {
     }
 })
 
+app.post('/users/info', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+            upload(req, res, (err) => {
+                if (err) console.log(err);
+                else {
+                    let Photo;
+                    const Info = JSON.parse(req.body.Info);
+                    req.file ? (Photo = req.file.path) : (Photo = 'public/uploads/default.jpg');
+
+                    const sql = 'UPDATE users SET FirstName=? ,SecondName=? ,Sex=? ,BirthDay=? ,Profession=? ,University=? ,Specialty=? ,subspecialty=? ,Photo=? WHERE id_user=?';
+                    db.query(sql, [Info.FirstName, Info.SecondName, Info.Sex, Info.BirthDay, Info.Profession, Info.University, Info.Specialty, Info.subspecialty,Photo,autData.id], (err, result) => {
+                        if(err) throw err;
+                        console.log("Success");
+                        res.send(JSON.stringify({success:true}));
+                    })
+                    console.log(Photo);
+                }
+            })
+
+        }
+    });
+})
 
 //login request 
 app.post('/users/login', (req, res) => {
@@ -111,11 +171,15 @@ app.post('/users/login', (req, res) => {
                 var data = { stat: 'failed', message: 'username or password incorect' };
                 if (err) throw err;
                 if (result[0] !== undefined) {
-                    bcrypt.compare(req.body.password, result[0].password, async (err, result)=> {
+
+                    const username = result[0].username;
+                    const id = result[0].id_user;
+                    const password = result[0].password;
+
+                    bcrypt.compare(req.body.password, password, async (err, result) => {
                         if (err) throw err;
                         if (result) {
-                            const user = { id: result.id_user, username: result.username }
-                            await jwt.sign({ user: user }, MySecretKey, (err, token) => {
+                            await jwt.sign({ id: id, username: username }, MySecretKey, (err, token) => {
                                 if (err) throw err;
                                 res.send({ token: token });
                             })
@@ -124,10 +188,10 @@ app.post('/users/login', (req, res) => {
                             res.send(JSON.stringify(data));
                         }
                     });
-                }else{
+                } else {
                     res.send(JSON.stringify(data));
                 }
-                
+
             })
         } catch (err) { console.log(err); }
     }
@@ -202,16 +266,16 @@ app.post('/commentaires', verifyToken, (req, res) => {
 })
 
 app.post('/reponses', verifyToken, (req, res) => {
-    
+
     jwt.verify(req.token, MySecretKey, (err, autData) => {
         if (err) res.sendStatus(403);
         else {
-                const sql = 'SELECT * from reponses where id_precedent=?'
-                db.query(sql, req.body.comment, (err, result) => {
-                    if (err) throw err;
-                    resultJSON = result.map(v => Object.assign({}, v))
-                    res.send(resultJSON)
-                });
+            const sql = 'SELECT * from reponses where id_precedent=?'
+            db.query(sql, req.body.comment, (err, result) => {
+                if (err) throw err;
+                resultJSON = result.map(v => Object.assign({}, v))
+                res.send(resultJSON)
+            });
         }
     })
 })

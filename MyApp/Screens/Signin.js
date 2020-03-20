@@ -39,7 +39,7 @@ const Signin = ({ navigation }) => {
         if (responseJson.token) 
         {
           try {
-            await AsyncStorage.setItem('Token', responseJson.token);
+            await AsyncStorage.setItem('Token',responseJson.token);
             signIn(responseJson.token);
           } catch (error) {
             console.error(err);
