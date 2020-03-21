@@ -1,10 +1,9 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import {MyAddress} from './address';
+import { MyAddress } from './address';
 import AsyncStorage from '@react-native-community/async-storage';
-export const AuthContext = React.createContext();
 import {
   StyleSheet,
   ToastAndroid
@@ -19,6 +18,11 @@ import Post from "./Screens/Post";
 import SousSpecialite from "./Screens/SousSpecialite"
 import ListeDocument from "./Screens/ListeDocument"
 import SplashScreen from './Screens/SplashScreen'
+import ForgotPassword from './Screens/ForgotPassword';
+import ValidateCode from './Screens/ValidateCode';
+import ResetPassword from './Screens/ResetPassword';
+
+export const AuthContext = React.createContext();    // this will be used in the other screens to change data here (used to control the app view)
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -55,14 +59,17 @@ const App = () => {
 
 
 
-  React.useEffect(() => {
+  useEffect(() => {    // First Enter 
+
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
       let userToken;
 
       try {         // verify the token validity
-        userToken = await AsyncStorage.getItem('Token');
-        if (userToken !== null) {
+
+        // userToken = await AsyncStorage.getItem('Token');
+        userToken = null;
+        if (userToken !== null) {   // if the token exist
           fetch(MyAddress + '/specialite', {
             method: 'post',
             headers: {
@@ -71,11 +78,11 @@ const App = () => {
             },
           })
             .then((response) => {
-              if (response.status !== 403) {
+              if (response.status !== 403) {  // if token is valid
                 ToastAndroid.show('Welcome back !', ToastAndroid.SHORT);
                 dispatch({ type: 'RESTORE_TOKEN', token: userToken });
               }
-              else {
+              else {     // if Token is Not valid 
                 dispatch({ type: 'SIGN_OUT' });
               }
             })
@@ -83,7 +90,7 @@ const App = () => {
               console.error(error);
             })
         }
-        else {
+        else {   // if the token doesn't exist
           dispatch({ type: 'SIGN_OUT' });
         }
       } catch (e) {
@@ -94,21 +101,21 @@ const App = () => {
     bootstrapAsync();
   }, []);
 
-  const authContext = React.useMemo(
+  const authContext = useMemo(      //check whether the user is sign in or not to display the right screens
     () => ({
       signIn: async data => {
         dispatch({ type: 'SIGN_IN', token: data });
       },
-      signOut: () => dispatch({ type: 'SIGN_OUT' }),
+      signOut: () => dispatch({ type: 'SIGN_OUT' }),     // function that handel Sign Out
       signUp: async data => {
-        dispatch({ type: 'SIGN_IN', token: 'dummy-auth-token' });
+        dispatch({ type: 'SIGN_IN', token: '' });
       },
     }),
     []
   );
 
 
-  if (state.isLoading) {
+  if (state.isLoading) {   // display this screen when we are checking the token validity
     return <SplashScreen />;
   }
 
@@ -117,14 +124,17 @@ const App = () => {
       <NavigationContainer>
         <Stack.Navigator>
           {
-            state.userToken === null ? (
+            state.userToken === null ? (    // if the token is not verified
               <>
                 <Stack.Screen name="Welcome" component={Welcome} />
                 <Stack.Screen name="Signin" component={Signin} />
                 <Stack.Screen name="SignUp" component={SignUp} />
                 <Stack.Screen name="MoreAboutMe" component={MoreAboutMe} />
+                <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+                <Stack.Screen name="ValidateCode" component={ValidateCode} />
+                <Stack.Screen name="ResetPassword" component={ResetPassword} />
               </>
-            ) : (
+            ) : (                         // if the token is verified
                 <>
                   <Stack.Screen name="Home" component={Home} options={{ title: 'Home', headerTitleAlign: "center" }} />
                   <Stack.Screen name="SousSpecialite" component={SousSpecialite} />

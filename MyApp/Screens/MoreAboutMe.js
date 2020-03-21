@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, Text, TextInput, TouchableOpacity, Image, ToastAndroid } from 'react-native';
 import ViewPager from '@react-native-community/viewpager';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -7,22 +7,12 @@ import RNPickerSelect from 'react-native-picker-select';
 import ImagePicker from 'react-native-image-picker';
 import AsyncStorage from '@react-native-community/async-storage';
 import { MyAddress } from '../address';
+import { AuthContext } from '../App';
 
 
 const MoreAboutMe = () => {
 
-
-    const options = {
-        title: 'Select Profile Picture',
-        storageOptions: {
-            skipBackup: true,
-            path: 'images',
-        },
-        mediaType: 'photo',
-        maxWidth: 300,
-        maxHeight: 300
-    };
-
+    const { signIn } = React.useContext(AuthContext);    //Use the Sign In function From AuthContext
 
     const [FirstName, setFirstName] = useState("");
     const [SecondName, setSecondName] = useState("");
@@ -32,37 +22,66 @@ const MoreAboutMe = () => {
     const [University, setUniversity] = useState('');
     const [Specialty, setSpecialty] = useState('');
     const [subspecialty, setsubspecialty] = useState('')
-    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-    const [state, setState] = useState({ srcImg: {}, uri: '', fileName: ''})
+    const [state, setState] = useState({ srcImg: {}, uri: '', fileName: '' })    // the User Photo Detail
+    let secondInput, thirdInput, forthInput;
 
-    const showDatePicker = async () => {
+
+    //Screen Messages
+    const BirthDayPlaceHolder = 'Please Enter Your Birthday';
+
+
+    // DatePicker Initialization
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const showDatePicker = () => {
         setDatePickerVisibility(true);
     };
-
     const hideDatePicker = () => {
         setDatePickerVisibility(false);
     };
-
     const handleConfirm = date => {
         hideDatePicker();
         setBirthDay(date.toISOString().slice(0, 10));
     };
 
+    const handleImagePicker = async () => {
+        let options = {
+            title: 'Select Profile Picture',
+            storageOptions: {
+                skipBackup: true,
+                path: 'images',
+            },
+            mediaType: 'photo',
+            maxWidth: 300,
+            maxHeight: 300
+        };
+
+        await ImagePicker.showImagePicker(options, (response) => {
+            if (!response.didCancel) {
+                setState({
+                    srcImg: { uri: response.uri },
+                    uri: response.uri,
+                    fileName: response.fileName
+                });
+            }
+        })
+    }
+
 
     const uploadInfo = async () => {
 
-        const data = new FormData();
         const token = await AsyncStorage.getItem('Token');
-        if(state.uri){
+        const data = new FormData();
+
+        if (state.uri) {             // if the user enter an image we append it to the file we are sending
             data.append('fileToUpload', {
                 uri: state.uri,
                 type: 'image/jpeg',
                 name: state.fileName,
             });
         }
-        
 
-        data.append('Info',JSON.stringify({
+
+        data.append('Info', JSON.stringify({        //append the user's Data 
             FirstName,
             SecondName,
             Sex,
@@ -73,7 +92,8 @@ const MoreAboutMe = () => {
             subspecialty
         }));
 
-        await fetch(MyAddress + '/users/info', {
+        // send the data to the server
+        fetch(MyAddress + '/users/info', {
             method: 'post',
             headers: {
                 'authorization': 'Bearer ' + token
@@ -84,15 +104,14 @@ const MoreAboutMe = () => {
                 return response.json()
             }
             )
-            .then((responseJSON)=>{
-                if(responseJSON.success)
-                {
-                    alert('thanks');
-                }else{
+            .then((responseJSON) => {
+                if (responseJSON.success) {
+                    ToastAndroid.show('Welcome !', ToastAndroid.SHORT);
+                    signIn(token);
+                } else {
                     alert("something went wrong");
                 }
             })
-            
     };
 
 
@@ -105,18 +124,22 @@ const MoreAboutMe = () => {
                     onChangeText={text => setFirstName(text)}
                     placeholder="First Name"
                     placeholderTextColor="white"
+                    returnKeyType="next"
+                    onSubmitEditing={() => secondInput.focus()}
                 />
                 <TextInput
+                    red={ref => { secondInput = ref }}
                     style={{ height: 40, borderColor: 'white', borderWidth: 1, margin: 10, color: 'white' }}
                     onChangeText={text => setSecondName(text)}
                     placeholder="Second Name"
                     placeholderTextColor="white"
+                    returnKeyType="next"
                 />
                 <View>
                     <RadioForm
                         radio_props={[{ label: 'Male', value: 'Male' },
                         { label: 'Female', value: 'female' }]}
-                        formHorizontal={true}
+                        // formHorizontal={true}
                         animation={false}
                         buttonColor={'white'}
                         selectedButtonColor={'white'}
@@ -131,7 +154,7 @@ const MoreAboutMe = () => {
                     <View>
                         <View style={{ alignItems: 'center' }}>
                             <TouchableOpacity style={{ alignItems: 'center', borderWidth: 2, borderColor: 'white', width: '50%' }} onPress={showDatePicker}>
-                                <Text style={{ padding: 5, color: 'white' }}>{BirthDay ?(BirthDay):('Please Enter Your Birthday')}</Text>
+                                <Text style={{ padding: 5, color: 'white' }}>{BirthDay ? (BirthDay) : (BirthDayPlaceHolder)}</Text>
                             </TouchableOpacity>
                         </View>
                         <DateTimePickerModal
@@ -168,6 +191,8 @@ const MoreAboutMe = () => {
                         onChangeText={text => setUniversity(text)}
                         placeholder='Please enter the name of your university'
                         placeholderTextColor="white"
+                        returnKeyType="next"
+                        onSubmitEditing={() => { Profession == 'Student' ? (thirdInput.focus()) : (null) }}
                     />
                 ) : (null)
                 }
@@ -175,16 +200,21 @@ const MoreAboutMe = () => {
                     Profession == 'Student' ? (
                         <>
                             <TextInput
+                                ref={ref => { thirdInput = ref }}
                                 style={{ height: 40, borderColor: 'white', borderWidth: 1, margin: 10, color: 'white' }}
                                 onChangeText={text => setSpecialty(text)}
                                 placeholder='Please enter the name of your Specialty'
                                 placeholderTextColor="white"
+                                returnKeyType="next"
+                                onSubmitEditing={() => { forthInput.focus() }}
                             />
                             <TextInput
+                                ref={ref => { forthInput = ref }}
                                 style={{ height: 40, borderColor: 'white', borderWidth: 1, margin: 10, color: 'white' }}
                                 onChangeText={text => setsubspecialty(text)}
                                 placeholder='Please enter the name of your subspecialty'
                                 placeholderTextColor="white"
+                                returnKeyType="next"
                             />
                         </>
                     ) : (null)
@@ -193,17 +223,7 @@ const MoreAboutMe = () => {
             <View key="3" style={{ flex: 1, alignItems: 'center', justifyContent: "space-around" }}>
                 <Image source={state.srcImg} style={{ width: 300, height: 300, borderWidth: 1, borderColor: 'white', borderRadius: 200 }} />
                 <View style={{ alignItems: 'center' }}>
-                    <TouchableOpacity style={{ alignItems: 'center', borderWidth: 2, borderColor: 'white', width: '50%' }} onPress={async () => {
-                        await ImagePicker.showImagePicker(options, (response) => {
-                            if (!response.didCancel) {
-                                setState({
-                                    srcImg: { uri: response.uri },
-                                    uri: response.uri,
-                                    fileName: response.fileName
-                                });
-                            }
-                        })
-                    }}>
+                    <TouchableOpacity style={{ alignItems: 'center', borderWidth: 2, borderColor: 'white', width: '50%' }} onPress={handleImagePicker}>
                         <Text style={{ padding: 5, color: 'white' }}>Choose your Profile Picture</Text>
                     </TouchableOpacity>
                 </View>

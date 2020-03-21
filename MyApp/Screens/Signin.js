@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import CheckBox from '@react-native-community/checkbox';
-import {MyAddress} from '../address';
-import { AuthContext } from '../App';
+import AsyncStorage from '@react-native-community/async-storage';
+import { MyAddress } from '../address';       //The Address of the server
+import { AuthContext } from '../App';       // AuthContext to control the screens
 
 import {
   StyleSheet,
@@ -11,23 +12,24 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+
 
 
 const Signin = ({ navigation }) => {
 
 
-  const {signIn} = React.useContext(AuthContext);
+  const { signIn } = React.useContext(AuthContext);    //Use the Sign In function From AuthContext
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [upCase, setupCase] = useState(false);
+  const [RememberUserInfo, setRememberUserInfo] = useState(false);
+  let secondInput;
 
 
   const handleLogin = () => {
 
     const data = { username: username, password: password };
 
-    fetch(MyAddress+'/users/login', {
+    fetch(MyAddress + '/users/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -35,18 +37,17 @@ const Signin = ({ navigation }) => {
       body: JSON.stringify(data),
     })
       .then((response) => response.json())
-      .then( async (responseJson) => {
-        if (responseJson.token) 
+      .then(async (responseJson) => {
+        if (responseJson.token) // if we get the token from the server
         {
           try {
-            await AsyncStorage.setItem('Token',responseJson.token);
-            signIn(responseJson.token);
+            await AsyncStorage.setItem('Token', responseJson.token);   // we save it
+            signIn(responseJson.token);  // call the sign in function from the app.js screen
           } catch (error) {
             console.error(err);
           }
-        } 
-        else if(responseJson.message)
-        {
+        }
+        else if (responseJson.message) {
           alert(responseJson.message)
         }
       })
@@ -62,8 +63,11 @@ const Signin = ({ navigation }) => {
           style={styles.input}
           placeholder="Username"
           placeholderTextColor="#F2EEF8"
+          returnKeyType="next"
+          onSubmitEditing={()=>secondInput.focus()}
           onChangeText={(val) => setUsername(val)} />
         <TextInput
+          ref={ref =>{secondInput=ref}}
           secureTextEntry
           style={styles.input}
           placeholder="Password"
@@ -72,14 +76,14 @@ const Signin = ({ navigation }) => {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <View style={styles.RememberMestyle}>
             <CheckBox
-              value={upCase}
+              value={RememberUserInfo}
               tintColors={{ true: '#F6CF42', false: 'white' }}
-              onChange={() => { upCase ? setupCase(false) : setupCase(true) }} />
-            <TouchableOpacity onPress={() => { upCase ? setupCase(false) : setupCase(true) }} activeOpacity={1} >
+              onChange={() => { RememberUserInfo ? setRememberUserInfo(false) : setRememberUserInfo(true) }} />
+            <TouchableOpacity onPress={() => { RememberUserInfo ? setRememberUserInfo(false) : setRememberUserInfo(true) }} activeOpacity={1} >
               <Text style={styles.RememberMetext}>Remember Me</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={{flexDirection: 'row-reverse'}}>
+          <TouchableOpacity style={{ flexDirection: 'row-reverse' }}>
             <View>
               <Text style={{ color: 'white', fontSize: 11 }}>Forgot Password?</Text>
             </View>
@@ -91,8 +95,8 @@ const Signin = ({ navigation }) => {
           <Text style={styles.buttonText}>Sign In</Text>
         </View>
       </TouchableOpacity>
-      <View style={{flexDirection: 'row'}}>
-        <Text style={{color: 'white' }}>Don't have an account?</Text>
+      <View style={{ flexDirection: 'row' }}>
+        <Text style={{ color: 'white' }}>Don't have an account?</Text>
         <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
           <View>
             <Text style={styles.GoToSignUp}> Sign Up</Text>
@@ -141,14 +145,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  RememberMetext:{
-     color: 'white', 
-     fontSize: 13 
+  RememberMetext: {
+    color: 'white',
+    fontSize: 13
   },
-  GoToSignUp:{ 
-    color: 'white', 
-    fontStyle: "italic", 
-    textDecorationLine: 'underline' 
+  GoToSignUp: {
+    color: 'white',
+    fontStyle: "italic",
+    textDecorationLine: 'underline'
   }
 
 });

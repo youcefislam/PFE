@@ -1,21 +1,19 @@
-import React, { useState } from 'react';
-import 'react-native-gesture-handler';
+import React from 'react';
 import {
     StyleSheet,
     View,
     Text,
     TouchableOpacity,
-    KeyboardAvoidingView
+    KeyboardAvoidingView,
+    Image
 } from 'react-native';
 
 
 const Welcome = ({ navigation }) => {
-    
+
     return (
         <KeyboardAvoidingView style={styles.container} behavior='padding'>
-            <View style={{}}>
-                <Text style={styles.title}>Logo</Text>
-            </View>
+            <Image style={{width: 250, height: 220,margin:40}} source={require('../Img/Ccuizzy.png')} />
             <View style={{}}>
                 <TouchableOpacity onPress={() => { navigation.navigate("Signin") }}>
                     <View style={styles.buttonSignIn}>
@@ -38,39 +36,39 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'space-evenly',
         alignItems: 'center',
-        backgroundColor:'#0D0829'
+        backgroundColor: '#0D0829'
     },
-    title:{
-        color:'#F6CF42',
-        fontSize:40,
+    title: {
+        color: '#F6CF42',
+        fontSize: 40,
     },
 
     buttonSignIn: {
-        margin:20,
+        margin: 20,
         width: 200,
-        height:50,
+        height: 50,
         alignItems: 'center',
-        justifyContent:'center',
+        justifyContent: 'center',
         borderRadius: 10,
         backgroundColor: '#F2EEF8',
     },
-    buttonSignUp:{
+    buttonSignUp: {
         margin: 20,
         width: 200,
-        height:50,
+        height: 50,
         alignItems: 'center',
-        justifyContent:'center',
+        justifyContent: 'center',
         borderRadius: 10,
-        borderWidth:1,
-        borderColor:'#F2EEF8',
+        borderWidth: 1,
+        borderColor: '#F2EEF8',
         backgroundColor: '#0D0829',
     },
     buttonSignInText: {
         color: '#0D0829',
         fontSize: 18,
     },
-    buttonSignUPText:{
-        color:'#F2EEF8',
+    buttonSignUPText: {
+        color: '#F2EEF8',
         fontSize: 18,
     }
 

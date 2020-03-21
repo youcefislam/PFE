@@ -1,74 +1,79 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import {MyAddress} from '../address';
+import { MyAddress } from '../address';
 import CommentSection from './CommentSection'
 import { AuthContext } from '../App';
 
 
 
-const Post = ({ route, navigation }) => {
+const Post = async ({ route, navigation }) => {
 
-    const {signOut} = React.useContext(AuthContext);
-    const requestPost = (Documentid) => {
-        
-        fetch(MyAddress + '/post', {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify({ Documentid: Documentid }),
-        })
-            .then((response) => {
-                if (response.status !== 200) {
-                    return response.json();
-                }
-                else {
-                    alert('You are not sign In');
-                    signOut();
-                }
-            })
-            .then((responseJSON) => {
-                console.log(responseJSON)
-                setPost(responseJSON)
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-    }
+    const { signOut } = React.useContext(AuthContext);
 
-    const requestComments = async (Documentid) => {
 
-        const token = await AsyncStorage.getItem('Token');
-        fetch(MyAddress + '/commentaires', {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify({ Documentid: Documentid }),
-        })
-            .then((response) => {
-                if (response.status !== 403) {
-                    return response.json();
-                }
-                else {
-                    alert('You are not sign In');
-                    signOut();
-                }
-            })
-            .then((responseJSON) => {
-                setComments(responseJSON);
-            })
-            .catch((error) => {
-                console.error(error);
-            })
-    }
+
     const [comments, setComments] = useState([])
     const [post, setPost] = useState({})
     const document = route.params;
+    const token = await AsyncStorage.getItem('Token');
+
+
     useEffect(() => {
+
+        const requestPost = (Documentid) => {
+
+            fetch(MyAddress + '/post', {    //request the post from the server
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ Documentid: Documentid }),
+            })
+                .then((response) => {
+                    if (response.status !== 200) {    //if token is valide
+                        return response.json();
+                    }
+                    else {
+                        alert('You are not sign In');
+                        signOut();
+                    }
+                })
+                .then((responseJSON) => {
+                    setPost(responseJSON)      // set the post 
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+        }
+
+        const requestComments = (Documentid) => {
+
+            fetch(MyAddress + '/commentaires', {   // get the comments
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ Documentid: Documentid }),
+            })
+                .then((response) => {
+                    if (response.status !== 403) {   // if the token is valide
+                        return response.json();
+                    }
+                    else {
+                        alert('You are not sign In');
+                        signOut();
+                    }
+                })
+                .then((responseJSON) => {
+                    setComments(responseJSON);
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+        }
         requestComments(document.documentid)
     }, [])
     return (
