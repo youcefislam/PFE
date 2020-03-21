@@ -67,8 +67,8 @@ const App = () => {
 
       try {         // verify the token validity
 
-        // userToken = await AsyncStorage.getItem('Token');
-        userToken = null;
+        userToken = await AsyncStorage.getItem('Token');
+        
         if (userToken !== null) {   // if the token exist
           fetch(MyAddress + '/specialite', {
             method: 'post',

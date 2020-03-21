@@ -5,6 +5,8 @@ const path = require('path');       // user to work with file and directory path
 const bcrypt = require("bcryptjs");     // used for hashing password
 var jwt = require("jsonwebtoken");          // used to create/verify token 
 const Joi = require('@hapi/joi');           // used to validate the form of the recieved data
+const nodemailer = require("nodemailer");
+require('dotenv').config();
 
 // initialization of expressJs
 var app = express();
@@ -12,7 +14,7 @@ app.use(express.json({ limit: '1mb' }));
 
 
 // token's secret key
-const MySecretKey = 'H43%s#2Bo9PZ#d$X&d6';
+const MySecretKey = process.env.MYSECRETKEY;
 
 // validation for the register requests
 const SignUpSchema = Joi.object({
@@ -66,6 +68,15 @@ const upload = multer({
         checkFileType(file, cb);
     }
 }).single('fileToUpload');
+
+//init nodemailer 
+let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL, // generated ethereal user
+        pass: process.env.PASSWORD // generated ethereal password
+    }
+});
 
 
 
@@ -168,18 +179,42 @@ app.post('/users/register', (req, res) => {
             if (err) throw err;
             const sql = 'insert into users (email,password,username) values (?,?,?)';
             try {
-                db.query(sql, [req.body.email, hash, req.body.username], (err, result) => {    // inserting the account to the datebase
+                db.query(sql, [req.body.email, hash, req.body.username], async (err, result) => {    // inserting the account to the datebase
                     if (err) {
                         if (err.sqlMessage.includes('username')) Responsemessage.message = 'username already in use';
                         else if (err.sqlMessage.includes('email')) Responsemessage.message = 'email already in use';
                         else throw err;
                     } else {
+                        const id = result.insertId;
+                        const username = req.body.username;
+
                         await jwt.sign({ id: id, username: username }, MySecretKey, (err, token) => {   // create a token for the user & send it
                             if (err) throw err;
-                            Responsemessage.token=token;
+                            Responsemessage.token = token;
                         })
                         Responsemessage.errors = false;
-                        Responsemessage.message = 'Your account has been created !';
+                        Responsemessage.message = 'Your account has been created Please Check the confirmation Email !';
+
+                        const url = `http://localhost:3000/confirmation/${Responsemessage.token}`;
+                        const EmailBody = `
+                        <h3>Hey ${req.body.username},</h3>
+                        <p>Thanks for getting started with cuizzy, We need a little more information 
+                        to complete your registration, including confirmation of your email address. Click bellow to Confirm your email address</p>
+                        <a href='${url}'>${url}</a>
+                        `;
+
+                        // send mail with defined transport object
+                        await transporter.sendMail({
+                            from: '"Cuizzy" cuizzyapp@gmail.com', // sender address
+                            to: req.body.email, // list of receivers
+                            subject: "Registration Almost Complete ✔", // Subject line
+                            text: "Hello world?", // plain text body
+                            html: EmailBody // html body
+                        }, (err, data) => {
+                            if (err) {
+                                console.log('Error Occurs', err);
+                            } else console.log("email Sent");
+                        });
                     }
                     res.send(JSON.stringify(Responsemessage));
                 })
@@ -192,6 +227,17 @@ app.post('/users/register', (req, res) => {
     }
 })
 
+//route for the account validation
+app.get('/confirmation/:token', (req, res) => {
+    console.log("i got a request");
+    jwt.verify(req.params.token, MySecretKey, (err, autData) => {      // verify Token
+        if (err) res.sendStatus(403);
+        else {
+            res.send('Your Account has been confirmed, thank you!')
+        }
+    })
+});
+
 // route to send Validation code for rseting passwords
 app.post('/users/ForgotPoassword', (req, res) => {
 
@@ -202,17 +248,41 @@ app.post('/users/ForgotPoassword', (req, res) => {
         Responsemessage.message = error.message;
         res.send(JSON.stringify(Responsemessage));
     } else {
-        const sql = 'SELECT email from users WHERE email=?';
+        const sql = 'SELECT * from users WHERE email=?';
         try {
-            db.query(sql, req.body.email, (err, result) => {    // Changing the password at the database
+            db.query(sql, req.body.email, async (err, result) => {    // Changing the password at the database
                 if (err) throw err;
                 else {
                     if (result[0]) {
                         Responsemessage.errors = false;
                         Responsemessage.message = 'Please check for validation code on your email!';
                         Responsemessage.code = Math.floor(Math.random() * 100000 + 100000);            // generate the validation code
+
                         //  send the validation code to the email
-                    }else Responsemessage.message = "we have no account linked with that Email";
+                        const EmailBody = `
+                        <h3>Hey ${result[0].username},</h3>
+                        <p>Forgot your Password ?</p><br /> 
+                        we've recieved a request to reset the password of your account.
+                        To reset your password you will need this Validation code</p>
+                        <p>${Responsemessage.code}</p><br />
+                        <p>if you don't want to reset your password, please ignore this message. your password will not be reset</p>
+                        <hr />
+                        <p>if you recieved this email by mistake or believe it is a spam, please forward it to cuizzysupport@gmail.com<p>
+                        `;
+
+                        // send mail with defined transport object
+                        await transporter.sendMail({
+                            from: '"Cuizzy" cuizzyapp@gmail.com', // sender address
+                            to: req.body.email, // list of receivers
+                            subject: "Password Reset", // Subject line
+                            text: "Hello world?", // plain text body
+                            html: EmailBody // html body
+                        }, (err, data) => {
+                            if (err) {
+                                console.log('Error Occurs', err);
+                            } else console.log("email Sent");
+                        });
+                    } else Responsemessage.message = "we have no account linked with that Email";
                 }
                 res.send(JSON.stringify(Responsemessage));
             })
