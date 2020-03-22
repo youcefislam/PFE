@@ -27,13 +27,16 @@ const Home = ({ route, navigation }) => {
                 body: JSON.stringify({ idSpecialite: idSpecialite }),
             })
                 .then((response) => {
-                    if (response.status !== 403) {  // if the token is verified
-                        return response.json();
+                    if (Response.status === 200) {
+                        if (response.status !== 403) {  // if the token is verified
+                            return response.json();
+                        }
+                        else {
+                            alert('You are not signed In');
+                            signOut();
+                        }
                     }
-                    else {
-                        alert('You are not signed In');
-                        signOut();
-                    }
+                    else alert('something went wrong on the server')
                 })
                 .then((responseJSON) => {
                     setSousSpecialities(responseJSON);      //Set subSpeciality List

@@ -177,9 +177,13 @@ app.post('/users/register', (req, res) => {
         const saltRounds = 10;
         bcrypt.hash(req.body.password, saltRounds, (err, hash) => {         // hashing the password 
             if (err) throw err;
-            const sql = 'insert into users (email,password,username) values (?,?,?)';
+            //get today's date
+            const date = new Date();
+            //YYYY-MM-DD format
+            const mysqlDate = date.toISOString().split("T")[0];
+            const sql = 'insert into users (email,password,username,insert_date) values (?,?,?,?)';
             try {
-                db.query(sql, [req.body.email, hash, req.body.username], async (err, result) => {    // inserting the account to the datebase
+                db.query(sql, [req.body.email, hash, req.body.username,mysqlDate], async (err, result) => {    // inserting the account to the datebase
                     if (err) {
                         if (err.sqlMessage.includes('username')) Responsemessage.message = 'username already in use';
                         else if (err.sqlMessage.includes('email')) Responsemessage.message = 'email already in use';
@@ -410,6 +414,46 @@ app.post('/post', verifyToken, (req, res) => {
             });
         }
     })
+})
+
+// route to send quizz
+app.post('/quizz',verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+        if (err) res.sendStatus(403);
+        else {
+            const sql = 'SELECT * from question where id_quiz=?'
+            db.query(sql, req.body.quizzid, (err, result) => {
+                if (err) throw err;
+                const dataToSend = [];
+                for(let i=0;i<result.length;i++)
+                {
+                    const AnswerArray = [];
+                    if(result[i].reponse_1 != null) AnswerArray.push({answer : result[i].reponse_1 })
+                    if(result[i].reponse_2 != null) AnswerArray.push({answer : result[i].reponse_2 })
+                    if(result[i].reponse_3 != null) AnswerArray.push({answer : result[i].reponse_3 })
+                    if(result[i].reponse_4 != null) AnswerArray.push({answer : result[i].reponse_4 })
+                    dataToSend.push({question : result[i].question_text , answers : AnswerArray,correct : result[i].juste_reponse })
+                }
+                resultJSON = result.map(v => Object.assign({}, v))
+                res.send(dataToSend)
+            });
+        }
+    })
+})
+
+// route to send questions
+app.post('/quizz', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+        if (err) res.sendStatus(403);
+        else {
+            const sql = 'SELECT * FROM specialites';
+            db.query(sql, req.body, (err, result) => {
+                if (err) throw err;
+                resultJSON = result.map(v => Object.assign({}, v))
+                res.send(resultJSON)
+            });
+        }
+    });
 })
 
 // route to send Comments

@@ -21,6 +21,8 @@ import SplashScreen from './Screens/SplashScreen'
 import ForgotPassword from './Screens/ForgotPassword';
 import ValidateCode from './Screens/ValidateCode';
 import ResetPassword from './Screens/ResetPassword';
+import quizz from './Screens/quizz';
+import ResultQuizz from './Screens/ResultQuizz'
 
 export const AuthContext = React.createContext();    // this will be used in the other screens to change data here (used to control the app view)
 const Stack = createStackNavigator();
@@ -67,8 +69,9 @@ const App = () => {
 
       try {         // verify the token validity
 
-        userToken = await AsyncStorage.getItem('Token');
-        
+        // userToken = await AsyncStorage.getItem('Token');
+        userToken = null;
+
         if (userToken !== null) {   // if the token exist
           fetch(MyAddress + '/specialite', {
             method: 'post',
@@ -79,7 +82,6 @@ const App = () => {
           })
             .then((response) => {
               if (response.status !== 403) {  // if token is valid
-                ToastAndroid.show('Welcome back !', ToastAndroid.SHORT);
                 dispatch({ type: 'RESTORE_TOKEN', token: userToken });
               }
               else {     // if Token is Not valid 
@@ -104,12 +106,10 @@ const App = () => {
   const authContext = useMemo(      //check whether the user is sign in or not to display the right screens
     () => ({
       signIn: async data => {
+        ToastAndroid.show('Welcome !', ToastAndroid.SHORT);
         dispatch({ type: 'SIGN_IN', token: data });
       },
       signOut: () => dispatch({ type: 'SIGN_OUT' }),     // function that handel Sign Out
-      signUp: async data => {
-        dispatch({ type: 'SIGN_IN', token: '' });
-      },
     }),
     []
   );
@@ -140,9 +140,11 @@ const App = () => {
                   <Stack.Screen name="SousSpecialite" component={SousSpecialite} />
                   <Stack.Screen name="ListeDocument" component={ListeDocument} />
                   <Stack.Screen name="post" component={Post} />
-                  <Stack.Screen name="MoreAboutMe" component={MoreAboutMe} />
+                  <Stack.Screen name='quizz' component={quizz} />
+                  <Stack.Screen name='ResultQuizz' component={ResultQuizz} />
                 </>
-              )}
+              )
+          }
         </Stack.Navigator>
       </NavigationContainer>
     </AuthContext.Provider>

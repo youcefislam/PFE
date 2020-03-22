@@ -7,7 +7,7 @@ import { AuthContext } from '../App';
 
 
 
-const Post = async ({ route, navigation }) => {
+const Post = ({ route, navigation }) => {
 
     const { signOut } = React.useContext(AuthContext);
 
@@ -16,12 +16,14 @@ const Post = async ({ route, navigation }) => {
     const [comments, setComments] = useState([])
     const [post, setPost] = useState({})
     const document = route.params;
-    const token = await AsyncStorage.getItem('Token');
 
 
     useEffect(() => {
 
-        const requestPost = (Documentid) => {
+
+        const requestPost = async (Documentid) => {
+
+            let token = await AsyncStorage.getItem('Token');
 
             fetch(MyAddress + '/post', {    //request the post from the server
                 method: 'post',
@@ -32,13 +34,16 @@ const Post = async ({ route, navigation }) => {
                 body: JSON.stringify({ Documentid: Documentid }),
             })
                 .then((response) => {
-                    if (response.status !== 200) {    //if token is valide
-                        return response.json();
+                    if (Response.status === 200) {
+                        if (response.status !== 403) {    //if token is valide
+                            return response.json();
+                        }
+                        else {
+                            alert('You are not sign In');
+                            signOut();
+                        }
                     }
-                    else {
-                        alert('You are not sign In');
-                        signOut();
-                    }
+                    else alert('something went wrong on the server')
                 })
                 .then((responseJSON) => {
                     setPost(responseJSON)      // set the post 
@@ -48,8 +53,9 @@ const Post = async ({ route, navigation }) => {
                 })
         }
 
-        const requestComments = (Documentid) => {
+        const requestComments = async (Documentid) => {
 
+            let token = await AsyncStorage.getItem('Token');
             fetch(MyAddress + '/commentaires', {   // get the comments
                 method: 'post',
                 headers: {
@@ -59,22 +65,28 @@ const Post = async ({ route, navigation }) => {
                 body: JSON.stringify({ Documentid: Documentid }),
             })
                 .then((response) => {
-                    if (response.status !== 403) {   // if the token is valide
-                        return response.json();
+                    if (Response.status === 200) {
+                        if (response.status !== 403) {   // if the token is valide
+                            return response.json();
+                        }
+                        else {
+                            alert('You are not sign In');
+                            signOut();
+                        }
                     }
-                    else {
-                        alert('You are not sign In');
-                        signOut();
-                    }
+                    else alert('something went wrong on the server')
                 })
                 .then((responseJSON) => {
+
                     setComments(responseJSON);
                 })
                 .catch((error) => {
                     console.error(error);
                 })
         }
+
         requestComments(document.documentid)
+
     }, [])
     return (
         <View style={{}} >

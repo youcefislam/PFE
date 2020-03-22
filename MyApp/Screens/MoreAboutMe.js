@@ -94,19 +94,28 @@ const MoreAboutMe = () => {
 
         // send the data to the server
         fetch(MyAddress + '/users/info', {
-            method: 'post',
+            method: 'POST',
             headers: {
+                'Content-Type' : 'application/json',
                 'authorization': 'Bearer ' + token
             },
             body: data
         })
-            .then((response) => {
-                return response.json()
+            .then((Response) => {
+                if (Response.status === 200) {
+                    if (Response.status !== 403) {   // if the token is valide
+                        return Response.json();
+                    }
+                    else {
+                        alert('You are not sign In');
+                        signOut();
+                    }
+                }
+                else alert('something went wrong on the server')
             }
             )
-            .then((responseJSON) => {
-                if (responseJSON.success) {
-                    ToastAndroid.show('Welcome !', ToastAndroid.SHORT);
+            .then((ResponseJSON) => {
+                if (ResponseJSON.success) {
                     signIn(token);
                 } else {
                     alert("something went wrong");

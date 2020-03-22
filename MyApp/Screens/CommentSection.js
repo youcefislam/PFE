@@ -27,13 +27,16 @@ const CommentSection = (props) => {
                 body: JSON.stringify({ comment: comment }),
             })
                 .then((response) => {
-                    if (response.status !== 403) {   //if the token is valide
-                        return response.json();
+                    if (Response.status === 200) {
+                        if (response.status !== 403) {   //if the token is valide
+                            return response.json();
+                        }
+                        else {
+                            alert('You are not sign In');
+                            signOut();
+                        }
                     }
-                    else {
-                        alert('You are not sign In');
-                        signOut();
-                    }
+                    else alert('something went wrong on the server')
                 })
                 .then((responseJSON) => {
                     setReplies(responseJSON)

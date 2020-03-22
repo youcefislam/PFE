@@ -27,13 +27,16 @@ const Home = ({ route, navigation }) => {
                 body: JSON.stringify({ SousSpecialiteid: SousSpecialiteid }),
             })
                 .then((response) => {
-                    if (response.status !== 403) {      //If the Token ss Valide
-                        return response.json();
+                    if (Response.status === 200) {
+                        if (response.status !== 403) {      //If the Token ss Valide
+                            return response.json();
+                        }
+                        else {
+                            alert('You are not signed In');
+                            signOut();
+                        }
                     }
-                    else {
-                        alert('You are not signed In');
-                        signOut();
-                    }
+                    else alert('something went wrong on the server')
                 })
                 .then((responseJSON) => {
                     setListeDocument(responseJSON)
@@ -60,7 +63,7 @@ const Home = ({ route, navigation }) => {
                                 <Text style={Styles.specialityCardContent}>{item.titre}</Text>
                             </View>
                         </TouchableHighlight>
-                    )
+                    );
                 }}
             />
         </View>

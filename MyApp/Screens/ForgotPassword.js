@@ -32,13 +32,12 @@ const ForgotPassword = ({ navigation }) => {
                     navigation.navigate('ValidateCode', { VerifCode, Email });
                 }
             })
-        }else alert('Email must be a Valid Email. ')
+        }else alert('Email must be Valid ')
 
     };
 
     const handleEmail = () => {    // Regular expression for the email 
         const reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        console.log(Email);
         return reg.test(Email);
     }
 

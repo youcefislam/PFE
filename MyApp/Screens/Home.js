@@ -23,13 +23,16 @@ const Home = ({ navigation }) => {
                 },
             })
                 .then((response) => {
-                    if (response.status !== 403) {   // if token verified
-                        return response.json();
+                    if (Response.status === 200) {
+                        if (response.status !== 403) {   // if token verified
+                            return response.json();
+                        }
+                        else {
+                            alert('You are not sign In');
+                            signOut();
+                        }
                     }
-                    else {
-                        alert('You are not sign In');
-                        signOut();
-                    }
+                    else alert('something went wrong on the server')
                 })
                 .then((responseJSON) => {
                     setSpecialities(responseJSON);

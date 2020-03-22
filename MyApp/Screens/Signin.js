@@ -36,7 +36,12 @@ const Signin = ({ navigation }) => {
       },
       body: JSON.stringify(data),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (Response.status === 200) {
+          return response.json()
+        }
+        else alert('something went wrong on the server')
+      })
       .then(async (responseJson) => {
         if (responseJson.token) // if we get the token from the server
         {
@@ -64,10 +69,10 @@ const Signin = ({ navigation }) => {
           placeholder="Username"
           placeholderTextColor="#F2EEF8"
           returnKeyType="next"
-          onSubmitEditing={()=>secondInput.focus()}
+          onSubmitEditing={() => secondInput.focus()}
           onChangeText={(val) => setUsername(val)} />
         <TextInput
-          ref={ref =>{secondInput=ref}}
+          ref={ref => { secondInput = ref }}
           secureTextEntry
           style={styles.input}
           placeholder="Password"
@@ -83,7 +88,7 @@ const Signin = ({ navigation }) => {
               <Text style={styles.RememberMetext}>Remember Me</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={{ flexDirection: 'row-reverse' }}>
+          <TouchableOpacity style={{ flexDirection: 'row-reverse' }} onPress={()=>navigation.navigate('ForgotPassword')}>
             <View>
               <Text style={{ color: 'white', fontSize: 11 }}>Forgot Password?</Text>
             </View>
