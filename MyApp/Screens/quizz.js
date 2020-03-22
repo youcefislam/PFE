@@ -61,7 +61,7 @@ const quizz = ({ route, navigation }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'quthorization': 'Bearer ' + token
+                    'authorization': 'Bearer ' + token
                 },
                 body: JSON.stringify(data)
             })

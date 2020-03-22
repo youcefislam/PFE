@@ -136,10 +136,10 @@ const App = () => {
               </>
             ) : (                         // if the token is verified
                 <>
-                  <Stack.Screen name="Home" component={Home} options={{ title: 'Home', headerTitleAlign: "center" }} />
+                  {/* <Stack.Screen name="Home" component={Home} options={{ title: 'Home', headerTitleAlign: "center" }} />
                   <Stack.Screen name="SousSpecialite" component={SousSpecialite} />
                   <Stack.Screen name="ListeDocument" component={ListeDocument} />
-                  <Stack.Screen name="post" component={Post} />
+                  <Stack.Screen name="post" component={Post} /> */}
                   <Stack.Screen name='quizz' component={quizz} />
                   <Stack.Screen name='ResultQuizz' component={ResultQuizz} />
                 </>
