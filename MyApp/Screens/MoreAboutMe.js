@@ -96,22 +96,19 @@ const MoreAboutMe = () => {
         fetch(MyAddress + '/users/info', {
             method: 'POST',
             headers: {
-                'Content-Type' : 'application/json',
+                'Content-Type': 'application/json',
                 'authorization': 'Bearer ' + token
             },
             body: data
         })
             .then((Response) => {
-                if (Response.status === 200) {
-                    if (Response.status !== 403) {   // if the token is valide
-                        return Response.json();
-                    }
-                    else {
-                        alert('You are not sign In');
-                        signOut();
-                    }
+                if (Response.status !== 403) {   // if the token is valide
+                    return Response.json();
                 }
-                else alert('something went wrong on the server')
+                else {
+                    alert('You are not sign In');
+                    signOut();
+                }
             }
             )
             .then((ResponseJSON) => {

@@ -37,15 +37,11 @@ const ResetPassword = ({ route, navigation }) => {
                     body: JSON.stringify(data),
                 })
                     .then((Response) => {
-                        if(Response.status === 200)
-                        {
-                            return Response.json();
-                        }else alert('something went wrong on the Server');
+                        return Response.json();
                     })
-                    .then((responseJSON)=>{
+                    .then((responseJSON) => {
                         alert(responseJSON.message);
-                        if(!responseJSON.errors)
-                        {
+                        if (!responseJSON.errors) {
                             navigation.navigate('Signin');
                         }
                     })

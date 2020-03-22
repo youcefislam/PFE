@@ -65,16 +65,13 @@ const Post = ({ route, navigation }) => {
                 body: JSON.stringify({ Documentid: Documentid }),
             })
                 .then((response) => {
-                    if (Response.status === 200) {
-                        if (response.status !== 403) {   // if the token is valide
-                            return response.json();
-                        }
-                        else {
-                            alert('You are not sign In');
-                            signOut();
-                        }
+                    if (response.status !== 403) {   // if the token is valide
+                        return response.json();
                     }
-                    else alert('something went wrong on the server')
+                    else {
+                        alert('You are not sign In');
+                        signOut();
+                    }
                 })
                 .then((responseJSON) => {
 

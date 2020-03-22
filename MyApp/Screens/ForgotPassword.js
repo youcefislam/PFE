@@ -11,7 +11,7 @@ const ForgotPassword = ({ navigation }) => {
 
     const SendVerifCode = () => {
 
-        
+
         if (handleEmail()) {
             fetch(MyAddress + '/users/ForgotPoassword', {
                 method: 'Post',
@@ -20,11 +20,7 @@ const ForgotPassword = ({ navigation }) => {
                 },
                 body: JSON.stringify({ email: Email }),
             }).then((response) => {
-                if (response.status === 200) {
-                    return response.json();
-                } else {
-                    alert('Please Try again')
-                }
+                return response.json();
             }).then((responseJSON) => {
                 alert(responseJSON.message);
                 if (!responseJSON.errors) {
@@ -32,7 +28,7 @@ const ForgotPassword = ({ navigation }) => {
                     navigation.navigate('ValidateCode', { VerifCode, Email });
                 }
             })
-        }else alert('Email must be Valid ')
+        } else alert('Email must be Valid ')
 
     };
 

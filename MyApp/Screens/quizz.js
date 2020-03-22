@@ -22,13 +22,12 @@ const quizz = ({ route, navigation }) => {
 
 
     const GoToResultQuiz = () => {
-        var TrueAnswer =0;
-        for(x of UsersAnswer)
-        {
-            if(x) TrueAnswer++;
+        var TrueAnswer = 0;
+        for (x of UsersAnswer) {
+            if (x) TrueAnswer++;
         }
-        const mark = TrueAnswer*10/ListOfQuestion.length;
-        navigation.navigate('ResultQuizz', { mark:mark.toFixed(2), quizzid: 1 })
+        const mark = TrueAnswer * 10 / ListOfQuestion.length;
+        navigation.navigate('ResultQuizz', { mark: mark.toFixed(2), quizzid: 1 })
     }
 
 
@@ -46,7 +45,7 @@ const quizz = ({ route, navigation }) => {
                 setUsersAnswer(UsersAnswer => ([...UsersAnswer, true]));
             } else setUsersAnswer(UsersAnswer => ([...UsersAnswer, false]));
             setCurrentQuestion(CurrentQuestion + 1);
-        }else GoToResultQuiz();
+        } else GoToResultQuiz();
     }
 
     useEffect(() => {
@@ -67,16 +66,13 @@ const quizz = ({ route, navigation }) => {
                 body: JSON.stringify(data)
             })
                 .then((Response) => {
-                    if (Response.status === 200) {
-                        if (Response.status !== 403) {   // if the token is valide
-                            return Response.json();
-                        }
-                        else {
-                            alert('You are not sign In');
-                            signOut();
-                        }
+                    if (Response.status !== 403) {   // if the token is valide
+                        return Response.json();
                     }
-                    else alert('something went wrong on the server')
+                    else {
+                        alert('You are not sign In');
+                        signOut();
+                    }
                 })
                 .then((ResponseJSON) => {
                     setListOfQuestion(ResponseJSON);

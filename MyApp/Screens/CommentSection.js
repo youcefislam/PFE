@@ -13,7 +13,7 @@ const CommentSection = (props) => {
     const [replies, setReplies] = useState()
 
     useEffect(() => {
-        
+
         const requestReplies = async (comment) => {
 
             const token = await AsyncStorage.getItem('Token');
@@ -27,16 +27,13 @@ const CommentSection = (props) => {
                 body: JSON.stringify({ comment: comment }),
             })
                 .then((response) => {
-                    if (Response.status === 200) {
-                        if (response.status !== 403) {   //if the token is valide
-                            return response.json();
-                        }
-                        else {
-                            alert('You are not sign In');
-                            signOut();
-                        }
+                    if (response.status !== 403) {   //if the token is valide
+                        return response.json();
                     }
-                    else alert('something went wrong on the server')
+                    else {
+                        alert('You are not sign In');
+                        signOut();
+                    }
                 })
                 .then((responseJSON) => {
                     setReplies(responseJSON)
