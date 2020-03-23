@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
 import * as Progress from 'react-native-progress';
-import AsyncStorage from '@react-native-community/async-storage';
-import { MyAddress } from '../address'
+import { InitQuestions } from '../address'
+import { AuthContext } from '../App';
+
+
 const quizz = ({ route, navigation }) => {
 
+    const { signOut } = React.useContext(AuthContext);
 
-
+    // const quizzid = route.params.quizzid;
+    const quizzid = 1;
     const [ListOfQuestion, setListOfQuestion] = useState([])
     const [progressBar, setprogressBar] = useState(0);
     const [progressing, setprogressing] = useState(0)
@@ -14,8 +18,7 @@ const quizz = ({ route, navigation }) => {
     const [CurrentQuestion, setCurrentQuestion] = useState(0);
     const [ListOfAnswers, setListOfAnswers] = useState([]);
     const [CurrentQuestionText, setCurrentQuestionText] = useState('1/' + ListOfQuestion.length);
-    const [UsersAnswer, setUsersAnswer] = useState([])
-    const Params = route.params;
+    const [UsersAnswer, setUsersAnswer] = useState([]);
     const [isLoading, setisLoading] = useState(true);
     const [Ready, setReady] = useState(false);
     const [isLoadingScreen, setisLoadingScreen] = useState(true)
@@ -27,18 +30,21 @@ const quizz = ({ route, navigation }) => {
             if (x) TrueAnswer++;
         }
         const mark = TrueAnswer * 10 / ListOfQuestion.length;
-        navigation.navigate('ResultQuizz', { mark: mark.toFixed(2), quizzid: 1 })
+        navigation.navigate('ResultQuizz', { mark: mark.toFixed(2), quizzid })
     }
 
 
-    const SubmitAnswer = (answer) => {
+    const update = () => {
+        setListOfAnswers(ListOfQuestion[CurrentQuestion].answers);
+        setprogressBar(progressBar + progressing)
+        setquestion(ListOfQuestion[CurrentQuestion].question);
+        setCurrentQuestion(CurrentQuestion + 1);
+        setCurrentQuestionText((CurrentQuestion + 1) + '/' + ListOfQuestion.length);
+    }
 
+    const SubmitAnswer = (answer) => {
         if (CurrentQuestion < ListOfQuestion.length) {
-            setListOfAnswers(ListOfQuestion[CurrentQuestion].answers);
-            setprogressBar(progressBar + progressing)
-            setquestion(ListOfQuestion[CurrentQuestion].question);
-            setCurrentQuestion(CurrentQuestion + 1);
-            setCurrentQuestionText((CurrentQuestion + 1) + '/' + ListOfQuestion.length)
+            update()
         }
         if (CurrentQuestion <= ListOfQuestion.length) {
             if (answer == ListOfAnswers[ListOfQuestion[CurrentQuestion - 1].correct - 1]["answer"]) {
@@ -48,47 +54,8 @@ const quizz = ({ route, navigation }) => {
         } else GoToResultQuiz();
     }
 
-    useEffect(() => {
-
-        const InitQuestions = async () => {
-
-
-            const token = await AsyncStorage.getItem('Token');
-            const data = { quizzid: 1 }
-
-
-            return fetch(MyAddress + '/quizz', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify(data)
-            })
-                .then((Response) => {
-                    if (Response.status !== 403) {   // if the token is valide
-                        return Response.json();
-                    }
-                    else {
-                        alert('You are not sign In');
-                        signOut();
-                    }
-                })
-                .then((ResponseJSON) => {
-                    setListOfQuestion(ResponseJSON);
-                    setisLoading(false);
-                })
-        }
-
-        InitQuestions();
-    }, [])
-
     if (Ready) {
-        setListOfAnswers(ListOfQuestion[CurrentQuestion].answers);
-        setprogressBar(progressBar + progressing)
-        setquestion(ListOfQuestion[CurrentQuestion].question);
-        setCurrentQuestion(CurrentQuestion + 1);
-        setCurrentQuestionText((CurrentQuestion + 1) + '/' + ListOfQuestion.length);
+        update()
         setReady(false);
     }
 
@@ -100,6 +67,11 @@ const quizz = ({ route, navigation }) => {
         setisLoading(true);
     }
 
+
+    useEffect(() => {
+
+        InitQuestions(quizzid, setListOfQuestion, setisLoading, signOut);
+    }, [])
 
 
     return (

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, FlatList, StyleSheet, TouchableHighlight } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
-import { MyAddress } from '../address';
+import { requestListeDocument } from '../address';
 import { AuthContext } from '../App';
 
 
@@ -14,36 +13,7 @@ const Home = ({ route, navigation }) => {
 
     useEffect(() => {
 
-        const requestListeDocument = async (SousSpecialiteid) => {
-
-            const token = await AsyncStorage.getItem('Token');
-
-            fetch(MyAddress + '/document', {        //get Document List From The Server
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({ SousSpecialiteid: SousSpecialiteid }),
-            })
-                .then((response) => {
-                    if (response.status !== 403) {      //If the Token ss Valide
-                        return response.json();
-                    }
-                    else {
-                        alert('You are not signed In');
-                        signOut();
-                    }
-                })
-                .then((responseJSON) => {
-                    setListeDocument(responseJSON)
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
-        }
-
-        requestListeDocument(SousSpecialite.SousSpecialiteid)
+        requestListeDocument(SousSpecialite.SousSpecialiteid,setListeDocument,signOut)
 
     }, [])
 

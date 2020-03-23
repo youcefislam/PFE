@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { verfyCode } from '../address';
 
 
 
 const ValidateCode = ({ route, navigation }) => {
 
-    const [ValidCode, setValidCode] = useState(route.params.ValidCode);
+    const [ValidCode, setValidCode] = useState(route.params.VerifCode);
     const [VerifCode, setVerifCode] = useState();
     const [ReTypeTex, setReTypeTex] = useState('');
-
-    const verfyCode = () => {
-        console.log(ValidCode == VerifCode)
-        VerifCode ? ValidCode == VerifCode  ? (navigation.navigate('ResetPassword', { Email: route.params.Email })) : (setReTypeTex('The Code You Entered Is Wrong')) : (setReTypeTex('Please Enter The Verify Code That You Recieved'))
-    };
+    const Email = route.params.Email;
 
     return (
         <View style={styles.container}>
@@ -26,7 +23,7 @@ const ValidateCode = ({ route, navigation }) => {
                 returnKeyType='send'
                 onChangeText={(value) => setVerifCode(value)}
             />
-            <TouchableOpacity style={styles.button} onPress={() => { verfyCode() }}>
+            <TouchableOpacity style={styles.button} onPress={() => { verfyCode(Email, VerifCode, ValidCode, setReTypeTex, navigation) }}>
                 <Text style={styles.buttonText}>Verify</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={() => { navigation.goBack() }}>

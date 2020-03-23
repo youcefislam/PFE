@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, FlatList } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
-import { MyAddress } from '../address';
+import { requestReplies } from '../address';
 import { AuthContext } from '../App';
 
 
@@ -13,37 +12,7 @@ const CommentSection = (props) => {
     const [replies, setReplies] = useState()
 
     useEffect(() => {
-
-        const requestReplies = async (comment) => {
-
-            const token = await AsyncStorage.getItem('Token');
-
-            fetch(MyAddress + '/reponses', {  // Get Responses From the server
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({ comment: comment }),
-            })
-                .then((response) => {
-                    if (response.status !== 403) {   //if the token is valide
-                        return response.json();
-                    }
-                    else {
-                        alert('You are not sign In');
-                        signOut();
-                    }
-                })
-                .then((responseJSON) => {
-                    setReplies(responseJSON)
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
-        }
-
-        requestReplies(props.idComment);
+        requestReplies(props.idComment,setReplies,signOut);
     }, [])
     return (
         <View style={{ paddingLeft: "5%", borderLeftColor: "#ac1111", borderLeftWidth: 3 }}>

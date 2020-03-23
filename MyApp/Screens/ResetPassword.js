@@ -1,59 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
-import { MyAddress } from '../address';
+import { ChangePassword, passwordMsg, passwordConfirmationMsg, handlePasswordConfirm, handlePassword } from '../address';
 
 
 const ResetPassword = ({ route, navigation }) => {
 
     const [Password, setPassword] = useState();
     const [ConfirmPassword, setConfirmPassword] = useState();
-    let secondInput, ValidationButton;
-
-
-    //Screen Messages
-    const passwordMsg = "Password need to :" +
-        "\n   1-Be at least 8 characters long." +
-        "\n   2-Include at least one of this characters ( !@#$%^&* )." +
-        "\n   (note : other special characters are not allowed)" +
-        "\n   3-Include at least one number." +
-        "\n   4-Include at least one character.";
-    const passwordConfirmationMsg = "Ops, Your password Confirmation should match your password"
-
-
-    const ChangePassword = () => {
-        if (handlePassword()) {
-            if (Password === ConfirmPassword) {
-
-                const data = {
-                    email: route.params.Email,
-                    password: Password
-                };
-
-                fetch(MyAddress + '/users/ResetPassword', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data),
-                })
-                    .then((Response) => {
-                        return Response.json();
-                    })
-                    .then((responseJSON) => {
-                        alert(responseJSON.message);
-                        if (!responseJSON.errors) {
-                            navigation.navigate('Signin');
-                        }
-                    })
-
-            } else alert(passwordConfirmationMsg);
-        } else alert(passwordMsg)
-    }
-
-    const handlePassword = () => {  // Regular expression for the password 
-        const reg = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
-        return reg.test(Password);
-    }
+    const Email = route.params.Email;
+    let secondInput;
 
     return (
         <View style={styles.conatiner}>
@@ -63,7 +18,7 @@ const ResetPassword = ({ route, navigation }) => {
                 placeholder='New Password'
                 returnKeyType='next'
                 onChangeText={(value) => setPassword(value)}
-                onSubmitEditing={() => { handlePassword() ? secondInput.focus() : alert(PasswordMsg) }}
+                onSubmitEditing={() => { handlePassword(Password) ? secondInput.focus() : alert(passwordMsg) }}
             />
             <TextInput
                 ref={ref => { secondInput = ref; }}
@@ -71,9 +26,9 @@ const ResetPassword = ({ route, navigation }) => {
                 style={{ margin: 5, borderWidth: 2, borderColor: 'white' }}
                 placeholder='Confirm New Password'
                 onChangeText={(value) => setConfirmPassword(value)}
-                onSubmitEditing={() => handlePasswordConfirm() ? (null) : (alert(passwordConfirmationMsg))}
+                onSubmitEditing={() => handlePasswordConfirm(Password,ConfirmPassword) ? (null) : (alert(passwordConfirmationMsg))}
             />
-            <TouchableOpacity ref={ref => { ValidationButton = ref }} style={styles.button} onPress={ChangePassword} >
+            <TouchableOpacity style={styles.button} onPress={()=>ChangePassword(Email, Password, ConfirmPassword, navigation)} >
                 <Text style={styles.buttonText}>Change Password</Text>
             </TouchableOpacity>
         </View>

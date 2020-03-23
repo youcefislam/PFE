@@ -103,8 +103,6 @@ function verifyToken(req, res, next) {
     //get auth header value 
     const bearerHeader = req.headers['authorization'];
 
-
-    console.log(req.headers);
     if (typeof bearerHeader !== 'undefined') {
         //splite the bearerHeaser
         const bearer = bearerHeader.split(" ");
@@ -144,10 +142,10 @@ app.post('/users/login', (req, res) => {
                     const id = result[0].id_user;
                     const password = result[0].password;
 
-                    bcrypt.compare(req.body.password, password, async (err, result) => {        // we compare the request's password with our password
+                    bcrypt.compare(req.body.password, password, (err, result) => {        // we compare the request's password with our password
                         if (err) throw err;
                         if (result) {       // if the both passwords match
-                            await jwt.sign({ id: id, username: username }, MySecretKey, (err, token) => {   // create a token for the user & send it
+                            jwt.sign({ id, username}, MySecretKey, (err, token) => {   // create a token for the user & send it
                                 if (err) throw err;
                                 res.send({ token: token });
                             })
@@ -185,7 +183,7 @@ app.post('/users/register', (req, res) => {
             const mysqlDate = date.toISOString().split("T")[0];
             const sql = 'insert into users (email,password,username,insert_date) values (?,?,?,?)';
             try {
-                db.query(sql, [req.body.email, hash, req.body.username,mysqlDate], async (err, result) => {    // inserting the account to the datebase
+                db.query(sql, [req.body.email, hash, req.body.username, mysqlDate], async (err, result) => {    // inserting the account to the datebase
                     if (err) {
                         if (err.sqlMessage.includes('username')) Responsemessage.message = 'username already in use';
                         else if (err.sqlMessage.includes('email')) Responsemessage.message = 'email already in use';
@@ -280,13 +278,13 @@ app.post('/users/ForgotPoassword', (req, res) => {
                         await transporter.sendMail({
                             from: '"Cuizzy" cuizzyapp@gmail.com', // sender address
                             to: req.body.email, // list of receivers
-                            subject: "Password Reset", // Subject line
+                            subject: "Reset Password", // Subject line
                             text: "Hello world?", // plain text body
                             html: EmailBody // html body
                         }, (err, data) => {
                             if (err) {
                                 console.log('Error Occurs', err);
-                            } else console.log("email Sent");
+                            }
                         });
                     } else Responsemessage.message = "we have no account linked with that Email";
                 }
@@ -419,7 +417,7 @@ app.post('/post', verifyToken, (req, res) => {
 })
 
 // route to send quizz
-app.post('/quizz',verifyToken, (req, res) => {
+app.post('/quizz', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
         if (err) res.sendStatus(403);
         else {
@@ -427,16 +425,14 @@ app.post('/quizz',verifyToken, (req, res) => {
             db.query(sql, req.body.quizzid, (err, result) => {
                 if (err) throw err;
                 const dataToSend = [];
-                for(let i=0;i<result.length;i++)
-                {
+                for (let i = 0; i < result.length; i++) {
                     const AnswerArray = [];
-                    if(result[i].reponse_1 != null) AnswerArray.push({answer : result[i].reponse_1 })
-                    if(result[i].reponse_2 != null) AnswerArray.push({answer : result[i].reponse_2 })
-                    if(result[i].reponse_3 != null) AnswerArray.push({answer : result[i].reponse_3 })
-                    if(result[i].reponse_4 != null) AnswerArray.push({answer : result[i].reponse_4 })
-                    dataToSend.push({question : result[i].question_text , answers : AnswerArray,correct : result[i].juste_reponse })
+                    if (result[i].reponse_1 != null) AnswerArray.push({ answer: result[i].reponse_1 })
+                    if (result[i].reponse_2 != null) AnswerArray.push({ answer: result[i].reponse_2 })
+                    if (result[i].reponse_3 != null) AnswerArray.push({ answer: result[i].reponse_3 })
+                    if (result[i].reponse_4 != null) AnswerArray.push({ answer: result[i].reponse_4 })
+                    dataToSend.push({ question: result[i].question_text, answers: AnswerArray, correct: result[i].juste_reponse })
                 }
-                resultJSON = result.map(v => Object.assign({}, v))
                 res.send(dataToSend)
             });
         }
@@ -454,6 +450,50 @@ app.post('/quizz', verifyToken, (req, res) => {
                 resultJSON = result.map(v => Object.assign({}, v))
                 res.send(resultJSON)
             });
+        }
+    });
+})
+
+
+// route to update course rating
+app.post('/document/rate',verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+        if (err) res.sendStatus(403);
+        else {
+            var rating, nbrRating;
+            let sql = 'select * from document where id_document in (select id_document from quizz where id_quiz=?)';
+            db.query(sql, [req.body.quizzid], (err, result) => {
+                if (err) throw err;
+                else {
+                    if (result[0]) {
+                        if (result[0].number_of_rating == 0) rating = (result[0].rating + req.body.Rating);
+                        else rating = result[0].rating * result[0].number_of_rating + req.body.Rating;
+                        nbrRating = result[0].number_of_rating + 1;
+                        const newRating = rating / nbrRating;
+                        sql = 'UPDATE document SET rating=?,number_of_rating=? where id_document in (select id_document from quizz where id_quiz=?)';
+                        db.query(sql, [newRating, nbrRating, req.body.quizzid], (err, result) => {
+                            if (err) throw err;
+                            res.send(JSON.stringify({message : 'Thank you'}));
+                        });
+                    } else (res.status(400))
+                }
+            })
+        }
+    });
+})
+
+// route to add users mark
+app.post('/users/mark',verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+        if (err) res.sendStatus(403);
+        else {
+            let sql = 'INSERT INTO mark (id_quiz,id_user,mark) values (?,?,?)';
+            db.query(sql, [req.body.quizzid,autData.id,req.body.mark], (err, result) => {
+                if (err) throw err;
+                else {
+                    res.status(200);
+                }
+            })
         }
     });
 })

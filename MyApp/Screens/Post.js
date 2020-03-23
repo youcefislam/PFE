@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, FlatList, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
-import { MyAddress } from '../address';
+import { requestComments } from '../address';
 import CommentSection from './CommentSection'
 import { AuthContext } from '../App';
 
@@ -20,69 +19,7 @@ const Post = ({ route, navigation }) => {
 
     useEffect(() => {
 
-
-        const requestPost = async (Documentid) => {
-
-            let token = await AsyncStorage.getItem('Token');
-
-            fetch(MyAddress + '/post', {    //request the post from the server
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({ Documentid: Documentid }),
-            })
-                .then((response) => {
-                    if (Response.status === 200) {
-                        if (response.status !== 403) {    //if token is valide
-                            return response.json();
-                        }
-                        else {
-                            alert('You are not sign In');
-                            signOut();
-                        }
-                    }
-                    else alert('something went wrong on the server')
-                })
-                .then((responseJSON) => {
-                    setPost(responseJSON)      // set the post 
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
-        }
-
-        const requestComments = async (Documentid) => {
-
-            let token = await AsyncStorage.getItem('Token');
-            fetch(MyAddress + '/commentaires', {   // get the comments
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({ Documentid: Documentid }),
-            })
-                .then((response) => {
-                    if (response.status !== 403) {   // if the token is valide
-                        return response.json();
-                    }
-                    else {
-                        alert('You are not sign In');
-                        signOut();
-                    }
-                })
-                .then((responseJSON) => {
-
-                    setComments(responseJSON);
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
-        }
-
-        requestComments(document.documentid)
+        requestComments(document.documentid,setComments,signOut)
 
     }, [])
     return (

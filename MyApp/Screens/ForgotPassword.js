@@ -1,41 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { MyAddress } from '../address';
-import { Body } from 'node-fetch';
-
+import { SendVerifCode } from '../address';
 
 const ForgotPassword = ({ navigation }) => {
 
     const [Email, setEmail] = useState('');
-    const [VerifCode, setVerifCode] = useState();
 
-    const SendVerifCode = () => {
-
-
-        if (handleEmail()) {
-            fetch(MyAddress + '/users/ForgotPoassword', {
-                method: 'Post',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email: Email }),
-            }).then((response) => {
-                return response.json();
-            }).then((responseJSON) => {
-                alert(responseJSON.message);
-                if (!responseJSON.errors) {
-                    setVerifCode(responseJSON.code);
-                    navigation.navigate('ValidateCode', { VerifCode, Email });
-                }
-            })
-        } else alert('Email must be Valid ')
-
-    };
-
-    const handleEmail = () => {    // Regular expression for the email 
-        const reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return reg.test(Email);
-    }
 
     return (
         <View style={styles.container}>
@@ -44,7 +14,7 @@ const ForgotPassword = ({ navigation }) => {
                 placeholder="Enter Your Email"
                 onChangeText={(value) => setEmail(value)}
             />
-            <TouchableOpacity onPress={SendVerifCode}>
+            <TouchableOpacity onPress={()=>SendVerifCode(Email,navigation)}>
                 <View style={styles.button}>
                     <Text style={styles.buttonText}>Send Verifecation Code</Text>
                 </View>

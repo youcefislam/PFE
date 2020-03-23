@@ -2,8 +2,7 @@ import 'react-native-gesture-handler';
 import React, { useEffect, useMemo } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { MyAddress } from './address';
-import AsyncStorage from '@react-native-community/async-storage';
+import { bootstrapAsync } from './address';
 import {
   StyleSheet,
   ToastAndroid
@@ -12,7 +11,7 @@ import {
 import Welcome from './Screens/Welcome';
 import Signin from './Screens/Signin';
 import SignUp from './Screens/SignUp';
-import MoreAboutMe from './Screens/MoreAboutMe';
+import PersonalInformation from './Screens/PersonalInformation';
 import Home from './Screens/Home';
 import Post from "./Screens/Post";
 import SousSpecialite from "./Screens/SousSpecialite"
@@ -28,6 +27,7 @@ export const AuthContext = React.createContext();    // this will be used in the
 const Stack = createStackNavigator();
 
 const App = () => {
+
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
       switch (action.type) {
@@ -61,55 +61,24 @@ const App = () => {
 
 
 
-  useEffect(() => {    // First Enter 
+  useEffect(() => {
 
-    // Fetch the token from storage then navigate to our appropriate place
-    const bootstrapAsync = async () => {
-      let userToken;
 
-      try {         // verify the token validity
-
-        userToken = await AsyncStorage.getItem('Token');
-        // userToken = null;
-
-        if (userToken !== null) {   // if the token exist
-          fetch(MyAddress + '/specialite', {
-            method: 'post',
-            headers: {
-              'Content-Type': 'application/json',
-              'authorization': 'Bearer ' + userToken
-            },
-          })
-            .then((response) => {
-              if (response.status !== 403) {  // if token is valid
-                dispatch({ type: 'RESTORE_TOKEN', token: userToken });
-              }
-              else {     // if Token is Not valid 
-                dispatch({ type: 'SIGN_OUT' });
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-            })
-        }
-        else {   // if the token doesn't exist
-          dispatch({ type: 'SIGN_OUT' });
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    };
-
-    bootstrapAsync();
+    bootstrapAsync(authContext);
   }, []);
 
   const authContext = useMemo(      //check whether the user is sign in or not to display the right screens
     () => ({
-      signIn: async data => {
+      signIn: async (data) => {
         ToastAndroid.show('Welcome !', ToastAndroid.SHORT);
         dispatch({ type: 'SIGN_IN', token: data });
       },
-      signOut: () => dispatch({ type: 'SIGN_OUT' }),     // function that handel Sign Out
+      restoreToken: (data) => {
+        ToastAndroid.show('Welcome !', ToastAndroid.SHORT);
+        dispatch({ type: 'RESTORE_TOKEN', token: data });
+      }
+      ,
+      signOut: async () => dispatch({ type: 'SIGN_OUT' }),     // function that handel Sign Out
     }),
     []
   );
@@ -129,19 +98,18 @@ const App = () => {
                 <Stack.Screen name="Welcome" component={Welcome} />
                 <Stack.Screen name="Signin" component={Signin} />
                 <Stack.Screen name="SignUp" component={SignUp} />
-                <Stack.Screen name="MoreAboutMe" component={MoreAboutMe} />
+                <Stack.Screen name="PersonalInformation" component={PersonalInformation} />
                 <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
                 <Stack.Screen name="ValidateCode" component={ValidateCode} />
                 <Stack.Screen name="ResetPassword" component={ResetPassword} />
               </>
             ) : (                         // if the token is verified
                 <>
-                  {/* <Stack.Screen name="Home" component={Home} options={{ title: 'Home', headerTitleAlign: "center" }} />
+                  <Stack.Screen name="Home" component={Home} options={{ title: 'Home', headerTitleAlign: "center" }} />
                   <Stack.Screen name="SousSpecialite" component={SousSpecialite} />
                   <Stack.Screen name="ListeDocument" component={ListeDocument} />
-                  <Stack.Screen name="post" component={Post} /> */}
+                  <Stack.Screen name="post" component={Post} />
                   <Stack.Screen name='quizz' component={quizz} />
-                  <Stack.Screen name='ResultQuizz' component={ResultQuizz} />
                 </>
               )
           }

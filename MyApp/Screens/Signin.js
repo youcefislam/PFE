@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import CheckBox from '@react-native-community/checkbox';
-import AsyncStorage from '@react-native-community/async-storage';
-import { MyAddress } from '../address';       //The Address of the server
+import { handleLogin } from '../address';
 import { AuthContext } from '../App';       // AuthContext to control the screens
 
 import {
@@ -24,43 +23,6 @@ const Signin = ({ navigation }) => {
   const [RememberUserInfo, setRememberUserInfo] = useState(false);
   let secondInput;
 
-
-  const handleLogin = () => {
-
-    const data = { username: username, password: password };
-
-    fetch(MyAddress + '/users/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => {
-        if (Response.status === 200) {
-          return response.json()
-        }
-        else alert('something went wrong on the server')
-      })
-      .then(async (responseJson) => {
-        if (responseJson.token) // if we get the token from the server
-        {
-          try {
-            await AsyncStorage.setItem('Token', responseJson.token);   // we save it
-            signIn(responseJson.token);  // call the sign in function from the app.js screen
-          } catch (error) {
-            console.error(err);
-          }
-        }
-        else if (responseJson.message) {
-          alert(responseJson.message)
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-  };
-
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView behavior='padding'>
@@ -78,7 +40,7 @@ const Signin = ({ navigation }) => {
           placeholder="Password"
           placeholderTextColor="#F2EEF8"
           onChangeText={(val) => setPassword(val)} />
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View style={styles.Adds}>
           <View style={styles.RememberMestyle}>
             <CheckBox
               value={RememberUserInfo}
@@ -88,14 +50,14 @@ const Signin = ({ navigation }) => {
               <Text style={styles.RememberMetext}>Remember Me</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={{ flexDirection: 'row-reverse' }} onPress={()=>navigation.navigate('ForgotPassword')}>
+          <TouchableOpacity style={{ flexDirection: 'row-reverse' }} onPress={() => navigation.navigate('ForgotPassword')}>
             <View>
               <Text style={{ color: 'white', fontSize: 11 }}>Forgot Password?</Text>
             </View>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-      <TouchableOpacity onPress={handleLogin}>
+      <TouchableOpacity onPress={() => handleLogin(username, password, signIn)}>
         <View style={styles.button}>
           <Text style={styles.buttonText}>Sign In</Text>
         </View>
@@ -158,7 +120,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontStyle: "italic",
     textDecorationLine: 'underline'
-  }
+  },
+  Adds: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between' 
+  },
 
 });
 

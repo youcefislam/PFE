@@ -1,46 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, FlatList, StyleSheet, TouchableHighlight } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
-import { MyAddress } from '../address';
-
+import { requestSpecialite } from '../address';
+import { AuthContext } from '../App';
 
 const Home = ({ navigation }) => {
 
 
+    const { signOut } = React.useContext(AuthContext);
     const [specialities, setSpecialities] = useState([]);
 
+    
     useEffect(() => {
-
-        const requestSpecialite = async () => {
-
-            const token = await AsyncStorage.getItem('Token');
-
-            return fetch(MyAddress + '/specialite', {           //fetch Speciality List from the server
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'authorization': 'Bearer ' + token
-                },
-            })
-                .then((response) => {
-                    if (response.status !== 403) {   // if token verified
-                        return response.json();
-                    }
-                    else {
-                        alert('You are not sign In');
-                        signOut();
-                    }
-                })
-                .then((responseJSON) => {
-                    setSpecialities(responseJSON);
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
-        }
-
-        requestSpecialite()
+        requestSpecialite(setSpecialities,signOut);
     }, [])
+
+
     return (
         <View style={{ flex: 1 }} >
             <FlatList style={{ flex: 1 }}

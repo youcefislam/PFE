@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableHighlight } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
-import { MyAddress } from '../address';
+import {requestSousSpecialite } from '../address';
 import { AuthContext } from '../App';
 
 
@@ -14,36 +13,8 @@ const Home = ({ route, navigation }) => {
 
     useEffect(() => {
 
-        const requestSousSpecialite = async (idSpecialite) => {     //get the subSpeciality List From The Server
-
-            const token = await AsyncStorage.getItem('Token');   //check token
-
-            fetch(MyAddress + '/SousSpecialite', {
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({ idSpecialite: idSpecialite }),
-            })
-                .then((response) => {
-                    if (response.status !== 403) {  // if the token is verified
-                        return response.json();
-                    }
-                    else {
-                        alert('You are not signed In');
-                        signOut();
-                    }
-                })
-                .then((responseJSON) => {
-                    setSousSpecialities(responseJSON);      //Set subSpeciality List
-                })
-                .catch((error) => {
-                    console.error(error);
-                })
-        }
-
-        requestSousSpecialite(specialite.specialiteid);
+        
+        requestSousSpecialite(specialite.specialiteid,setSousSpecialities,signOut);
     }, [])
 
     return (
