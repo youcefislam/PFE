@@ -512,7 +512,24 @@ app.post('/commentaires', verifyToken, (req, res) => {
         }
     })
 })
-
+app.post('/commentaires/send', verifyToken, (req, res) => {
+    console.log("commentaire sending")
+    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+        if (err) res.sendStatus(403);
+        else {
+            const sql = 'insert into reponses(contenu,auteur) values(?,?)'
+            const sql2 = 'insert into commentaires(id_commentaire,id_document) values(?,?) '
+            db.query(sql,[req.body.contenu , autData.id ,],(err, result) => {
+                db.query(sql2,[result.insertId,req.body.documentid],(err,result)=>{
+                    if (err) throw err;
+                    else {
+                        res.status(200);
+                    }
+                })
+            });
+        }
+    })
+})
 // route to send Responses
 app.post('/reponses', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
@@ -527,7 +544,21 @@ app.post('/reponses', verifyToken, (req, res) => {
         }
     })
 })
-
+app.post('/reponses/send', verifyToken, (req, res) => {
+    console.log("reponses send")
+    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+        if (err) res.sendStatus(403);
+        else {
+            const sql = 'insert into reponses(contenu,auteur,id_precedent) values(?,?,?)'
+            db.query(sql, [req.body.contenu , autData.id , req.body.previousid], (err, result) => {
+                if (err) throw err;
+                else {
+                    res.status(200);
+                }
+            });
+        }
+    })
+})
 
 // start The Server Listner
 app.listen(3000, () => {
