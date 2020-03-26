@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Text, View, StyleSheet, TextInput, TouchableOpacity, ScrollView, ShowPattern } from 'react-native';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import {
     passwordMsg,
     passwordConfirmationMsg,
@@ -9,7 +9,8 @@ import {
     handlePassword,
     handleUsername,
     handleEmail,
-    handleRegister
+    handleRegister,
+    ShowPattern
 } from '../address';
 
 

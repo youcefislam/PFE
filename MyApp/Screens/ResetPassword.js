@@ -7,7 +7,7 @@ const ResetPassword = ({ route, navigation }) => {
 
     const [Password, setPassword] = useState();
     const [ConfirmPassword, setConfirmPassword] = useState();
-    const Email = route.params.Email;
+    // const Email = route.params.Email;
     let secondInput;
 
     return (

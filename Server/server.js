@@ -145,7 +145,7 @@ app.post('/users/login', (req, res) => {
                     bcrypt.compare(req.body.password, password, (err, result) => {        // we compare the request's password with our password
                         if (err) throw err;
                         if (result) {       // if the both passwords match
-                            jwt.sign({ id, username}, MySecretKey, (err, token) => {   // create a token for the user & send it
+                            jwt.sign({ id, username }, MySecretKey, (err, token) => {   // create a token for the user & send it
                                 if (err) throw err;
                                 res.send({ token: token });
                             })
@@ -456,7 +456,7 @@ app.post('/quizz', verifyToken, (req, res) => {
 
 
 // route to update course rating
-app.post('/document/rate',verifyToken, (req, res) => {
+app.post('/document/rate', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
         if (err) res.sendStatus(403);
         else {
@@ -473,7 +473,7 @@ app.post('/document/rate',verifyToken, (req, res) => {
                         sql = 'UPDATE document SET rating=?,number_of_rating=? where id_document in (select id_document from quizz where id_quiz=?)';
                         db.query(sql, [newRating, nbrRating, req.body.quizzid], (err, result) => {
                             if (err) throw err;
-                            res.send(JSON.stringify({message : 'Thank you'}));
+                            res.send(JSON.stringify({ message: 'Thank you' }));
                         });
                     } else (res.status(400))
                 }
@@ -483,12 +483,12 @@ app.post('/document/rate',verifyToken, (req, res) => {
 })
 
 // route to add users mark
-app.post('/users/mark',verifyToken, (req, res) => {
+app.post('/users/mark', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
         if (err) res.sendStatus(403);
         else {
             let sql = 'INSERT INTO mark (id_quiz,id_user,mark) values (?,?,?)';
-            db.query(sql, [req.body.quizzid,autData.id,req.body.mark], (err, result) => {
+            db.query(sql, [req.body.quizzid, autData.id, req.body.mark], (err, result) => {
                 if (err) throw err;
                 else {
                     res.status(200);

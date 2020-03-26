@@ -17,6 +17,7 @@ export const EmailMsg = 'Email must be a Real & Valid Email.';
 export const UsernameMsg = "Username need to :" +
     "\n   1-Be at least 8 Chartcters long." +
     "\n   2-contain Only charcters and Numbers. ";
+    
 export const ShowPattern = () => {
     alert("A- " + EmailMsg + "\nB- " + UsernameMsg + "\nC- " + passwordMsg + "\nD-Password Confirmation should match your password");
 }

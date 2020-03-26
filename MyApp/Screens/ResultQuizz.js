@@ -23,6 +23,7 @@ const ResultQuizz = ({ route, navigation }) => {
             {
                 !DidRate ? (
                     <View style={style.RateView}>
+                        <Text>Rate This Course </Text>
                         <AirbnbRating
                             count={5}
                             reviews={["Terrible", "Bad", "OK", "Good", "Very Good"]}
