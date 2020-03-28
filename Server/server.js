@@ -465,16 +465,16 @@ app.post('/document/rate', verifyToken, (req, res) => {
                         if (result[0].number_of_rating == 0) rating = (result[0].rating + req.body.Rating);
                         else rating = result[0].rating * result[0].number_of_rating + req.body.Rating;
                         nbrRating = result[0].number_of_rating + 1;
-                        const id_doc=result[0].id_document;
+                        const id_doc = result[0].id_document;
                         const newRating = rating / nbrRating;
                         sql = 'UPDATE document SET rating=?,number_of_rating=? where id_document in (select id_document from quizz where id_quiz=?)';
                         db.query(sql, [newRating, nbrRating, req.body.quizzid], (err, result) => {
                             if (err) throw err;
-                            else{
-                                sql='INSERT INTO Rates (id_document,id_user,Rate) VALUES (?,?,?)'
-                                db.query(sql,[id_doc,authData.id,req.body.Rating],(err,result)=>{
-                                    if(err) throw err;
-                                    else{
+                            else {
+                                sql = 'INSERT INTO Rates (id_document,id_user,Rate) VALUES (?,?,?)'
+                                db.query(sql, [id_doc, authData.id, req.body.Rating], (err, result) => {
+                                    if (err) throw err;
+                                    else {
                                         res.send(JSON.stringify({ message: 'Thank you' }));
                                     }
                                 })
@@ -492,7 +492,7 @@ app.post('/users/mark', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
         if (err) res.sendStatus(403);
         else {
-            
+
             let sql = 'SELECT * FROM mark WHERE id_quiz=? and id_user=?';
             db.query(sql, [req.body.quizzid, autData.id], (err, result) => {
                 if (err) throw err;
@@ -506,18 +506,18 @@ app.post('/users/mark', verifyToken, (req, res) => {
                                 }
                             })
                         }
-                        res.send({didRate:true});
+                        res.send({ didRate: true });
                     } else {
                         sql = 'INSERT INTO mark (id_quiz,id_user,mark) values (?,?,?)';
                         db.query(sql, [req.body.quizzid, autData.id, req.body.mark], (err, result) => {
                             if (err) throw err;
                             else {
-                                sql='SELECT * FROM Rates WHERE id_user=? AND id_document IN (SELECT id_document FROM quizz WHERE id_quiz=?)';
-                                db.query(sql,[autData.id,req.body.quizzid],(err,result)=>{
-                                    if(err) throw err;
-                                    else{
-                                        if(result[0]) res.send({didRate:true});
-                                        else res.send({didRate:false});
+                                sql = 'SELECT * FROM Rates WHERE id_user=? AND id_document IN (SELECT id_document FROM quizz WHERE id_quiz=?)';
+                                db.query(sql, [autData.id, req.body.quizzid], (err, result) => {
+                                    if (err) throw err;
+                                    else {
+                                        if (result[0]) res.send({ didRate: true });
+                                        else res.send({ didRate: false });
                                     }
                                 })
                             }
@@ -543,7 +543,24 @@ app.post('/commentaires', verifyToken, (req, res) => {
         }
     })
 })
-
+app.post('/commentaires/send', verifyToken, (req, res) => {
+    console.log("commentaire sending")
+    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+        if (err) res.sendStatus(403);
+        else {
+            const sql = 'insert into reponses(contenu,auteur) values(?,?)'
+            const sql2 = 'insert into commentaires(id_commentaire,id_document) values(?,?) '
+            db.query(sql, [req.body.contenu, autData.id,], (err, result) => {
+                db.query(sql2, [result.insertId, req.body.documentid], (err, result) => {
+                    if (err) throw err;
+                    else {
+                        res.status(200);
+                    }
+                })
+            });
+        }
+    })
+})
 // route to send Responses
 app.post('/reponses', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
@@ -748,11 +765,10 @@ app.post('/users/updateInfo', verifyToken, (req, res) => {
                     } else if (req.file) sql += 'Photo=\'' + req.file.path + '\'';
                     if (req.file.path) {
                         const sqlDelete = 'SELECT Photo FROM users WHERE id_user=?';
-                        db.query(sqlDelete,authData.id, (err, result) => {
+                        db.query(sqlDelete, authData.id, (err, result) => {
                             if (err) throw err;
                             else {
-                                if(result[0].Photo!=='/public/uploads/default.jpg')
-                                {
+                                if (result[0].Photo !== '/public/uploads/default.jpg') {
                                     fs.unlink(`${result[0].Photo}`, (err) => {
                                         if (err) throw err;
                                     });
@@ -769,6 +785,21 @@ app.post('/users/updateInfo', verifyToken, (req, res) => {
                     })
                 }
             })
+        }
+    })
+})
+app.post('/reponses/send', verifyToken, (req, res) => {
+    console.log("reponses send")
+    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+        if (err) res.sendStatus(403);
+        else {
+            const sql = 'insert into reponses(contenu,auteur,id_precedent) values(?,?,?)'
+            db.query(sql, [req.body.contenu, autData.id, req.body.previousid], (err, result) => {
+                if (err) throw err;
+                else {
+                    res.status(200);
+                }
+            });
         }
     })
 })

@@ -1,4 +1,4 @@
-export const MyAddress = 'http://192.168.1.10:3000';
+export const MyAddress = 'http://192.168.1.4:3000';
 import AsyncStorage from '@react-native-community/async-storage';
 
 
@@ -596,6 +596,10 @@ export const AddRating = async (quizzid, Rating, signOut) => {
     })
 
 }
+//replies
+export const sendReply= async (previousid,text)=>{
+    if(text!=""){
+    const token = await AsyncStorage.getItem('Token');   //check token
 
 
 // profil functions 
@@ -792,4 +796,56 @@ export const GetMyMarks = async (setMarks, signOut) => {
     }).then(responseJSON => {
         setMarks(responseJSON);
     })
+}
+    fetch(MyAddress + '/reponses/send', {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json',
+            'authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({contenu:text,previousid:previousid}),
+    })
+        .then((response) => {
+            if (response.status !== 403) {  // if the token is verified
+                return response.json();
+            }
+            else {
+                alert('You are not signed In');
+                signOut();
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        })
+    }else{
+        alert("cant send an empty reply")
+    }
+}
+//comments
+export const sendComment=async (documentid,text)=>{
+    if(text!=""){
+    const token = await AsyncStorage.getItem('Token');
+    fetch(MyAddress + '/commentaires/send', {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json',
+            'authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({contenu:text,documentid:documentid}),
+    })
+        .then((response) => {
+            if (response.status !== 403) {  // if the token is verified
+                return response.json();
+            }
+            else {
+                alert('You are not signed In');
+                signOut();
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        })
+    }else{
+        alert("cant send an empty comment")
+    }
 }

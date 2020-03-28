@@ -23,9 +23,10 @@ import ForgotPassword from './Screens/ForgotPassword';
 import ValidateCode from './Screens/ValidateCode';
 import ResetPassword from './Screens/ResetPassword';
 import quizz from './Screens/quizz';
-import ResultQuizz from './Screens/ResultQuizz';
 import Profil from "./Screens/Profil";
 import MyMarks from './Screens/MyMarks'
+import ResultQuizz from './Screens/ResultQuizz'
+import CommentSection from './Screens/CommentSection';
 
 export const AuthContext = React.createContext();    // this will be used in the other screens to change data here (used to control the app view)
 const Stack = createStackNavigator();
@@ -113,6 +114,7 @@ const App = () => {
                   <Stack.Screen name="SousSpecialite" component={SousSpecialite} />
                   <Stack.Screen name="ListeDocument" component={ListeDocument} />
                   <Stack.Screen name="post" component={Post} />
+                  <Stack.Screen name="comment section" component={CommentSection}/>
                   <Stack.Screen name='quizz' component={quizz} />
                   <Stack.Screen name='ResultQuizz' component={ResultQuizz} />
                   <Stack.Screen name='Profil' component={Profil} />

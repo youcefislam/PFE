@@ -3,40 +3,18 @@ import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { requestComments } from '../address';
 import CommentSection from './CommentSection'
 import { AuthContext } from '../App';
-
-
+import Icon from 'react-native-vector-icons/EvilIcons';
 
 const Post = ({ route, navigation }) => {
 
     const { signOut } = React.useContext(AuthContext);
-
-
-
-    const [comments, setComments] = useState([])
     const [post, setPost] = useState({})
     const document = route.params;
-
-
-    useEffect(() => {
-
-        requestComments(document.documentid,setComments,signOut)
-
-    }, [])
     return (
         <View style={{}} >
-            <FlatList
-                data={comments}
-                keyExtractor={(item) => item.id_reponse.toString()}
-                ListHeaderComponent={<View style={{ height: 700, borderBottomColor: "#ac1111", borderBottomWidth: 5 }}></View>}
-                renderItem={({ item }) => {
-                    return (
-                        <View>
-                            <Text>{item.contenu}</Text>
-                            <CommentSection idComment={item.id_reponse} />
-                        </View>
-                    )
-                }}
-            />
+            <View style={{flexDirection:"row-reverse"}}>
+                        <Icon onPress={() => { navigation.navigate("comment section",{documentid:document.documentid})}} name="comment" size={30} color="#900" />
+                    </View>
         </View>
     )
 }
