@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import {GetMyMarks }from '../address'; 
+import { AuthContext } from '../App';
 
-const MyMarks = () => {
+const MyMarks = ({navigation}) => {
 
-    const [state, setstate] = useState([{ mark: 7, quizzid: 1, titre: 'application Lineare' },
-    { mark: 5, quizzid: 2, titre: 'application dsqdsdqsd' }, { mark: 2, quizzid: 3, titre: 'application azezaae' },
-    { mark: 4, quizzid: 4, titre: 'application dsqdsqdsqd' }, { mark: 10, quizzid: 5, titre: 'dsqdsqdsd Lineare' },
-    { mark: 10, quizzid: 6, titre: 'S/QD%Q¨ Lineare' }, { mark: 10, quizzid: 7, titre: '233EZAD Lineare' }])
+    const { signOut } = React.useContext(AuthContext);
+    const [Marks, setMarks] = useState([])
 
+
+    useEffect(() => {
+        
+        GetMyMarks(setMarks,signOut);
+    }, [])
 
     return (
         <View style={style.container}>
@@ -19,14 +24,14 @@ const MyMarks = () => {
             <FlatList
                 style={{}}
                 numColumns={1}
-                data={state}
+                data={Marks}
                 keyExtractor={(item) => item.quizzid.toString()}
                 renderItem={({ item }) => {
                     return (
                         <View style={style.MarkView} >
                             <Text style={style.title}>{item.titre}</Text>
                             <Text style={style.mark}>{item.mark}</Text>
-                            <TouchableOpacity style={style.retakebtn}>
+                            <TouchableOpacity style={style.retakebtn} onPress={()=>navigation.navigate("quizz",{quizzid:item.quizzid})}>
                                 <Text style={style.retake}>Retake</Text>
                             </TouchableOpacity>
                         </View>

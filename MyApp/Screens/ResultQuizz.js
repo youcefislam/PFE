@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { AirbnbRating } from 'react-native-ratings';
 import { HandelNow, AddRating } from "../address";
+import { AuthContext } from '../App';
 
 
 const ResultQuizz = ({ route, navigation }) => {
@@ -10,12 +11,24 @@ const ResultQuizz = ({ route, navigation }) => {
     const quizzid = route.params.quizzid;
     let note = mark < 5 ? ('You Have To Work More') : mark < 7 ? ('Good Job !') : ('Greate Job !');
 
+    const { signOut } = React.useContext(AuthContext);
     const [Rating, setRating] = useState(3);
-    const [DidRate, setDidRate] = useState(false)
+    const [DidRate, setDidRate] = useState()
+    const [isLoading, setisLoading] = useState(true);
 
     useEffect(() => {
-        HandelNow(quizzid, mark);
+        HandelNow(quizzid, setDidRate, setisLoading, mark, signOut);
     }, [])
+
+
+    if (isLoading) {
+        return (
+            <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+                <ActivityIndicator size="large" color="red" />
+            </View>
+        );
+    }
+
 
 
     return (
@@ -32,7 +45,7 @@ const ResultQuizz = ({ route, navigation }) => {
                             reviewSize={30}
                             onFinishRating={(rating) => setRating(rating)}
                         />
-                        <TouchableOpacity style={style.Buttons} activeOpacity={0.5} onPress={() => { setDidRate(true); AddRating(quizzid, Rating); }}>
+                        <TouchableOpacity style={style.Buttons} activeOpacity={0.5} onPress={() => { setDidRate(true); AddRating(quizzid, Rating, signOut); }}>
                             <Text style={style.ButtonsText} >Submit</Text>
                         </TouchableOpacity>
                     </View>

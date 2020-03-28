@@ -8,9 +8,7 @@ import { AuthContext } from '../App';
 const quizz = ({ route, navigation }) => {
 
     const { signOut } = React.useContext(AuthContext);
-
-    // const quizzid = route.params.quizzid;
-    const quizzid = 1;
+    const [quizzid, setquizzid] = useState(1)
     const [ListOfQuestion, setListOfQuestion] = useState([])
     const [progressBar, setprogressBar] = useState(0);
     const [progressing, setprogressing] = useState(0)

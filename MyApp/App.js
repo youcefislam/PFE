@@ -8,6 +8,8 @@ import {
   ToastAndroid
 } from 'react-native';
 
+
+
 import Welcome from './Screens/Welcome';
 import Signin from './Screens/Signin';
 import SignUp from './Screens/SignUp';
@@ -107,14 +109,14 @@ const App = () => {
               </>
             ) : (                         // if the token is verified
                 <>
-                  <Stack.Screen name='Profil' component={Profil} />
-                  <Stack.Screen name='MyMarks' component={MyMarks} />
                   <Stack.Screen name="Home" component={Home} options={{ title: 'Home', headerTitleAlign: "center" }} />
                   <Stack.Screen name="SousSpecialite" component={SousSpecialite} />
                   <Stack.Screen name="ListeDocument" component={ListeDocument} />
                   <Stack.Screen name="post" component={Post} />
                   <Stack.Screen name='quizz' component={quizz} />
                   <Stack.Screen name='ResultQuizz' component={ResultQuizz} />
+                  <Stack.Screen name='Profil' component={Profil} />
+                  <Stack.Screen name='MyMarks' component={MyMarks} />
                 </>
               )
           }
