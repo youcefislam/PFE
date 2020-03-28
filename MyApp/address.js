@@ -1,5 +1,6 @@
-export const MyAddress = 'http://192.168.1.4:3000';
 import AsyncStorage from '@react-native-community/async-storage';
+export const MyAddress = 'http://192.168.1.10:3000';
+
 
 
 
@@ -544,7 +545,7 @@ export const InitQuestions = async (quizzid, setListOfQuestion, setisLoading, si
 
 
 // ResultQuizz
-export const HandelNow = async (quizzid, setDidRate,setisLoading, mark, signOut) => {
+export const HandelNow = async (quizzid, setDidRate, setisLoading, mark, signOut) => {
 
 
     const token = await AsyncStorage.getItem('Token');
@@ -597,10 +598,34 @@ export const AddRating = async (quizzid, Rating, signOut) => {
 
 }
 //replies
-export const sendReply= async (previousid,text)=>{
-    if(text!=""){
-    const token = await AsyncStorage.getItem('Token');   //check token
+export const sendReply = async (previousid, text) => {
+    if (text != "") {
+        const token = await AsyncStorage.getItem('Token');   //check token
 
+        fetch(MyAddress + '/reponses/send', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ contenu: text, previousid: previousid }),
+        })
+            .then((response) => {
+                if (response.status !== 403) {  // if the token is verified
+                    return response.json();
+                }
+                else {
+                    alert('You are not signed In');
+                    signOut();
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+    } else {
+        alert("cant send an empty reply")
+    }
+}
 
 // profil functions 
 export const GetInfo = async (id, setisLoadingScreen, setInfo, setmyProfile, setUsername, setFirstName, setSecondName, setSex, setemail, setProfilImage, setNewProfilImage, signOut) => {
@@ -623,6 +648,7 @@ export const GetInfo = async (id, setisLoadingScreen, setInfo, setmyProfile, set
         setisLoadingScreen(false);
         setProfilImage({ "srcImg": { "uri": MyAddress + '/' + data.Photo } });
         setNewProfilImage({ "srcImg": { "uri": MyAddress + '/' + data.Photo } });
+        setmyProfile(data.MyProfile);
         setUsername(data.username)
         setFirstName(data.FirstName)
         setSecondName(data.SecondName)
@@ -797,55 +823,31 @@ export const GetMyMarks = async (setMarks, signOut) => {
         setMarks(responseJSON);
     })
 }
-    fetch(MyAddress + '/reponses/send', {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({contenu:text,previousid:previousid}),
-    })
-        .then((response) => {
-            if (response.status !== 403) {  // if the token is verified
-                return response.json();
-            }
-            else {
-                alert('You are not signed In');
-                signOut();
-            }
-        })
-        .catch((error) => {
-            console.error(error);
-        })
-    }else{
-        alert("cant send an empty reply")
-    }
-}
 //comments
-export const sendComment=async (documentid,text)=>{
-    if(text!=""){
-    const token = await AsyncStorage.getItem('Token');
-    fetch(MyAddress + '/commentaires/send', {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({contenu:text,documentid:documentid}),
-    })
-        .then((response) => {
-            if (response.status !== 403) {  // if the token is verified
-                return response.json();
-            }
-            else {
-                alert('You are not signed In');
-                signOut();
-            }
+export const sendComment = async (documentid, text) => {
+    if (text != "") {
+        const token = await AsyncStorage.getItem('Token');
+        fetch(MyAddress + '/commentaires/send', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ contenu: text, documentid: documentid }),
         })
-        .catch((error) => {
-            console.error(error);
-        })
-    }else{
+            .then((response) => {
+                if (response.status !== 403) {  // if the token is verified
+                    return response.json();
+                }
+                else {
+                    alert('You are not signed In');
+                    signOut();
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+    } else {
         alert("cant send an empty comment")
     }
 }
