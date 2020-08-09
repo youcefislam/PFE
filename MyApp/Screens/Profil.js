@@ -23,7 +23,7 @@ import { AuthContext } from '../App';
 const Profil = ({ navigation }) => {
 
     const [Info, setInfo] = useState({})
-    const InfoUserId = 1;
+    const InfoUserId = 20;
     const [Edit, setEdit] = useState(false);
     const [myProfile, setmyProfile] = useState(Info.myProfile);
     const [username, setUsername] = useState(Info.username);

@@ -13,9 +13,11 @@
     "@react-native-community/async-storage": "^1.8.1",
     "@react-native-community/checkbox": "^0.3.0",
     "@react-native-community/datetimepicker": "^2.2.3",
+    "@react-native-community/hooks": "^2.6.0",
     "@react-native-community/masked-view": "^0.1.6",
     "@react-native-community/toolbar-android": "0.1.0-rc.2",
     "@react-native-community/viewpager": "^3.3.0",
+    "@react-navigation/bottom-tabs": "^5.8.0",
     "@react-navigation/native": "^5.0.5",
     "@react-navigation/stack": "^5.0.5",
     "node-fetch": "^2.6.0",
@@ -31,7 +33,9 @@
     "react-native-reanimated": "^1.7.0",
     "react-native-safe-area-context": "^0.7.3",
     "react-native-screens": "^2.0.0-beta.8",
+    "react-native-shadow": "^1.2.2",
     "react-native-simple-radio-button": "^2.7.4",
+    "react-native-svg": "^12.1.0",
     "react-native-vector-icons": "^6.6.0"
   },
   "devDependencies": {
@@ -42,6 +46,7 @@
     "eslint": "^6.5.1",
     "jest": "^24.9.0",
     "metro-react-native-babel-preset": "^0.56.0",
+    "react-native-svg-transformer": "^0.14.3",
     "react-test-renderer": "16.9.0"
   },
   "jest": {

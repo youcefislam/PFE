@@ -1,11 +1,11 @@
 import 'react-native-gesture-handler';
 import React, { useEffect, useMemo } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack';
 import { bootstrapAsync } from './address';
 import {
   StyleSheet,
-  ToastAndroid
+  ToastAndroid,
 } from 'react-native';
 
 
@@ -27,11 +27,12 @@ import Profil from "./Screens/Profil";
 import MyMarks from './Screens/MyMarks'
 import ResultQuizz from './Screens/ResultQuizz'
 import CommentSection from './Screens/CommentSection';
+import BackSvg from './Img/SVG/svg7.svg'
 
 export const AuthContext = React.createContext();    // this will be used in the other screens to change data here (used to control the app view)
 const Stack = createStackNavigator();
 
-const App = () => {
+const App = ({ navigation }) => {
 
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
@@ -96,15 +97,33 @@ const App = () => {
   return (
     <AuthContext.Provider value={authContext}>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           {
             state.userToken === null ? (    // if the token is not verified
               <>
                 <Stack.Screen name="Welcome" component={Welcome} />
                 <Stack.Screen name="Signin" component={Signin} />
-                <Stack.Screen name="SignUp" component={SignUp} />
+                <Stack.Screen name="SignUp" component={SignUp}
+                  navigationOptions={() => ({ 
+                    headerLeft: (<HeaderBackButton />) 
+                  })}
+                  options={{
+                    headerTitle: '',
+                    headerShown: true,
+                    headerTransparent: true,
+                    headerTintColor:'white'
+                  }} />
                 <Stack.Screen name="PersonalInformation" component={PersonalInformation} />
-                <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+                <Stack.Screen name="ForgotPassword" component={ForgotPassword}
+                  navigationOptions={() => ({
+                    headerLeft: (<HeaderBackButton />)
+                  })}
+                  options={{
+                    headerTitle: '',
+                    headerShown: true,
+                    headerTransparent: true,
+                    headerTintColor: '#5B4DA9'
+                  }} />
                 <Stack.Screen name="ValidateCode" component={ValidateCode} />
                 <Stack.Screen name="ResetPassword" component={ResetPassword} />
               </>
@@ -114,7 +133,7 @@ const App = () => {
                   <Stack.Screen name="SousSpecialite" component={SousSpecialite} />
                   <Stack.Screen name="ListeDocument" component={ListeDocument} />
                   <Stack.Screen name="post" component={Post} />
-                  <Stack.Screen name="comment section" component={CommentSection}/>
+                  <Stack.Screen name="comment section" component={CommentSection} />
                   <Stack.Screen name='quizz' component={quizz} />
                   <Stack.Screen name='ResultQuizz' component={ResultQuizz} />
                   <Stack.Screen name='Profil' component={Profil} />

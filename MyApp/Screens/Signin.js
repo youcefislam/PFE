@@ -10,7 +10,19 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
+  ImageBackground,
+  StatusBar
 } from 'react-native';
+
+
+//hooks
+import { useDimensions } from '@react-native-community/hooks';
+
+
+//SVG 
+import SignInSvg from '../Img/SVG/svg1.svg';
+import UserNamepSvg from '../Img/SVG/svg3.svg';
+import PasswordSvg from '../Img/SVG/svg4.svg';
 
 
 
@@ -22,54 +34,78 @@ const Signin = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [RememberUserInfo, setRememberUserInfo] = useState(false);
   let secondInput;
+  const screenHeight = useDimensions().screen.height;
+
 
   return (
     <View style={styles.container}>
-      <KeyboardAvoidingView behavior='padding'>
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          placeholderTextColor="#F2EEF8"
-          returnKeyType="next"
-          onSubmitEditing={() => secondInput.focus()}
-          onChangeText={(val) => setUsername(val)} />
-        <TextInput
-          ref={ref => { secondInput = ref }}
-          secureTextEntry
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#F2EEF8"
-          onChangeText={(val) => setPassword(val)} />
-        <View style={styles.Adds}>
-          <View style={styles.RememberMestyle}>
-            <CheckBox
-              value={RememberUserInfo}
-              tintColors={{ true: '#F6CF42', false: 'white' }}
-              onChange={() => { RememberUserInfo ? setRememberUserInfo(false) : setRememberUserInfo(true) }} />
-            <TouchableOpacity onPress={() => { RememberUserInfo ? setRememberUserInfo(false) : setRememberUserInfo(true) }} activeOpacity={1} >
-              <Text style={styles.RememberMetext}>Remember Me</Text>
-            </TouchableOpacity>
+      <ImageBackground source={require('../Img/img2.png')} style={[styles.image, { height: screenHeight - StatusBar.currentHeight }]}>
+        <View style={styles.TopPart}>
+          <KeyboardAvoidingView behavior='padding'>
+            <View style={styles.InputHundler}>
+              <TextInput
+                style={styles.input}
+                placeholder="Username"
+                placeholderTextColor="#5A4CA7"
+                returnKeyType="next"
+                onSubmitEditing={() => secondInput.focus()}
+                onChangeText={(val) => setUsername(val)} />
+              <View style={styles.userSvg}>
+                <UserNamepSvg />
+              </View>
+            </View>
+            <View style={styles.InputHundler}>
+              <TextInput
+                ref={ref => { secondInput = ref }}
+                secureTextEntry
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="#5A4CA7"
+                onChangeText={(val) => setPassword(val)} />
+              <View style={styles.passSvg}>
+                <PasswordSvg />
+              </View>
+            </View>
+            <View style={styles.Adds}>
+              <View style={styles.RememberMestyle}>     
+              {/* TODO Handle Remember Info */}
+                <CheckBox
+                  value={RememberUserInfo}
+                  tintColors={{ true: '#5A4CA7', false: '#5A4CA7' }}
+                  onChange={() => { RememberUserInfo ? setRememberUserInfo(false) : setRememberUserInfo(true) }} />
+                <TouchableOpacity onPress={() => { RememberUserInfo ? setRememberUserInfo(false) : setRememberUserInfo(true) }} activeOpacity={1} >
+                  <Text style={styles.RememberMetext}>Remember Me</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                <View>
+                  <Text style={styles.ForgotPassText}>Forgot Password ?</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+        <TouchableOpacity onPress={() => handleLogin(username, password, signIn)} activeOpacity={0.8} >
+          <View style={styles.buttonSignIn}>
+            <View style={styles.BtnSvgHundle}>
+              <SignInSvg />
+            </View>
+            <View style={styles.BtnTextHundle}>
+              <Text style={styles.buttonSignInText}>
+                Sign In
+              </Text>
+            </View>
           </View>
-          <TouchableOpacity style={{ flexDirection: 'row-reverse' }} onPress={() => navigation.navigate('ForgotPassword')}>
+        </TouchableOpacity>
+        <View style={styles.GoSignUp}>
+          <Text style={{ color: 'white', fontSize: 11 }}>Don't have an account?</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
             <View>
-              <Text style={{ color: 'white', fontSize: 11 }}>Forgot Password?</Text>
+              <Text style={styles.GoToSignUp}> Sign Up</Text>
             </View>
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
-      <TouchableOpacity onPress={() => handleLogin(username, password, signIn)}>
-        <View style={styles.button}>
-          <Text style={styles.buttonText}>Sign In</Text>
-        </View>
-      </TouchableOpacity>
-      <View style={{ flexDirection: 'row' }}>
-        <Text style={{ color: 'white' }}>Don't have an account?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
-          <View>
-            <Text style={styles.GoToSignUp}> Sign Up</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
+      </ImageBackground>
     </View>
   );
 };
@@ -77,54 +113,92 @@ const Signin = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D0829',
-    alignItems: 'center',
-    justifyContent: "space-evenly",
   },
-  button: {
-    width: 160,
-    height: 40,
+  image: {
+    resizeMode: "contain",
+    alignItems: 'center',
+    flexDirection: 'column'
+  },
+  buttonSignIn: {
+    flexDirection: 'row',
+    width: 166,
+    height: 50,
+    backgroundColor: "#fff",
+    overflow: "hidden",
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 10,
-    backgroundColor: '#F2EEF8',
+    borderRadius: 15,
   },
-  buttonText: {
+  buttonSignInText: {
+    color: '#5B4DA9',
     fontSize: 20,
   },
-  title: {
-    justifyContent: 'center',
-    marginBottom: "30%"
+  BtnSvgHundle: {
+    alignItems: 'center'
   },
+  BtnTextHundle:{ 
+    width: 90, 
+    marginLeft: 10, 
+    alignItems: 'center', 
+    justifyContent: 'center' 
+},
   input: {
-    width: 260,
+    width: 270,
     height: 50,
     marginBottom: 20,
     paddingLeft: 20,
-    backgroundColor: "transparent",
-    color: '#F2EEF8',
+    paddingRight: 35,
+    backgroundColor: "#fff",
+    color: '#5A4CA7',
     fontSize: 15,
-    borderWidth: 2,
+    borderWidth: 1,
     borderRadius: 15,
-    borderColor: '#F2EEF8',
+    borderColor: '#5A4CA7',
   },
   RememberMestyle: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   RememberMetext: {
-    color: 'white',
-    fontSize: 13
+    color: '#5A4CA7',
+    fontSize: 9
   },
   GoToSignUp: {
     color: 'white',
     fontStyle: "italic",
-    textDecorationLine: 'underline'
+    textDecorationLine: 'underline',
+    fontSize: 11
   },
-  Adds: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between' 
+  Adds: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   },
+  GoSignUp: {
+    flexDirection: 'row',
+    marginTop: 30
+  },
+  ForgotPassText: {
+    color: 'white',
+    fontSize: 11
+  },
+  passSvg: {
+    position: 'absolute',
+    right: 14, top: 16
+  },
+  InputHundler: {
+    flexDirection: 'row',
+    position: 'relative'
+  },
+  TopPart: {
+    height: '65%',
+    justifyContent: 'center',
+    marginTop: 30
+  },
+  userSvg: {
+    position: 'absolute',
+    right: 10,
+    top: 13
+  }
 
 });
 

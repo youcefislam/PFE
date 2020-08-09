@@ -1,12 +1,11 @@
+export const MyAddress = 'http://192.168.1.9:3000';
 import AsyncStorage from '@react-native-community/async-storage';
-export const MyAddress = 'http://192.168.1.10:3000';
-
-
+import { Alert } from 'react-native'
 
 
 
 //Screen Messages
-export const passwordMsg = "Password need to :" +
+export const passwordMsg = "Password must :" +
     "\n   1-Be at least 8 characters long." +
     "\n   2-Include at least one of this characters ( !@#$%^&* )." +
     "\n   (note : other special characters are not allowed)" +
@@ -19,13 +18,14 @@ export const UsernameMsg = "Username need to :" +
     "\n   1-Be at least 8 Chartcters long." +
     "\n   2-contain Only charcters and Numbers. ";
 
+
 export const ShowPattern = () => {
-    alert("A- " + EmailMsg + "\nB- " + UsernameMsg + "\nC- " + passwordMsg + "\nD-Password Confirmation should match your password");
+    Alert.alert("Patterns", "A- " + EmailMsg + "\nB- " + UsernameMsg + "\nC- " + passwordMsg + "\nD-Password Confirmation should match your password");
 }
 
 
 // regular expressions handlers
-export const handleEmail = (Email) => {    // Regular expression for the email 
+export const handleEmail = (Email) => { // Regular expression for the email 
     const reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return reg.test(Email);
 }
@@ -33,11 +33,11 @@ export const handleUsername = (username) => { // Regular expression for the user
     const reg = /^(?![0-9])[a-zA-Z0-9](?=.{8,})/;
     return reg.test(username);
 }
-export const handlePassword = (Password) => {  // Regular expression for the password 
+export const handlePassword = (Password) => { // Regular expression for the password 
     const reg = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/;
     return reg.test(Password);
 }
-export const handlePasswordConfirm = (Password, ConfirmPassword) => {  // Confermation of the password 
+export const handlePasswordConfirm = (Password, ConfirmPassword) => { // Confermation of the password 
     return Password == ConfirmPassword;
 }
 export const handleInfo = (text) => {
@@ -47,75 +47,99 @@ export const handleInfo = (text) => {
 
 
 
-// Date Picker functions
-export const showDatePicker = (setDatePickerVisibility) => {
-    setDatePickerVisibility(true);
-};
-export const hideDatePicker = (setDatePickerVisibility) => {
-    setDatePickerVisibility(false);
-};
-export const handleConfirm = (date, hideDatePicker, setDatePickerVisibility, setBirthDay) => {
-    hideDatePicker(setDatePickerVisibility);
-    setBirthDay(date.toISOString().slice(0, 10));
-};
-
-
 // image picker
 export const handleImagePicker = async (ImagePicker, setState) => {
-    let options = {
-        title: 'Select Profile Picture',
-        storageOptions: {
-            skipBackup: true,
-            path: 'images',
-        },
-        mediaType: 'photo',
-        maxWidth: 300,
-        maxHeight: 300
-    };
-    await ImagePicker.showImagePicker(options, (response) => {
-        if (!response.didCancel) {
-            setState({
-                srcImg: { uri: response.uri },
-                uri: response.uri,
-                fileName: response.fileName
-            });
+    // let options = {
+    //     title: 'Select Profile Picture',
+    //     storageOptions: {
+    //         skipBackup: true,
+    //         path: 'images',
+    //     },
+    //     mediaType: 'photo',
+    //     maxWidth: 300,
+    //     maxHeight: 300
+    // };
+    Alert.alert('Select Picture From ...','',[{
+        text:'Library',
+        onPress:async ()=>{
+            await ImagePicker.openPicker({
+                width: 216,
+                height: 216,
+                cropping: true,
+                cropperCircleOverlay: true,
+                includeBase64:true
+            }).then(image => {
+                console.log(image)
+                setState({
+                    srcImg: { uri: image.path },
+                    uri: image.path,
+                    mime:image.mime
+                });
+            }).catch((e) => {});
         }
-    })
+    },{
+        text:'Camera',
+        onPress:async ()=>{
+            await ImagePicker.openCamera({
+                width: 216,
+                height: 216,
+                cropping: true,
+                cropperCircleOverlay: true,
+                includeBase64:true
+            }).then(image => {
+                setState({
+                    srcImg: { uri: image.path },
+                    uri: image.path,
+                });
+            }).catch((e) => {});
+        }
+    },{
+        text:'Cancel',
+        onPress:()=>{}
+    }])
+    // await ImagePicker.showImagePicker(options, (response) => {
+    //     if (!response.didCancel) {
+    //         console.log(response)
+    //         setState({
+    //             srcImg: { uri: response.uri },
+    //             uri: response.uri,
+    //             fileName: response.fileName
+    //         });
+    //     }
+    // })
 }
 
 
 
 
 //App function
-export const bootstrapAsync = async (authContext) => {   // Fetch the token from storage then navigate to our appropriate place
+export const bootstrapAsync = async(authContext) => { // Fetch the token from storage then navigate to our appropriate place
     let userToken;
-
-    try {         // verify the token validity
+    // await AsyncStorage.removeItem('Token');
+    try { // verify the token validity
 
         userToken = await AsyncStorage.getItem('Token');
         // userToken = null;
 
-        if (userToken !== null) {   // if the token exist
+        if (userToken !== null) { // if the token exist
             fetch(MyAddress + '/specialite', {
-                method: 'post',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'authorization': 'Bearer ' + userToken
-                },
-            })
+                    method: 'post',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'authorization': 'Bearer ' + userToken
+                    },
+                })
                 .then((response) => {
-                    if (response.status !== 403) {  // if token is valid
+                    if (response.status !== 403) { // if token is valid
                         authContext.restoreToken(userToken);
-                    }
-                    else {     // if Token is Not valid 
+                    } else { // if Token is Not valid 
                         authContext.signOut();
                     }
                 })
                 .catch((error) => {
                     console.error(error);
                 })
-        }
-        else {   // if the token doesn't exist
+        } else { // if the token doesn't exist
             authContext.signOut();
         }
     } catch (e) {
@@ -132,26 +156,25 @@ export const handleLogin = (username, password, signIn) => {
     const data = { username, password };
 
     fetch(MyAddress + '/users/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
         .then((response) => {
             return response.json()
         })
-        .then(async (responseJson) => {
+        .then(async(responseJson) => {
             if (responseJson.token) // if we get the token from the server
             {
                 try {
-                    await AsyncStorage.setItem('Token', responseJson.token);   // we save it
-                    signIn(responseJson.token);  // call the sign in function from the app.js screen
+                    await AsyncStorage.setItem('Token', responseJson.token); // we save it
+                    signIn(responseJson.token); // call the sign in function from the app.js screen
                 } catch (error) {
                     console.error(err);
                 }
-            }
-            else if (responseJson.message) {
+            } else if (responseJson.message) {
                 alert(responseJson.message)
             }
         })
@@ -169,16 +192,17 @@ export const handleRegister = (username, Password, ConfirmPassword, Email, navig
     const data = { username, password: Password, email: Email };
 
     if (handlePassword(Password) && handleEmail(Email) && handleUsername(username) && handlePasswordConfirm(Password, ConfirmPassword)) {
-        fetch(MyAddress + '/users/register', {     // send the data to the server 
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
+        fetch(MyAddress + '/users/register', { // send the data to the server 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
             .then((response) => response.json())
-            .then(async (responseJson) => {
+            .then(async(responseJson) => {
                 if (!responseJson.error) {
+                    console.log(responseJson)
                     await AsyncStorage.setItem('Token', responseJson.token);
                     navigation.navigate("PersonalInformation");
                 }
@@ -194,45 +218,44 @@ export const handleRegister = (username, Password, ConfirmPassword, Email, navig
 
 
 //PersonalInformation function
-export const uploadInfo = async (state, FirstName, SecondName, Sex, signOut, signIn) => {
+export const uploadInfo = async(state, FirstName, SecondName, Sex, signOut, signIn) => {
 
     const token = await AsyncStorage.getItem('Token');
     const data = new FormData();
 
-    if (state.uri) {             // if the user enter an image we append it to the file we are sending
+    
+    if (state.uri) { // if the user enter an image we append it to the file we are sending
         data.append('fileToUpload', {
             uri: state.uri,
             type: 'image/jpeg',
-            name: state.fileName,
+            name: `my_profile_${Date.now()}.${state['mime'] === 'image/jpeg' ? 'jpg':'png'}`,
         });
     }
 
 
-    data.append('Info', JSON.stringify({        //append the user's Data 
+    data.append('Info', JSON.stringify({ //append the user's Data 
         FirstName,
         SecondName,
         Sex,
     }));
-
+console.log(data)
     // send the data to the server
     fetch(MyAddress + '/users/info', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + token
-        },
-        body: data
-    })
+            method: 'POST',
+            headers: {
+                'authorization': 'Bearer ' + token
+            },
+            body: data
+        })
         .then((Response) => {
-            if (Response.status !== 403) {   // if the token is valide
+            
+            if (Response.status !== 403) { // if the token is valide
                 return Response.json();
-            }
-            else {
+            } else {
                 alert('You are not sign In');
                 signOut();
             }
-        }
-        )
+        })
         .then((ResponseJSON) => {
             if (ResponseJSON.success) {
                 signIn(token);
@@ -290,12 +313,12 @@ export const ChangePassword = (Email, Password, ConfirmPassword, navigation) => 
             };
 
             fetch(MyAddress + '/users/ResetPassword', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data),
-            })
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data),
+                })
                 .then((Response) => {
                     return Response.json();
                 })
@@ -315,22 +338,21 @@ export const ChangePassword = (Email, Password, ConfirmPassword, navigation) => 
 
 
 //home function 
-export const requestSpecialite = async (setSpecialities, signOut) => {
+export const requestSpecialite = async(setSpecialities, signOut) => {
 
     const token = await AsyncStorage.getItem('Token');
 
-    fetch(MyAddress + '/specialite', {           //fetch Speciality List from the server
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + token
-        },
-    })
+    fetch(MyAddress + '/specialite', { //fetch Speciality List from the server
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
+            },
+        })
         .then((response) => {
-            if (response.status !== 403) {   // if token verified
+            if (response.status !== 403) { // if token verified
                 return response.json();
-            }
-            else {
+            } else {
                 alert('You are not sign In');
                 signOut();
             }
@@ -348,29 +370,28 @@ export const requestSpecialite = async (setSpecialities, signOut) => {
 
 
 //Sous specialité functions 
-export const requestSousSpecialite = async (idSpecialite, setSousSpecialities, signOut) => {     //get the subSpeciality List From The Server
+export const requestSousSpecialite = async(idSpecialite, setSousSpecialities, signOut) => { //get the subSpeciality List From The Server
 
-    const token = await AsyncStorage.getItem('Token');   //check token
+    const token = await AsyncStorage.getItem('Token'); //check token
 
     fetch(MyAddress + '/SousSpecialite', {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ idSpecialite: idSpecialite }),
-    })
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ idSpecialite: idSpecialite }),
+        })
         .then((response) => {
-            if (response.status !== 403) {  // if the token is verified
+            if (response.status !== 403) { // if the token is verified
                 return response.json();
-            }
-            else {
+            } else {
                 alert('You are not signed In');
                 signOut();
             }
         })
         .then((responseJSON) => {
-            setSousSpecialities(responseJSON);      //Set subSpeciality List
+            setSousSpecialities(responseJSON); //Set subSpeciality List
         })
         .catch((error) => {
             console.error(error);
@@ -382,23 +403,22 @@ export const requestSousSpecialite = async (idSpecialite, setSousSpecialities, s
 
 
 //list document function
-export const requestListeDocument = async (SousSpecialiteid, setListeDocument, signOut) => {
+export const requestListeDocument = async(SousSpecialiteid, setListeDocument, signOut) => {
 
     const token = await AsyncStorage.getItem('Token');
 
-    fetch(MyAddress + '/document', {        //get Document List From The Server
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ SousSpecialiteid: SousSpecialiteid }),
-    })
+    fetch(MyAddress + '/document', { //get Document List From The Server
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ SousSpecialiteid: SousSpecialiteid }),
+        })
         .then((response) => {
-            if (response.status !== 403) {      //If the Token ss Valide
+            if (response.status !== 403) { //If the Token ss Valide
                 return response.json();
-            }
-            else {
+            } else {
                 alert('You are not signed In');
                 signOut();
             }
@@ -416,23 +436,22 @@ export const requestListeDocument = async (SousSpecialiteid, setListeDocument, s
 
 
 //commentsection functions 
-export const requestReplies = async (comment, setReplies, signOut) => {
+export const requestReplies = async(comment, setReplies, signOut) => {
 
     const token = await AsyncStorage.getItem('Token');
 
-    fetch(MyAddress + '/reponses', {  // Get Responses From the server
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ comment: comment }),
-    })
+    fetch(MyAddress + '/reponses', { // Get Responses From the server
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ comment: comment }),
+        })
         .then((response) => {
-            if (response.status !== 403) {   //if the token is valide
+            if (response.status !== 403) { //if the token is valide
                 return response.json();
-            }
-            else {
+            } else {
                 alert('You are not sign In');
                 signOut();
             }
@@ -451,53 +470,50 @@ export const requestReplies = async (comment, setReplies, signOut) => {
 
 
 //post functions 
-export const requestPost = async (Documentid, setPost, signOut) => {
+export const requestPost = async(Documentid, setPost, signOut) => {
 
     let token = await AsyncStorage.getItem('Token');
 
-    fetch(MyAddress + '/post', {    //request the post from the server
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ Documentid: Documentid }),
-    })
+    fetch(MyAddress + '/post', { //request the post from the server
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ Documentid: Documentid }),
+        })
         .then((response) => {
             if (Response.status === 200) {
-                if (response.status !== 403) {    //if token is valide
+                if (response.status !== 403) { //if token is valide
                     return response.json();
-                }
-                else {
+                } else {
                     alert('You are not sign In');
                     signOut();
                 }
-            }
-            else alert('something went wrong on the server')
+            } else alert('something went wrong on the server')
         })
         .then((responseJSON) => {
-            setPost(responseJSON)      // set the post 
+            setPost(responseJSON) // set the post 
         })
         .catch((error) => {
             console.error(error);
         })
 }
-export const requestComments = async (Documentid, setComments, signOut) => {
+export const requestComments = async(Documentid, setComments, signOut) => {
 
     let token = await AsyncStorage.getItem('Token');
-    fetch(MyAddress + '/commentaires', {   // get the comments
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ Documentid: Documentid }),
-    })
+    fetch(MyAddress + '/commentaires', { // get the comments
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ Documentid: Documentid }),
+        })
         .then((response) => {
-            if (response.status !== 403) {   // if the token is valide
+            if (response.status !== 403) { // if the token is valide
                 return response.json();
-            }
-            else {
+            } else {
                 alert('You are not sign In');
                 signOut();
             }
@@ -512,7 +528,7 @@ export const requestComments = async (Documentid, setComments, signOut) => {
 
 
 // quizz functions
-export const InitQuestions = async (quizzid, setListOfQuestion, setisLoading, signOut) => {
+export const InitQuestions = async(quizzid, setListOfQuestion, setisLoading, signOut) => {
 
 
     const token = await AsyncStorage.getItem('Token');
@@ -520,18 +536,17 @@ export const InitQuestions = async (quizzid, setListOfQuestion, setisLoading, si
 
 
     return fetch(MyAddress + '/quizz', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify(data)
-    })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(data)
+        })
         .then((Response) => {
-            if (Response.status !== 403) {   // if the token is valide
+            if (Response.status !== 403) { // if the token is valide
                 return Response.json();
-            }
-            else {
+            } else {
                 alert('You are not sign In');
                 signOut();
             }
@@ -545,25 +560,24 @@ export const InitQuestions = async (quizzid, setListOfQuestion, setisLoading, si
 
 
 // ResultQuizz
-export const HandelNow = async (quizzid, setDidRate, setisLoading, mark, signOut) => {
+export const HandelNow = async(quizzid, setDidRate, setisLoading, mark, signOut) => {
 
 
     const token = await AsyncStorage.getItem('Token');
 
 
     fetch(MyAddress + '/users/mark', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ quizzid, mark })
-    })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ quizzid, mark })
+        })
         .then((response) => {
-            if (response.status !== 403) {   // if the token is valide
+            if (response.status !== 403) { // if the token is valide
                 return response.json();
-            }
-            else {
+            } else {
                 alert('You are not sign In');
                 signOut();
             }
@@ -573,48 +587,45 @@ export const HandelNow = async (quizzid, setDidRate, setisLoading, mark, signOut
             setisLoading(false);
         })
 }
-export const AddRating = async (quizzid, Rating, signOut) => {
+export const AddRating = async(quizzid, Rating, signOut) => {
 
-    const token = await AsyncStorage.getItem('Token');
+        const token = await AsyncStorage.getItem('Token');
 
-    fetch(MyAddress + '/document/rate', {
-        method: 'Post',
-        headers: {
-            'Content-Type': 'application/json',
-            'authorization': 'Beare ' + token
-        },
-        body: JSON.stringify({ quizzid, Rating })
-    }).then((response) => {
-        if (response.status !== 403) {   // if the token is valide
-            return response.json();
-        }
-        else {
-            alert('You are not sign In');
-            signOut();
-        }
-    }).then((responseJSON) => {
-        alert(responseJSON.message);
-    })
-
-}
-//replies
-export const sendReply = async (previousid, text) => {
-    if (text != "") {
-        const token = await AsyncStorage.getItem('Token');   //check token
-
-        fetch(MyAddress + '/reponses/send', {
-            method: 'post',
+        fetch(MyAddress + '/document/rate', {
+            method: 'Post',
             headers: {
                 'Content-Type': 'application/json',
-                'authorization': 'Bearer ' + token
+                'authorization': 'Beare ' + token
             },
-            body: JSON.stringify({ contenu: text, previousid: previousid }),
+            body: JSON.stringify({ quizzid, Rating })
+        }).then((response) => {
+            if (response.status !== 403) { // if the token is valide
+                return response.json();
+            } else {
+                alert('You are not sign In');
+                signOut();
+            }
+        }).then((responseJSON) => {
+            alert(responseJSON.message);
         })
+
+    }
+    //replies
+export const sendReply = async(previousid, text) => {
+    if (text != "") {
+        const token = await AsyncStorage.getItem('Token'); //check token
+        fetch(MyAddress + '/reponses/send', {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ contenu: text, previousid: previousid }),
+            })
             .then((response) => {
-                if (response.status !== 403) {  // if the token is verified
+                if (response.status !== 403) { // if the token is verified
                     return response.json();
-                }
-                else {
+                } else {
                     alert('You are not signed In');
                     signOut();
                 }
@@ -628,7 +639,7 @@ export const sendReply = async (previousid, text) => {
 }
 
 // profil functions 
-export const GetInfo = async (id, setisLoadingScreen, setInfo, setmyProfile, setUsername, setFirstName, setSecondName, setSex, setemail, setProfilImage, setNewProfilImage, signOut) => {
+export const GetInfo = async(id, setisLoadingScreen, setInfo, setmyProfile, setUsername, setFirstName, setSecondName, setSex, setemail, setProfilImage, setNewProfilImage, signOut) => {
 
     const token = await AsyncStorage.getItem('Token');
 
@@ -644,11 +655,11 @@ export const GetInfo = async (id, setisLoadingScreen, setInfo, setmyProfile, set
             signOut();
         }
     }).then(data => {
+        
         setInfo(data);
         setisLoadingScreen(false);
         setProfilImage({ "srcImg": { "uri": MyAddress + '/' + data.Photo } });
         setNewProfilImage({ "srcImg": { "uri": MyAddress + '/' + data.Photo } });
-        setmyProfile(data.MyProfile);
         setUsername(data.username)
         setFirstName(data.FirstName)
         setSecondName(data.SecondName)
@@ -658,26 +669,25 @@ export const GetInfo = async (id, setisLoadingScreen, setInfo, setmyProfile, set
 
 
 }
-export const changeUserNames = async (username, setUsername, setStates, signOut) => {
+export const changeUserNames = async(username, setUsername, setStates, signOut) => {
     if (handleUsername(username)) {
         const token = await AsyncStorage.getItem('Token');
         fetch(MyAddress + '/users/changeusername', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify({ username })
-        })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ username })
+            })
             .then((response) => {
-                if (response.status !== 403) {   // if the token is valide
+                if (response.status !== 403) { // if the token is valide
                     return response.json();
-                }
-                else {
+                } else {
                     alert('You are not sign In');
                     signOut();
                 }
-            }).then(async (responseJSON) => {
+            }).then(async(responseJSON) => {
                 alert(responseJSON.message);
                 if (!responseJSON.errors) {
                     await AsyncStorage.setItem('Token', responseJSON.token);
@@ -687,25 +697,25 @@ export const changeUserNames = async (username, setUsername, setStates, signOut)
             })
     }
 }
-export const changeEmails = async (email, setemail, setStates, signOut) => {
+export const changeEmails = async(email, setemail, setStates, signOut) => {
     if (handleEmail(email)) {
         const token = await AsyncStorage.getItem('Token');
 
         fetch(MyAddress + '/users/ChangeEmail', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify({ email })
-        }).then(res => {
-            if (res.status !== 403) {
-                return res.json();
-            } else {
-                alert('you are not sign In')
-                signOut();
-            }
-        })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ email })
+            }).then(res => {
+                if (res.status !== 403) {
+                    return res.json();
+                } else {
+                    alert('you are not sign In')
+                    signOut();
+                }
+            })
             .then(data => {
                 alert(data.message);
                 setStates(false);
@@ -713,18 +723,18 @@ export const changeEmails = async (email, setemail, setStates, signOut) => {
             })
     } else alert(EmailMsg)
 }
-export const changePasswords = async (OldPassword, password, ConfirmPassword, setStates, signOut) => {
+export const changePasswords = async(OldPassword, password, ConfirmPassword, setStates, signOut) => {
 
     if (handlePassword(password) && handlePasswordConfirm(password, ConfirmPassword)) {
         const token = await AsyncStorage.getItem('Token');
         fetch(MyAddress + '/users/ChangePassword', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify({ OldPassword, password })
-        })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ OldPassword, password })
+            })
             .then(response => {
                 if (response.status !== 403) {
                     return response.json();
@@ -737,16 +747,15 @@ export const changePasswords = async (OldPassword, password, ConfirmPassword, se
                 setStates(false);
                 alert(responseJson.message);
             })
-    }
-    else alert("password and confirm password does not much");
+    } else alert("password and confirm password does not much");
 }
-export const SubmitEditing = async (NewFirstName, NewSecondName, NewSex, NewProfilImage, setFirstName, setSecondName, setSex, setProfilImage, signOut) => {
+export const SubmitEditing = async(NewFirstName, NewSecondName, NewSex, NewProfilImage, setFirstName, setSecondName, setSex, setProfilImage, signOut) => {
 
     const token = await AsyncStorage.getItem('Token');
     const data = new FormData();
     const Info = {}
 
-    if (NewProfilImage.uri) {             // if the user enter an image we append it to the file we are sending
+    if (NewProfilImage.uri) { // if the user enter an image we append it to the file we are sending
         data.append('fileToUpload', {
             uri: NewProfilImage.uri,
             type: 'image/jpeg',
@@ -777,12 +786,12 @@ export const SubmitEditing = async (NewFirstName, NewSecondName, NewSex, NewProf
         // send the data to the server
 
         fetch(MyAddress + '/users/updateInfo', {
-            method: 'POST',
-            headers: {
-                'authorization': 'Bearer ' + token
-            },
-            body: data
-        })
+                method: 'POST',
+                headers: {
+                    'authorization': 'Bearer ' + token
+                },
+                body: data
+            })
             .then(res => {
                 if (res.status !== 403) {
                     return res.json();
@@ -803,7 +812,7 @@ export const SubmitEditing = async (NewFirstName, NewSecondName, NewSex, NewProf
 
 
 // MyMarks functions
-export const GetMyMarks = async (setMarks, signOut) => {
+export const GetMyMarks = async(setMarks, signOut) => {
     const token = await AsyncStorage.getItem('Token');
     fetch(MyAddress + '/users/mark/show', {
         method: 'POST',
@@ -812,10 +821,9 @@ export const GetMyMarks = async (setMarks, signOut) => {
             'Authorization': 'Bearer ' + token
         }
     }).then(response => {
-        if (Response.status !== 403) {   // if the token is valide
+        if (Response.status !== 403) { // if the token is valide
             return response.json();
-        }
-        else {
+        } else {
             alert('You are not sign In');
             signOut();
         }
@@ -823,23 +831,23 @@ export const GetMyMarks = async (setMarks, signOut) => {
         setMarks(responseJSON);
     })
 }
+
 //comments
-export const sendComment = async (documentid, text) => {
+export const sendComment = async(documentid, text) => {
     if (text != "") {
         const token = await AsyncStorage.getItem('Token');
         fetch(MyAddress + '/commentaires/send', {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify({ contenu: text, documentid: documentid }),
-        })
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ contenu: text, documentid: documentid }),
+            })
             .then((response) => {
-                if (response.status !== 403) {  // if the token is verified
+                if (response.status !== 403) { // if the token is verified
                     return response.json();
-                }
-                else {
+                } else {
                     alert('You are not signed In');
                     signOut();
                 }

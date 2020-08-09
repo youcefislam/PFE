@@ -1,10 +1,10 @@
 const express = require('express');
 const mysql = require('mysql');
-const multer = require('multer');       // user for handling multipart/form-data
-const path = require('path');       // user to work with file and directory path
-const bcrypt = require("bcryptjs");     // used for hashing password
-var jwt = require("jsonwebtoken");          // used to create/verify token 
-const Joi = require('@hapi/joi');           // used to validate the form of the recieved data
+const multer = require('multer'); // user for handling multipart/form-data
+const path = require('path'); // user to work with file and directory path
+const bcrypt = require("bcryptjs"); // used for hashing password
+var jwt = require("jsonwebtoken"); // used to create/verify token 
+const Joi = require('@hapi/joi'); // used to validate the form of the recieved data
 const nodemailer = require("nodemailer");
 const fs = require('fs')
 require('dotenv').config();
@@ -65,16 +65,16 @@ db.connect();
 //set storage Engine
 const storage = multer.diskStorage({
     destination: './public/uploads',
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));      // the construction of the name of each file
+    filename: function(req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname)); // the construction of the name of each file
     }
 })
 
 // init upload
 const upload = multer({
-    storage: storage,           // where we are storing photos
-    limits: { fileSize: 1000000 },          // set the limit of the recieved picture
-    fileFilter: function (res, file, cb) {
+    storage: storage, // where we are storing photos
+    limits: { fileSize: 1000000 }, // set the limit of the recieved picture
+    fileFilter: function(res, file, cb) {
         checkFileType(file, cb);
     }
 }).single('fileToUpload');
@@ -93,6 +93,7 @@ let transporter = nodemailer.createTransport({
 //Check File Type
 function checkFileType(file, cb) {
     //extantion accepted 
+
     const filetype = /jpeg|jpg|png|gif/;
     //check ext
     const extname = filetype.test(path.extname(file.originalname).toLowerCase());
@@ -111,6 +112,7 @@ function checkFileType(file, cb) {
 // middleware Verify token
 function verifyToken(req, res, next) {
     //get auth header value 
+
     const bearerHeader = req.headers['authorization'];
 
     if (typeof bearerHeader !== 'undefined') {
@@ -121,10 +123,11 @@ function verifyToken(req, res, next) {
         const bearerToken = bearer[1];
         // set the request token 
         req.token = bearerToken;
+
         // next middleware
         next();
     } else {
-        // forbiden
+        // forbidenconsole.log('its timeeee')
         res.sendStatus(403);
     }
 }
@@ -133,7 +136,7 @@ function verifyToken(req, res, next) {
 app.post('/users/login', (req, res) => {
 
     let Responsemessage = { errors: true, message: '' };
-    const { error, value } = SignInSchema.validate(req.body);  // validating the data's form
+    const { error, value } = SignInSchema.validate(req.body); // validating the data's form
 
     if (error) {
         Responsemessage.message = error.message;
@@ -142,30 +145,30 @@ app.post('/users/login', (req, res) => {
         const sql = 'SELECT * FROM users where username=?';
 
         try {
-            db.query(sql, req.body.username, (err, result) => {         // select the user with the request's username
+            db.query(sql, req.body.username, (err, result) => { // select the user with the request's username
                 if (err) throw err;
 
                 var reponses = { stat: 'failed', message: 'username or password incorect' };
 
-                if (result[0] !== undefined) {      // if the username exist in our database
+                if (result[0] !== undefined) { // if the username exist in our database
 
                     const username = result[0].username;
                     const id = result[0].id_user;
                     const password = result[0].password;
 
-                    bcrypt.compare(req.body.password, password, (err, result) => {        // we compare the request's password with our password
+                    bcrypt.compare(req.body.password, password, (err, result) => { // we compare the request's password with our password
                         if (err) throw err;
-                        if (result) {       // if the both passwords match
-                            jwt.sign({ id, username }, MySecretKey, (err, token) => {   // create a token for the user & send it
+                        if (result) { // if the both passwords match
+                            jwt.sign({ id, username }, MySecretKey, (err, token) => { // create a token for the user & send it
                                 if (err) throw err;
                                 res.send({ token: token });
                             })
-                        } else {            // request's password is wrong
+                        } else { // request's password is wrong
                             reponses.message = 'password incorrect';
                             res.send(JSON.stringify(reponses));
                         }
                     });
-                } else {        // if the username does not exist in our database
+                } else { // if the username does not exist in our database
                     res.send(JSON.stringify(reponses));
                 }
             })
@@ -177,16 +180,15 @@ app.post('/users/login', (req, res) => {
 app.post('/users/register', (req, res) => {
 
     let Responsemessage = { errors: true, message: 'Something Went Wrong' };
-    const { error, value } = SignUpSchema.validate(req.body);   // validating the data's form
+    const { error, value } = SignUpSchema.validate(req.body); // validating the data's form
 
 
     if (error) {
         Responsemessage.message = error.message;
         res.send(JSON.stringify(Responsemessage));
-    }
-    else {
+    } else {
         const saltRounds = 10;
-        bcrypt.hash(req.body.password, saltRounds, (err, hash) => {         // hashing the password 
+        bcrypt.hash(req.body.password, saltRounds, (err, hash) => { // hashing the password 
             if (err) throw err;
             //get today's date
             const date = new Date();
@@ -194,44 +196,44 @@ app.post('/users/register', (req, res) => {
             const mysqlDate = date.toISOString().split("T")[0];
             const sql = 'insert into users (email,password,username,insert_date) values (?,?,?,?)';
             try {
-                db.query(sql, [req.body.email, hash, req.body.username, mysqlDate], (err, result) => {    // inserting the account to the datebase
+                db.query(sql, [req.body.email, hash, req.body.username, mysqlDate], async(err, result) => { // inserting the account to the datebase
                     if (err) {
                         if (err.sqlMessage.includes('username')) Responsemessage.message = 'username already in use';
                         else if (err.sqlMessage.includes('email')) Responsemessage.message = 'email already in use';
                         else throw err;
+                        res.send(JSON.stringify(Responsemessage));
                     } else {
                         const id = result.insertId;
                         const username = req.body.username;
 
-                        jwt.sign({ id: id, username: username }, MySecretKey, (err, token) => {   // create a token for the user & send it
+                        await jwt.sign({ id: id, username: username }, MySecretKey, (err, token) => { // create a token for the user & send it
                             if (err) throw err;
-                            Responsemessage.token = token;
+                            else {
+                                Responsemessage.token = token;
+                                Responsemessage.errors = false;
+                                Responsemessage.message = 'Your account has been created Please Check the confirmation Email !'
+                                const url = `http://localhost:3000/confirmation/${Responsemessage.token}`;
+                                const EmailBody = `
+                                <h3>Hey ${req.body.username},</h3>
+                                <p>Thanks for getting started with cuizzy, We need a little more information 
+                                to complete your registration, including confirmation of your email address. Click bellow to Confirm your email address</p>
+                                <a href='${url}'>${url}</a>`;
+
+                                // send mail with defined transport object
+                                transporter.sendMail({
+                                    from: '"Cuizzy" cuizzyapp@gmail.com', // sender address
+                                    to: req.body.email, // list of receivers
+                                    subject: "Registration Almost Complete ✔", // Subject line
+                                    text: "Hello world?", // plain text body
+                                    html: EmailBody // html body
+                                }, (err, data) => {
+                                    if (err) console.log('Error Occurs', err)
+                                    else console.log("email Sent");
+                                });
+                            }
                         })
-                        Responsemessage.errors = false;
-                        Responsemessage.message = 'Your account has been created Please Check the confirmation Email !';
-
-                        const url = `http://localhost:3000/confirmation/${Responsemessage.token}`;
-                        const EmailBody = `
-                        <h3>Hey ${req.body.username},</h3>
-                        <p>Thanks for getting started with cuizzy, We need a little more information 
-                        to complete your registration, including confirmation of your email address. Click bellow to Confirm your email address</p>
-                        <a href='${url}'>${url}</a>
-                        `;
-
-                        // send mail with defined transport object
-                        transporter.sendMail({
-                            from: '"Cuizzy" cuizzyapp@gmail.com', // sender address
-                            to: req.body.email, // list of receivers
-                            subject: "Registration Almost Complete ✔", // Subject line
-                            text: "Hello world?", // plain text body
-                            html: EmailBody // html body
-                        }, (err, data) => {
-                            if (err) {
-                                console.log('Error Occurs', err);
-                            } else console.log("email Sent");
-                        });
+                        res.send(JSON.stringify(Responsemessage));
                     }
-                    res.send(JSON.stringify(Responsemessage));
                 })
             } catch (err) {
                 console.log(err);
@@ -244,7 +246,7 @@ app.post('/users/register', (req, res) => {
 
 //route for the account validation
 app.get('/confirmation/:token', (req, res) => {
-    jwt.verify(req.params.token, MySecretKey, (err, autData) => {      // verify Token
+    jwt.verify(req.params.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             res.send('Your Account has been confirmed, thank you!')
@@ -264,13 +266,13 @@ app.post('/users/ForgotPoassword', (req, res) => {
     } else {
         const sql = 'SELECT * from users WHERE email=?';
         try {
-            db.query(sql, req.body.email, async (err, result) => {    // Changing the password at the database
+            db.query(sql, req.body.email, async(err, result) => { // Changing the password at the database
                 if (err) throw err;
                 else {
                     if (result[0]) {
                         Responsemessage.errors = false;
                         Responsemessage.message = 'Please check for validation code on your email!';
-                        Responsemessage.code = Math.floor(Math.random() * 100000 + 100000);            // generate the validation code
+                        Responsemessage.code = Math.floor(Math.random() * 100000 + 100000); // generate the validation code
 
                         //  send the validation code to the email
                         const EmailBody = `
@@ -321,11 +323,11 @@ app.post('/users/ResetPassword', (req, res) => {
         res.send(JSON.stringify(Responsemessage));
     } else {
         const saltRounds = 10;
-        bcrypt.hash(req.body.password, saltRounds, (err, hash) => {         // hashing the new password 
+        bcrypt.hash(req.body.password, saltRounds, (err, hash) => { // hashing the new password 
             if (err) throw err;
             const sql = 'UPDATE users set password=? WHERE email=?';
             try {
-                db.query(sql, [hash, req.body.email], (err, result) => {    // Changing the password at the database
+                db.query(sql, [hash, req.body.email], (err, result) => { // Changing the password at the database
                     if (err) throw err;
                     else {
                         Responsemessage.errors = false;
@@ -343,21 +345,19 @@ app.post('/users/ResetPassword', (req, res) => {
 
 // route to add More Information to the user account
 app.post('/users/info', verifyToken, (req, res) => {
-
-    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify the token 
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify the token 
         if (err) res.sendStatus(403);
         else {
-            upload(req, res, (err) => {         // using multer to read the request content and save the users image if exist
+            upload(req, res, (err) => { // using multer to read the request content and save the users image if exist
                 if (err) console.log(err);
                 else {
                     let Photo;
                     const Info = JSON.parse(req.body.Info);
-                    req.file ? (Photo = req.file.path) : (Photo = '/public/uploads/default.jpg');        // if the user has send a picture we store it, or the default picture is set
+                    req.file ? (Photo = req.file.path) : (Photo = '/public/uploads/default.jpg'); // if the user has send a picture we store it, or the default picture is set
                     const sql = 'UPDATE users SET FirstName=? ,SecondName=? ,Sex=? ,Photo=? WHERE id_user=?';
 
-                    db.query(sql, [Info.FirstName, Info.SecondName, Info.Sex, Photo, autData.id], (err, result) => {        // add the user's new Info
+                    db.query(sql, [Info.FirstName, Info.SecondName, Info.Sex, Photo, autData.id], (err, result) => { // add the user's new Info
                         if (err) throw err;
-                        console.log("Success");
                         res.send(JSON.stringify({ success: true }));
                     })
                 }
@@ -369,7 +369,7 @@ app.post('/users/info', verifyToken, (req, res) => {
 
 // route to send Specialities List
 app.post('/specialite', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             const sql = 'SELECT * FROM specialites';
@@ -384,7 +384,7 @@ app.post('/specialite', verifyToken, (req, res) => {
 
 // route to send SubSpecialities List
 app.post('/SousSpecialite', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             const sql = 'SELECT * FROM sous_specialites WHERE id_specialite= ?';
@@ -399,7 +399,7 @@ app.post('/SousSpecialite', verifyToken, (req, res) => {
 
 // route to send Document List
 app.post('/document', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             const sql = 'SELECT * from document where id_sous_specialite=?'
@@ -414,7 +414,7 @@ app.post('/document', verifyToken, (req, res) => {
 
 // route to send Posts
 app.post('/post', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             const sql = 'SELECT * from Document where id_document=?'
@@ -428,7 +428,7 @@ app.post('/post', verifyToken, (req, res) => {
 
 // route to send quizz
 app.post('/quizz', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             const sql = 'SELECT * from question where id_quiz=?'
@@ -453,7 +453,7 @@ app.post('/quizz', verifyToken, (req, res) => {
 
 // route to update course rating
 app.post('/document/rate', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, authData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, authData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             var rating, nbrRating;
@@ -480,7 +480,7 @@ app.post('/document/rate', verifyToken, (req, res) => {
                                 })
                             }
                         });
-                    } else (res.status(400))
+                    } else(res.status(400))
                 }
             })
         }
@@ -489,7 +489,7 @@ app.post('/document/rate', verifyToken, (req, res) => {
 
 // route to add users mark
 app.post('/users/mark', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
 
@@ -502,8 +502,7 @@ app.post('/users/mark', verifyToken, (req, res) => {
                             sql = 'UPDATE mark set mark=? where id_quiz=? and id_user=?';
                             db.query(sql, [req.body.mark, req.body.quizzid, autData.id], (err, result) => {
                                 if (err) throw err;
-                                else {
-                                }
+                                else {}
                             })
                         }
                         res.send({ didRate: true });
@@ -531,7 +530,7 @@ app.post('/users/mark', verifyToken, (req, res) => {
 
 // route to send Comments
 app.post('/commentaires', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             const sql = 'SELECT * from reponses where id_reponse in (SELECT id_commentaire from commentaires where id_document=?)'
@@ -544,26 +543,26 @@ app.post('/commentaires', verifyToken, (req, res) => {
     })
 })
 app.post('/commentaires/send', verifyToken, (req, res) => {
-    console.log("commentaire sending")
-    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
-        if (err) res.sendStatus(403);
-        else {
-            const sql = 'insert into reponses(contenu,auteur) values(?,?)'
-            const sql2 = 'insert into commentaires(id_commentaire,id_document) values(?,?) '
-            db.query(sql, [req.body.contenu, autData.id,], (err, result) => {
-                db.query(sql2, [result.insertId, req.body.documentid], (err, result) => {
-                    if (err) throw err;
-                    else {
-                        res.status(200);
-                    }
-                })
-            });
-        }
+        console.log("commentaire sending")
+        jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
+            if (err) res.sendStatus(403);
+            else {
+                const sql = 'insert into reponses(contenu,auteur) values(?,?)'
+                const sql2 = 'insert into commentaires(id_commentaire,id_document) values(?,?) '
+                db.query(sql, [req.body.contenu, autData.id, ], (err, result) => {
+                    db.query(sql2, [result.insertId, req.body.documentid], (err, result) => {
+                        if (err) throw err;
+                        else {
+                            res.status(200);
+                        }
+                    })
+                });
+            }
+        })
     })
-})
-// route to send Responses
+    // route to send Responses
 app.post('/reponses', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             const sql = 'SELECT * from reponses where id_precedent=?'
@@ -578,7 +577,7 @@ app.post('/reponses', verifyToken, (req, res) => {
 
 // route to send marks to users
 app.post('/users/mark/show', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, authData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, authData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             const sql = "SELECT mark.mark as 'mark',mark.id_quiz as 'quizzid',document.titre as 'titre' FROM mark,document,quizz WHERE mark.id_quiz = quizz.id_quiz and quizz.id_document = document.id_document and mark.id_user=?;"
@@ -594,16 +593,15 @@ app.post('/users/mark/show', verifyToken, (req, res) => {
 
 // route to update username
 app.post('/users/changeusername', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, authData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, authData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             let Responsemessage = { errors: true, message: 'Something Went Wrong' };
-            const { error, value } = ChangeUsernameSchema.validate(req.body);   // validating the data's form
+            const { error, value } = ChangeUsernameSchema.validate(req.body); // validating the data's form
             if (error) {
                 Responsemessage.message = error.message;
                 res.send(JSON.stringify(Responsemessage));
-            }
-            else {
+            } else {
                 const username = req.body.username;
 
                 const sql = "UPDATE users set username=? WHERE id_user=?";
@@ -615,7 +613,7 @@ app.post('/users/changeusername', verifyToken, (req, res) => {
                         }
                     } else {
 
-                        jwt.sign({ id: authData.id, username: username }, MySecretKey, (err, token) => {   // create a token for the user & send it
+                        jwt.sign({ id: authData.id, username: username }, MySecretKey, (err, token) => { // create a token for the user & send it
                             if (err) throw err;
                             Responsemessage.token = token;
                             Responsemessage.errors = false;
@@ -631,7 +629,7 @@ app.post('/users/changeusername', verifyToken, (req, res) => {
 
 // route to cahnge Password
 app.post('/users/ChangePassword', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, authData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, authData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             let Responsemessage = { message: 'Something Is Wrong' };
@@ -643,18 +641,18 @@ app.post('/users/ChangePassword', verifyToken, (req, res) => {
             } else {
                 const sql = 'SELECT * FROM users WHERE id_user=?';
                 try {
-                    db.query(sql, authData.id, (err, result) => {    // Changing the password at the database
+                    db.query(sql, authData.id, (err, result) => { // Changing the password at the database
                         if (err) throw err;
                         else if (result[0]) {
-                            bcrypt.compare(req.body.OldPassword, result[0].password, (err, result) => {        // we compare the request's password with our password
+                            bcrypt.compare(req.body.OldPassword, result[0].password, (err, result) => { // we compare the request's password with our password
                                 if (err) throw err;
                                 if (result) {
                                     const saltRounds = 10;
-                                    bcrypt.hash(req.body.password, saltRounds, (err, hash) => {         // hashing the new password 
+                                    bcrypt.hash(req.body.password, saltRounds, (err, hash) => { // hashing the new password 
                                         if (err) throw err;
                                         const sql = 'UPDATE users set password=? WHERE id_user=?';
                                         try {
-                                            db.query(sql, [hash, authData.id], (err, result) => {    // Changing the password at the database
+                                            db.query(sql, [hash, authData.id], (err, result) => { // Changing the password at the database
                                                 if (err) throw err;
                                                 else {
                                                     Responsemessage.message = 'Your Password has been changed !';
@@ -683,9 +681,8 @@ app.post('/users/ChangePassword', verifyToken, (req, res) => {
 //route getting users profile
 app.get('/users/:id', verifyToken, (req, res) => {
 
-    jwt.verify(req.token, MySecretKey, (err, authData) => {      // verify Token
-        if (err) { res.sendStatus(403); }
-        else {
+    jwt.verify(req.token, MySecretKey, (err, authData) => { // verify Token
+        if (err) { res.sendStatus(403); } else {
             const sql = 'SELECT username,email,FirstName,SecondName,Sex,Photo FROM users WHERE id_user=?'
             db.query(sql, req.params.id, (err, result) => {
                 if (err) throw err;
@@ -694,7 +691,7 @@ app.get('/users/:id', verifyToken, (req, res) => {
                         if (authData.id == req.params.id) result[0].myProfile = true;
                         else result[0].MyProfile = false;
                         res.send(result[0]);
-                    }
+                    } else {}
                 }
             })
         }
@@ -710,8 +707,7 @@ app.post('/users/ChangeEmail', verifyToken, (req, res) => {
             db.query(sql, [req.body.email, authData.id], (err, result) => {
                 if (err) {
                     if (err.code == 'ER_DUP_ENTRY') res.send({ message: 'this email is used before' })
-                }
-                else {
+                } else {
                     const url = `http://localhost:3000/confirmation/${req.token}`;
                     const EmailBody = `
                         <h3>Hey ${authData.username},</h3>
@@ -739,7 +735,7 @@ app.post('/users/updateInfo', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, authData) => {
         if (err) req.sendStatus(403);
         else {
-            upload(req, res, (err) => {         // using multer to read the request content and save the users image if exist
+            upload(req, res, (err) => { // using multer to read the request content and save the users image if exist
                 if (err) console.log(err);
                 else {
                     const Info = JSON.parse(req.body.Info);
@@ -790,7 +786,7 @@ app.post('/users/updateInfo', verifyToken, (req, res) => {
 })
 app.post('/reponses/send', verifyToken, (req, res) => {
     console.log("reponses send")
-    jwt.verify(req.token, MySecretKey, (err, autData) => {      // verify Token
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             const sql = 'insert into reponses(contenu,auteur,id_precedent) values(?,?,?)'

@@ -1,24 +1,64 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ImageBackground, StatusBar } from 'react-native';
 import { SendVerifCode } from '../address';
+
+import { useDimensions } from '@react-native-community/hooks';
+import { BoxShadow } from 'react-native-shadow';
+import SendBtnSvg from '../Img/SVG/svg8.svg';
+
 
 const ForgotPassword = ({ navigation }) => {
 
     const [Email, setEmail] = useState('');
+    const screenHeight = useDimensions().screen.height;
+    const shadowOpt = {
+        width: 179,
+        height: 36,
+        color: "#5B4DA9",
+        border: 10,
+        radius: 15,
+        opacity: 0.42,
+        x: 0,
+        y: 0,
+        style: { marginVertical: 14 }
+    };
 
 
     return (
         <View style={styles.container}>
-            <TextInput
-                style={{ borderWidth: 1, borderColor: 'white', margin: 10 }}
-                placeholder="Enter Your Email"
-                onChangeText={(value) => setEmail(value)}
-            />
-            <TouchableOpacity onPress={()=>SendVerifCode(Email,navigation)}>
-                <View style={styles.button}>
-                    <Text style={styles.buttonText}>Send Verifecation Code</Text>
+            <ImageBackground source={require('../Img/img7.png')} style={{ height: screenHeight - StatusBar.currentHeight }}>
+                <View style={styles.contentStyle}>
+                    <View style={styles.centerAlign}>
+                        <Text style={styles.HeaderTxt}>
+                            Forgot your Password ?
+                        </Text>
+                        <Text style={styles.HeaderTxt}>
+                            Enter Your E-mail and confirm your identity
+                        </Text>
+                    </View>
+                    <View style={styles.centerAlign}>
+                        <TextInput
+                            style={styles.Input}
+                            placeholder="Enter Your Email"
+                            placeholderTextColor="#5A4CA7"
+                            autoCorrect={false}
+                            onChangeText={(value) => setEmail(value)}
+                        />
+                    </View>
+                    <View>
+                        <BoxShadow setting={shadowOpt}>
+                            <TouchableOpacity style={styles.sendBtn} onPress={() => SendVerifCode(Email, navigation)} activeOpacity={0.6}>
+                                <View style={styles.BtnTextHundle}>
+                                    <Text style={styles.sendBtnTxt}>Send Verifecation Code</Text>
+                                </View>
+                                <View style={styles.BtnSvgHundle}>
+                                    <SendBtnSvg />
+                                </View>
+                            </TouchableOpacity>
+                        </BoxShadow>
+                    </View>
                 </View>
-            </TouchableOpacity>
+            </ImageBackground>
         </View>
     );
 
@@ -28,24 +68,55 @@ const ForgotPassword = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0762D9',
+        backgroundColor: 'white'
     },
-    button: {
-        margin: 20,
-        width: 200,
-        height: 50,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 10,
+    centerAlign:{ 
+        alignItems: 'center' 
+    },
+    HeaderTxt:{ 
+        color: '#5B4DA9', 
+        fontSize: 13 
+    },
+    Input:{ 
+        borderWidth: 1, 
+        borderColor: '#5B4DA9', 
+        borderRadius: 15, 
+        paddingHorizontal: 20, 
+        margin: 10, 
+        width: 289, 
+        height: 46, 
+        color: '#5A4CA7' 
+    },
+    contentStyle: {
+        flex: 0.6,
+        justifyContent: 'space-evenly',
+        marginTop: '15%',
+        alignItems: 'center'
+    },
+    sendBtn: {
+        flexDirection: 'row',
+        backgroundColor: '#fff',
         borderWidth: 1,
-        borderColor: 'red',
-        backgroundColor: 'white',
+        borderColor: '#9BA3EB',
+        borderRadius: 15,
+        width: 179,
+        height: 36,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
-    buttonText: {
-        color: 'red',
-        fontSize: 18,
-    }
-
+    sendBtnTxt: {
+        color: '#5B4DA9',
+        fontSize: 13
+    },
+    BtnSvgHundle: {
+        alignItems: 'center'
+    },
+    BtnTextHundle: {
+        width: 140,
+        marginRight: 10,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
 });
 
 export default ForgotPassword;
