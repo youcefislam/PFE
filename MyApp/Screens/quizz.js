@@ -8,7 +8,8 @@ import { AuthContext } from '../App';
 const quizz = ({ route, navigation }) => {
 
     const { signOut } = React.useContext(AuthContext);
-    const [quizzid, setquizzid] = useState(1)
+    const document = route.params.id_document;
+    const [quizzid, setquizzid] = useState(route.params.id_quiz)
     const [ListOfQuestion, setListOfQuestion] = useState([])
     const [progressBar, setprogressBar] = useState(0);
     const [progressing, setprogressing] = useState(0)
@@ -20,15 +21,27 @@ const quizz = ({ route, navigation }) => {
     const [isLoading, setisLoading] = useState(true);
     const [Ready, setReady] = useState(false);
     const [isLoadingScreen, setisLoadingScreen] = useState(true)
-
+    const [YouAreDone, setYouAreDone] = useState(false)
 
     const GoToResultQuiz = () => {
+
         var TrueAnswer = 0;
+        let i = 0;
+        let items = []
         for (x of UsersAnswer) {
-            if (x) TrueAnswer++;
+            if (x === ListOfQuestion[i].answers[ListOfQuestion[i].correct - 1]['answer']) {
+                TrueAnswer++;
+            }
+            items.push({
+                id: i,
+                question: ListOfQuestion[i].question,
+                answer: x,
+                correctAnswer: ListOfQuestion[i].answers[ListOfQuestion[i].correct - 1]['answer']
+            })
+            i++;
         }
         const mark = TrueAnswer * 10 / ListOfQuestion.length;
-        navigation.navigate('ResultQuizz', { mark: mark.toFixed(2), quizzid })
+        navigation.navigate('ResultQuizz', { document, mark: mark.toFixed(2), quizzid, items })
     }
 
 
@@ -41,15 +54,12 @@ const quizz = ({ route, navigation }) => {
     }
 
     const SubmitAnswer = (answer) => {
-        if (CurrentQuestion < ListOfQuestion.length) {
-            update()
-        }
+        if (CurrentQuestion < ListOfQuestion.length) update()
         if (CurrentQuestion <= ListOfQuestion.length) {
-            if (answer == ListOfAnswers[ListOfQuestion[CurrentQuestion - 1].correct - 1]["answer"]) {
-                setUsersAnswer(UsersAnswer => ([...UsersAnswer, true]));
-            } else setUsersAnswer(UsersAnswer => ([...UsersAnswer, false]));
+            setUsersAnswer(UsersAnswer => ([...UsersAnswer, answer]))
             setCurrentQuestion(CurrentQuestion + 1);
-        } else GoToResultQuiz();
+            if (CurrentQuestion == ListOfQuestion.length) setYouAreDone(true)
+        }
     }
 
     if (Ready) {
@@ -67,7 +77,6 @@ const quizz = ({ route, navigation }) => {
 
 
     useEffect(() => {
-
         InitQuestions(quizzid, setListOfQuestion, setisLoading, signOut);
     }, [])
 
@@ -79,37 +88,52 @@ const quizz = ({ route, navigation }) => {
                     (
                         <ActivityIndicator size="large" color="white" />
                     ) : (
-                        <>
-                            <View style={style.topPart}>
-                                <View style={style.progressBar}>
-                                    <Progress.Bar progress={progressBar} width={330} height={20} color="#F25C69" unfilledColor="#F2F2F2" />
-                                    <Text style={{ color: 'white', paddingRight: 10 }}>Question : {CurrentQuestionText}</Text>
+                        !YouAreDone ? (
+                            <>
+                                <View style={style.topPart}>
+                                    <View style={style.progressBar}>
+                                        <Progress.Bar progress={progressBar} width={330} height={20} color="#F25C69" unfilledColor="#F2F2F2" />
+                                        <Text style={{ color: 'white', paddingRight: 10 }}>Question : {CurrentQuestionText}</Text>
+                                    </View>
+                                    <SafeAreaView style={style.questionView}>
+                                        <ScrollView contentContainerStyle={style.scrollView} >
+                                            <Text style={style.questionText}>{question}</Text>
+                                        </ScrollView>
+                                    </SafeAreaView>
                                 </View>
-                                <SafeAreaView style={style.questionView}>
-                                    <ScrollView contentContainerStyle={style.scrollView} >
-                                        <Text style={style.questionText}>{question}</Text>
-                                    </ScrollView>
-                                </SafeAreaView>
-                            </View>
-                            <View style={{ flex: 2 }}>
-                                <TouchableOpacity style={style.passButton} onPress={() => SubmitAnswer('')} activeOpacity={0.5}>
-                                    <Text style={{ color: '#79AEF2' }}>Pass This Question</Text>
-                                </TouchableOpacity>
-                                <FlatList style={style.bottomPart}
-                                    contentContainerStyle={style.AnswerView}
-                                    numColumns={1}
-                                    data={ListOfAnswers}
-                                    keyExtractor={(item) => item['answer']}
-                                    renderItem={({ item }) => {
-                                        return (
-                                            <TouchableOpacity style={style.answerCard} onPress={() => SubmitAnswer(item['answer'])} activeOpacity={0.5}>
-                                                <Text style={style.answerCardContent}>{item['answer']}</Text>
-                                            </TouchableOpacity>
-                                        )
-                                    }}
-                                />
-                            </View>
-                        </>
+                                <View style={{ flex: 2 }}>
+                                    <TouchableOpacity style={style.passButton} onPress={() => SubmitAnswer('')} activeOpacity={0.5}>
+                                        <Text style={{ color: '#79AEF2' }}>Pass This Question</Text>
+                                    </TouchableOpacity>
+                                    <FlatList style={style.bottomPart}
+                                        contentContainerStyle={style.AnswerView}
+                                        numColumns={1}
+                                        data={ListOfAnswers}
+                                        keyExtractor={(item, index) => (item['answer'] + index).toString()}
+                                        renderItem={({ item }) => {
+                                            if (item['answer']) return (
+                                                <TouchableOpacity style={style.answerCard} onPress={() => SubmitAnswer(item['answer'])} activeOpacity={0.5}>
+                                                    <Text style={style.answerCardContent}>{item['answer']}</Text>
+                                                </TouchableOpacity>
+                                            )
+                                            else return null
+                                        }}
+                                    />
+                                </View>
+                            </>) : (
+                                <>
+                                    <View style={{ flex: 0.4, justifyContent: 'space-between' }}>
+                                        <Text style={{ fontSize: 23, color: 'white' }}>
+                                            Congrat's You're Done
+                                        </Text>
+                                        <TouchableOpacity style={{ padding: 10, backgroundColor: 'white', borderRadius: 15, alignItems: 'center', justifyContent: 'center', }} onPress={GoToResultQuiz}>
+                                            <Text style={{ color: "#79AEF2" }}>
+                                                Show My Result
+                                        </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </>
+                            )
                     )
             }
         </View>

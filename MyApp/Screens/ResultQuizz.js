@@ -9,6 +9,7 @@ const ResultQuizz = ({ route, navigation }) => {
 
     const mark = route.params.mark;
     const quizzid = route.params.quizzid;
+    const document =route.params.document;
     let note = mark < 5 ? ('You Have To Work More') : mark < 7 ? ('Good Job !') : ('Greate Job !');
 
     const { signOut } = React.useContext(AuthContext);
@@ -35,8 +36,8 @@ const ResultQuizz = ({ route, navigation }) => {
         <View style={style.container}>
             {
                 !DidRate ? (
-                    <View style={style.RateView}>
-                        <Text>Rate This Course </Text>
+                    <View>
+                        <Text style={style.RateThisTxt} >What you think about the questions ?</Text>
                         <AirbnbRating
                             count={5}
                             reviews={["Terrible", "Bad", "OK", "Good", "Very Good"]}
@@ -52,19 +53,19 @@ const ResultQuizz = ({ route, navigation }) => {
                 ) : (
                         <>
                             <Text style={style.NoteText}>{note}</Text>
-                            <View style={style.NoteView}>
+                            <View >
                                 <Text style={style.MarkText}>Your Mark is: </Text>
                                 <Text style={style.Mark}>{mark}/10</Text>
                             </View>
-                            <View style={style.buttonView}>
-                                <TouchableOpacity style={style.Buttons} activeOpacity={0.5}>
+                            <View>
+                                <TouchableOpacity style={style.Buttons} onPress={()=>navigation.navigate('post',{documentid: document.id_document, title: document.name})} activeOpacity={0.5}>
                                     <Text style={style.ButtonsText} >Go Back To The Course</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={style.Buttons} activeOpacity={0.5}>
-                                    <Text style={style.ButtonsText} >Go Back To Home</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={style.Buttons} activeOpacity={0.5}>
+                                <TouchableOpacity style={style.Buttons} onPress={() => { navigation.navigate("commentSection", { documentid: document.documentid }) }} activeOpacity={0.5}>
                                     <Text style={style.ButtonsText}>Go To The Comment Section</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[style.Buttons,{width:150,alignSelf:'center'}]} onPress={()=>navigation.navigate('QuizzAnswer',{items:route.params.items})} activeOpacity={0.5}>
+                                    <Text style={style.ButtonsText}>Show Answers</Text>
                                 </TouchableOpacity>
                             </View>
                         </>
@@ -82,9 +83,6 @@ const style = StyleSheet.create({
         backgroundColor: "#548fdb",
         justifyContent: 'space-evenly',
         alignItems: 'center'
-    },
-    NoteView: {
-
     },
     NoteText: {
         color: 'white',
@@ -108,15 +106,6 @@ const style = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 100
     },
-    RateText: {
-
-    },
-    RateView: {
-
-    },
-    buttonView: {
-
-    },
     Buttons: {
         borderWidth: 2,
         borderColor: '#79AEF2',
@@ -129,5 +118,10 @@ const style = StyleSheet.create({
     },
     ButtonsText: {
         color: '#79AEF2'
+    },
+    RateThisTxt:{
+        color:'white',
+        fontSize:18,
+        textAlign:'center'
     },
 });

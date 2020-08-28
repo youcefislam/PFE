@@ -13,6 +13,7 @@ require('dotenv').config();
 var app = express();
 app.use(express.json({ limit: '1mb' }));
 app.use('/public/uploads', express.static('public/uploads'));
+app.use('/public/Documents', express.static('public/Documents'));
 
 // token's secret key
 const MySecretKey = process.env.MYSECRETKEY;
@@ -123,7 +124,6 @@ function verifyToken(req, res, next) {
         const bearerToken = bearer[1];
         // set the request token 
         req.token = bearerToken;
-
         // next middleware
         next();
     } else {
@@ -209,6 +209,7 @@ app.post('/users/register', (req, res) => {
                         await jwt.sign({ id: id, username: username }, MySecretKey, (err, token) => { // create a token for the user & send it
                             if (err) throw err;
                             else {
+                                console.log(token)
                                 Responsemessage.token = token;
                                 Responsemessage.errors = false;
                                 Responsemessage.message = 'Your account has been created Please Check the confirmation Email !'
@@ -227,8 +228,7 @@ app.post('/users/register', (req, res) => {
                                     text: "Hello world?", // plain text body
                                     html: EmailBody // html body
                                 }, (err, data) => {
-                                    if (err) console.log('Error Occurs', err)
-                                    else console.log("email Sent");
+                                    if (err) throw err;
                                 });
                             }
                         })
@@ -353,7 +353,7 @@ app.post('/users/info', verifyToken, (req, res) => {
                 else {
                     let Photo;
                     const Info = JSON.parse(req.body.Info);
-                    req.file ? (Photo = req.file.path) : (Photo = '/public/uploads/default.jpg'); // if the user has send a picture we store it, or the default picture is set
+                    req.file ? (Photo = "/" + req.file.path) : (Photo = '/public/uploads/default.jpg'); // if the user has send a picture we store it, or the default picture is set
                     const sql = 'UPDATE users SET FirstName=? ,SecondName=? ,Sex=? ,Photo=? WHERE id_user=?';
 
                     db.query(sql, [Info.FirstName, Info.SecondName, Info.Sex, Photo, autData.id], (err, result) => { // add the user's new Info
@@ -367,32 +367,101 @@ app.post('/users/info', verifyToken, (req, res) => {
 })
 
 
+//Route to verify the user 
+app.post('/users/real', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify the token 
+        if (err) res.sendStatus(403);
+        else {
+            res.sendStatus(200);
+        }
+    });
+})
+
+
 // route to send Specialities List
-app.post('/specialite', verifyToken, (req, res) => {
+app.post('/home', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
-            const sql = 'SELECT * FROM specialites';
-            db.query(sql, req.body, (err, result) => {
+            const sql = 'SELECT id_specialite as id, nom as name,nbr_sousSpecialite as nbrSS,nbr_followers as nbrFlw,nbr_document as nbrDoc FROM specialites';
+            db.query(sql, req.body, (err, specialities) => {
                 if (err) throw err;
-                resultJSON = result.map(v => Object.assign({}, v))
-                res.send(resultJSON)
+                // ADD the order by date
+                db.query('SELECT id_document,titre,description FROM document order by nbr_views DESC limit 3', (err, documents) => {
+                    if (err) throw err;
+                    else {
+                        res.send({ specialities, documents })
+                    }
+                })
             });
         }
     });
 })
 
+
+//TODO OPTIMIZE CODE
 // route to send SubSpecialities List
 app.post('/SousSpecialite', verifyToken, (req, res) => {
-    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
+    jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token        
         if (err) res.sendStatus(403);
         else {
-            const sql = 'SELECT * FROM sous_specialites WHERE id_specialite= ?';
+            const sql = 'SELECT * FROM sous_specialites WHERE id_specialite=?';
             db.query(sql, req.body.idSpecialite, (err, result) => {
                 if (err) throw err;
-                resultJSON = result.map(v => Object.assign({}, v))
-                res.send(resultJSON)
+                let SS = []
+                result.map((item, index) => {
+                    let temp = {
+                        id_sous_specialite: item.id_sous_specialite,
+                        nom: item.nom,
+                        nbr_document: item.nbr_document,
+                        nbr_Followers: item.nbr_Followers,
+                        Image_SS: item.Image_SS
+                    }
+                    db.query('SELECT * FROM UserFollowedSSpecialite WHERE id_user=? AND id_sous_specialite=?', [autData.id, item.id_sous_specialite], (err, isFollowed) => {
+                        if (err) throw err;
+                        else {
+                            temp.isFollowed = isFollowed[0] ? true : false;
+                            SS.push(temp);
+                            if (index == result.length - 1) res.send(SS)
+                        }
+                    })
+                })
             });
+        }
+    })
+})
+
+//
+//UPDATE sous_specialites SET nbr_followers=nbr_followers+1 WHERE id_sous_specialite=?;
+
+
+//Sous specialite Follow/unfollow request
+app.post("/sousspeciality/follow", verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+            db.query('SELECT * FROM UserFollowedSSpecialite WHERE id_sous_specialite=? AND id_user=?', [req.body.SousSpecialite, autData.id], (err, isFollowed) => {
+                if (err) throw err;
+                else {
+                    let sql = isFollowed[0] ? 'DELETE FROM UserFollowedSSpecialite WHERE id_sous_specialite=? AND id_user=?' : "INSERT INTO UserFollowedSSpecialite(id_sous_specialite,id_user) VALUES (?,?)";
+                    db.query(sql, [req.body.SousSpecialite, autData.id], (err, unfollow) => {
+                        if (err) throw err;
+                        else {
+                            sql = "UPDATE sous_specialites SET nbr_followers=nbr_followers" + (isFollowed[0] ? '-1' : '+1') + " WHERE id_sous_specialite=?";
+                            db.query(sql, req.body.SousSpecialite, (err, SSresult) => {
+                                if (err) throw err;
+                                else {
+                                    sql = "UPDATE specialites SET nbr_followers=nbr_followers" + (isFollowed[0] ? '-1' : '+1') + " WHERE id_specialite=?";
+                                    db.query(sql, req.body.specialiteid, (err, Sresult) => {
+                                        if (err) throw err;
+                                        else res.sendStatus(200);
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            })
         }
     })
 })
@@ -412,19 +481,95 @@ app.post('/document', verifyToken, (req, res) => {
     })
 })
 
+//route to send Saved document list 
+app.post('/document/saved', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+            db.query('select * from document,UserSavedDocument WHERE document.id_document=UserSavedDocument.id_document And UserSavedDocument.id_user=?', autData.id, (err, result) => {
+                if (err) throw err;
+                else {
+                    res.send(result);
+                }
+            })
+        }
+    })
+})
+
 // route to send Posts
 app.post('/post', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
-            const sql = 'SELECT * from Document where id_document=?'
+            const sql = 'SELECT * from document where id_document=?'
             db.query(sql, req.body.Documentid, (err, result) => {
                 if (err) throw err;
-                res.send(result)
+                else {
+                    db.query('SELECT * FROM quizz WHERE id_document=?', req.body.Documentid, (err, resultQ) => {
+                        if (err) throw err;
+                        else {
+                            result[0].quizz = resultQ;
+                            db.query("SELECT * FROM UserLikedDocument WHERE id_document=? AND id_user=?", [req.body.Documentid, autData.id], (err, isLiked) => {
+                                if (err) throw err;
+                                else {
+                                    result[0].isLiked = isLiked[0] ? true : false;
+                                    db.query("SELECT * FROM UserSavedDocument WHERE id_document=? AND id_user=?", [req.body.Documentid, autData.id], (err, isSaved) => {
+                                        if (err) throw err;
+                                        else {
+                                            result[0].isSaved = isSaved[0] ? true : false;
+                                            db.query('UPDATE document SET nbr_views=nbr_views+1 WHERE id_document=?', req.body.Documentid, (err, View) => {
+                                                if (err) throw err;
+                                                else {
+                                                    res.send(result[0]);
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
             });
         }
     })
 })
+
+//Route to hundle Like/Unlike post request
+app.post('/post/like_unlike', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+            let sql = req.body.liked ? 'DELETE FROM UserLikedDocument WHERE id_document=? AND id_user=?' : "INSERT INTO UserLikedDocument(id_document,id_user) VALUES (?,?)";
+            db.query(sql, [req.body.document, autData.id], (err, deslike) => {
+                if (err) throw err;
+                else {
+                    sql = 'UPDATE document set nbr_like = nbr_like' + (req.body.liked ? '-1' : '+1') + ' WHERE id_document=?';
+                    db.query(sql, req.body.document, (err, update) => {
+                        if (err) throw err;
+                        else res.sendStatus(200);
+                    })
+                }
+            })
+
+        }
+    })
+})
+
+//Route to hundle Save/Unsave post request
+app.post('/post/save_unsave', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+            const sql = req.body.saved ? 'DELETE FROM UserSavedDocument WHERE id_document=? AND id_user=?' : "INSERT INTO UserSavedDocument(id_document,id_user) VALUES (?,?)";
+            db.query(sql, [req.body.document, autData.id], (err, saved) => {
+                if (err) throw err;
+                else res.sendStatus(200);
+            })
+        }
+    })
+})
+
 
 // route to send quizz
 app.post('/quizz', verifyToken, (req, res) => {
@@ -434,16 +579,7 @@ app.post('/quizz', verifyToken, (req, res) => {
             const sql = 'SELECT * from question where id_quiz=?'
             db.query(sql, req.body.quizzid, (err, result) => {
                 if (err) throw err;
-                const dataToSend = [];
-                for (let i = 0; i < result.length; i++) {
-                    const AnswerArray = [];
-                    if (result[i].reponse_1 != null) AnswerArray.push({ answer: result[i].reponse_1 })
-                    if (result[i].reponse_2 != null) AnswerArray.push({ answer: result[i].reponse_2 })
-                    if (result[i].reponse_3 != null) AnswerArray.push({ answer: result[i].reponse_3 })
-                    if (result[i].reponse_4 != null) AnswerArray.push({ answer: result[i].reponse_4 })
-                    dataToSend.push({ question: result[i].question_text, answers: AnswerArray, correct: result[i].juste_reponse })
-                }
-                res.send(dataToSend)
+                res.send(result);
             });
         }
     })
@@ -452,37 +588,44 @@ app.post('/quizz', verifyToken, (req, res) => {
 
 
 // route to update course rating
-app.post('/document/rate', verifyToken, (req, res) => {
+app.post('/quizz/rate', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, authData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
             var rating, nbrRating;
-            let sql = 'select * from document where id_document in (select id_document from quizz where id_quiz=?)';
-            db.query(sql, [req.body.quizzid], (err, result) => {
-                if (err) throw err;
+            db.query('SELECT id_user FROM Rates WHERE id_user=? AND id_quiz=?', [authData.id, req.body.quizzid], (err, User) => {
+                if (err) throw err
                 else {
-                    if (result[0]) {
-                        if (result[0].number_of_rating == 0) rating = (result[0].rating + req.body.Rating);
-                        else rating = result[0].rating * result[0].number_of_rating + req.body.Rating;
-                        nbrRating = result[0].number_of_rating + 1;
-                        const id_doc = result[0].id_document;
-                        const newRating = rating / nbrRating;
-                        sql = 'UPDATE document SET rating=?,number_of_rating=? where id_document in (select id_document from quizz where id_quiz=?)';
-                        db.query(sql, [newRating, nbrRating, req.body.quizzid], (err, result) => {
+                    if (User[0] == undefined) {
+                        let sql = 'select * from quizz where id_quiz=?';
+                        db.query(sql, [req.body.quizzid], (err, result) => {
                             if (err) throw err;
                             else {
-                                sql = 'INSERT INTO Rates (id_document,id_user,Rate) VALUES (?,?,?)'
-                                db.query(sql, [id_doc, authData.id, req.body.Rating], (err, result) => {
-                                    if (err) throw err;
-                                    else {
-                                        res.send(JSON.stringify({ message: 'Thank you' }));
-                                    }
-                                })
+                                if (result[0]) {
+                                    if (result[0].number_of_rating == 0) rating = req.body.Rating;
+                                    else rating = result[0].rate * result[0].number_of_rating + req.body.Rating;
+                                    nbrRating = result[0].number_of_rating + 1;
+                                    const newRating = rating / nbrRating;
+                                    sql = 'UPDATE quizz SET rate=?,number_of_rating=? where id_quiz =?';
+                                    db.query(sql, [newRating, nbrRating, req.body.quizzid], (err, result) => {
+                                        if (err) throw err;
+                                        else {
+                                            sql = 'INSERT INTO Rates (id_quiz,id_user,rate) VALUES (?,?,?)'
+                                            db.query(sql, [req.body.quizzid, authData.id, req.body.Rating], (err, result) => {
+                                                if (err) throw err;
+                                                else {
+                                                    res.send(JSON.stringify({ message: 'Thank you' }));
+                                                }
+                                            })
+                                        }
+                                    });
+                                } else(res.status(400))
                             }
-                        });
-                    } else(res.status(400))
+                        })
+                    } else res.send(JSON.stringify({ message: 'You already have rate this quizz' }));
                 }
             })
+
         }
     });
 })
@@ -497,6 +640,7 @@ app.post('/users/mark', verifyToken, (req, res) => {
             db.query(sql, [req.body.quizzid, autData.id], (err, result) => {
                 if (err) throw err;
                 else {
+                    console.log(result)
                     if (result[0]) {
                         if (result[0].mark < req.body.mark) {
                             sql = 'UPDATE mark set mark=? where id_quiz=? and id_user=?';
@@ -511,7 +655,7 @@ app.post('/users/mark', verifyToken, (req, res) => {
                         db.query(sql, [req.body.quizzid, autData.id, req.body.mark], (err, result) => {
                             if (err) throw err;
                             else {
-                                sql = 'SELECT * FROM Rates WHERE id_user=? AND id_document IN (SELECT id_document FROM quizz WHERE id_quiz=?)';
+                                sql = 'SELECT * FROM Rates WHERE id_user=? AND id_quiz=?';
                                 db.query(sql, [autData.id, req.body.quizzid], (err, result) => {
                                     if (err) throw err;
                                     else {
@@ -533,27 +677,55 @@ app.post('/commentaires', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
-            const sql = 'SELECT * from reponses where id_reponse in (SELECT id_commentaire from commentaires where id_document=?)'
-            db.query(sql, req.body.Documentid, (err, result) => {
+            const sql = 'SELECT * from reponses where id_reponse ' + (req.body.Notified ? '=?' : 'in (SELECT id_commentaire from commentaires where id_document=?)')
+            db.query(sql, (req.body.Notified ? req.body.Notified : req.body.Documentid), async(err, result) => {
                 if (err) throw err;
-                resultJSON = result.map(v => Object.assign({}, v))
-                res.send(resultJSON)
+                let resultJSON = [];
+                await result.map((v, index) => {
+                    let unit = {};
+                    unit.id_reponse = v.id_reponse;
+                    unit.contenu = v.contenu;
+                    unit.id_precedent = v.id_precedent;
+                    unit.HaveAnswer = v.HaveAnswer;
+                    unit.id_author = v.auteur;
+                    db.query('SELECT username FROM users WHERE id_user=?', v.auteur, (err, resultUser) => {
+                        if (err) throw err;
+                        else {
+                            unit.username = resultUser[0].username
+                            resultJSON.push(unit)
+                        }
+                    })
+                })
+                await db.query('SELECT * FROM BannedWord', (err, resultBanned) => {
+                    if (err) throw err;
+                    else {
+                        let FinResult = {
+                            resultJSON,
+                            resultBanned
+                        }
+
+                        res.json(FinResult)
+                    }
+                })
             });
         }
     })
 })
 app.post('/commentaires/send', verifyToken, (req, res) => {
-        console.log("commentaire sending")
         jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
             if (err) res.sendStatus(403);
             else {
                 const sql = 'insert into reponses(contenu,auteur) values(?,?)'
-                const sql2 = 'insert into commentaires(id_commentaire,id_document) values(?,?) '
+                const sql2 = 'insert into commentaires(id_commentaire,id_document) values(?,?) ' //TODO OPTIMIZE WITH TRIGGERS
                 db.query(sql, [req.body.contenu, autData.id, ], (err, result) => {
-                    db.query(sql2, [result.insertId, req.body.documentid], (err, result) => {
+                    if (err) throw err;
+                    else db.query(sql2, [result.insertId, req.body.documentid], (err, result) => {
                         if (err) throw err;
                         else {
-                            res.status(200);
+                            db.query('UPDATE document set nbr_commentaire=nbr_commentaire+1 WHERE id_document=?', req.body.documentid, (err, done) => {
+                                if (err) throw err;
+                                else res.sendStatus(200);
+                            })
                         }
                     })
                 });
@@ -568,8 +740,25 @@ app.post('/reponses', verifyToken, (req, res) => {
             const sql = 'SELECT * from reponses where id_precedent=?'
             db.query(sql, req.body.comment, (err, result) => {
                 if (err) throw err;
-                resultJSON = result.map(v => Object.assign({}, v))
-                res.send(resultJSON)
+                let resultJSON = [];
+                if (result.length > 0) result.map((v, index) => {
+                    let unit = {};
+                    unit.id_reponse = v.id_reponse;
+                    unit.contenu = v.contenu;
+                    unit.id_precedent = v.id_precedent;
+                    unit.HaveAnswer = v.HaveAnswer;
+                    unit.id_author = v.auteur;
+                    db.query('SELECT username FROM users WHERE id_user=?', v.auteur, (err, resultUser) => {
+                        if (err) throw err;
+                        else {
+                            unit.username = resultUser[0].username
+                            resultJSON.push(unit)
+                            if (index === result.length - 1) res.json(resultJSON)
+
+                        }
+                    })
+                })
+                else res.json({ NoUser: ' NoUser' })
             });
         }
     })
@@ -580,11 +769,10 @@ app.post('/users/mark/show', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, authData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
-            const sql = "SELECT mark.mark as 'mark',mark.id_quiz as 'quizzid',document.titre as 'titre' FROM mark,document,quizz WHERE mark.id_quiz = quizz.id_quiz and quizz.id_document = document.id_document and mark.id_user=?;"
+            const sql = "SELECT mark.mark as 'mark',mark.id_quiz as 'quizzid',document.titre as document,sous_specialites.nom as sous_specialites ,specialites.nom as specialite FROM mark,document,quizz,specialites,sous_specialites WHERE mark.id_quiz = quizz.id_quiz and quizz.id_document = document.id_document and document.id_sous_specialite=sous_specialites.id_sous_specialite and specialites.id_specialite=sous_specialites.id_specialite and mark.id_user=?"
             db.query(sql, authData.id, (err, result) => {
                 if (err) throw err;
-                resultJSON = result.map(v => Object.assign({}, v))
-                res.send(resultJSON)
+                res.send(result)
             })
         }
     })
@@ -681,14 +869,16 @@ app.post('/users/ChangePassword', verifyToken, (req, res) => {
 //route getting users profile
 app.get('/users/:id', verifyToken, (req, res) => {
 
+    if (req.params.id != "null") console.log(req.params)
     jwt.verify(req.token, MySecretKey, (err, authData) => { // verify Token
         if (err) { res.sendStatus(403); } else {
             const sql = 'SELECT username,email,FirstName,SecondName,Sex,Photo FROM users WHERE id_user=?'
-            db.query(sql, req.params.id, (err, result) => {
+            db.query(sql, req.params.id != "null" ? req.params.id : authData.id, (err, result) => {
                 if (err) throw err;
                 else {
+
                     if (result[0]) {
-                        if (authData.id == req.params.id) result[0].myProfile = true;
+                        if (req.params.id) result[0].myProfile = true;
                         else result[0].MyProfile = false;
                         res.send(result[0]);
                     } else {}
@@ -746,20 +936,20 @@ app.post('/users/updateInfo', verifyToken, (req, res) => {
                             sql += ',SecondName=\'' + Info.SecondName + '\'';
                             if (Info.Sex) {
                                 sql += ',Sex=\'' + Info.Sex + '\'';
-                                if (req.file) sql += ',Photo=\'' + req.file.path + '\'';
+                                if (req.file) sql += ',Photo=\'/' + req.file.path + '\'';
                             }
                         }
                     } else if (Info.SecondName) {
                         sql += 'SecondName=\'' + Info.SecondName + '\'';
                         if (Info.Sex) {
                             sql += ',Sex=\'' + Info.Sex + '\'';
-                            if (req.file) sql += ',Photo=\'' + req.file.path + '\'';
+                            if (req.file) sql += ',Photo=\'/' + req.file.path + '\'';
                         }
                     } else if (Info.Sex) {
                         sql += 'Sex=\'' + Info.Sex + '\'';
-                        if (req.file) sql += ',Photo=\'' + req.file.path + '\'';
-                    } else if (req.file) sql += 'Photo=\'' + req.file.path + '\'';
-                    if (req.file.path) {
+                        if (req.file) sql += ',Photo=\'/' + req.file.path + '\'';
+                    } else if (req.file) sql += 'Photo=\'/' + req.file.path + '\'';
+                    if (req.file && req.file.path) {
                         const sqlDelete = 'SELECT Photo FROM users WHERE id_user=?';
                         db.query(sqlDelete, authData.id, (err, result) => {
                             if (err) throw err;
@@ -785,7 +975,7 @@ app.post('/users/updateInfo', verifyToken, (req, res) => {
     })
 })
 app.post('/reponses/send', verifyToken, (req, res) => {
-    console.log("reponses send")
+
     jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
@@ -793,9 +983,52 @@ app.post('/reponses/send', verifyToken, (req, res) => {
             db.query(sql, [req.body.contenu, autData.id, req.body.previousid], (err, result) => {
                 if (err) throw err;
                 else {
-                    res.status(200);
+                    db.query('UPDATE reponses SET HaveAnswer=1 WHERE id_reponse=?', req.body.previousid, (err, result) => {
+                        if (err) throw err;
+                        db.query('INSERT INTO UserNotification(id_user,id_commentaire,title_doc) VALUES (?,?,?)', [req.body.id_author, req.body.previousid, req.body.title_doc], (err, result) => {
+                            if (err) throw err;
+                            else {
+                                db.query('UPDATE document set nbr_commentaire=nbr_commentaire+1 WHERE id_document=?', req.body.documentid, (err, done) => {
+                                    if (err) throw err;
+                                    else res.sendStatus(200);
+                                })
+                                res.sendStatus(200);
+                            }
+                        })
+                    })
                 }
             });
+        }
+    })
+})
+
+
+app.post('/feedback/send', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autdata) => {
+        if (err) res.sendStatus(403);
+        else {
+            db.query('INSERT INTO feedBacks(id_user,message) VALUES (?,?)', [autdata.id, req.body.text], (err, sent) => {
+                if (err) throw err;
+                else {
+                    res.sendStatus(200)
+                }
+            })
+        }
+    })
+})
+
+
+app.get('/notification', verifyToken, (req, res) => {
+    jwt.verify(req.token, MySecretKey, (err, autData) => {
+        if (err) res.sendStatus(403);
+        else {
+            db.query("SELECT * FROM UserNotification WHERE id_user=?", autData.id, (err, result) => {
+                if (err) throw err;
+                else {
+                    console.log("dsds")
+                    res.send(result);
+                }
+            })
         }
     })
 })

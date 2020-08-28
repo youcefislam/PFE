@@ -2,22 +2,26 @@ import 'react-native-gesture-handler';
 import React, { useEffect, useMemo } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { bootstrapAsync } from './address';
 import {
   StyleSheet,
   ToastAndroid,
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import PushNotification from "react-native-push-notification";
 
 
 
+//Screens
 import Welcome from './Screens/Welcome';
 import Signin from './Screens/Signin';
 import SignUp from './Screens/SignUp';
 import PersonalInformation from './Screens/PersonalInformation';
 import Home from './Screens/Home';
 import Post from "./Screens/Post";
-import SousSpecialite from "./Screens/SousSpecialite"
-import ListeDocument from "./Screens/ListeDocument"
+import SousSpecialite from "./Screens/SousSpecialite";
+import ListeDocument from "./Screens/ListeDocument";
 import SplashScreen from './Screens/SplashScreen'
 import ForgotPassword from './Screens/ForgotPassword';
 import ValidateCode from './Screens/ValidateCode';
@@ -27,10 +31,118 @@ import Profil from "./Screens/Profil";
 import MyMarks from './Screens/MyMarks'
 import ResultQuizz from './Screens/ResultQuizz'
 import CommentSection from './Screens/CommentSection';
-import BackSvg from './Img/SVG/svg7.svg'
+import QuizzAnswer from './Screens/QuizzAnswer';
+import SavedScreen from './Screens/SavedDocuments';
+import SettingScreen from './Screens/Settings';
+import AboutScreen from './Screens/About';
+import sendFeedBackScreen from './Screens/SendFeedBack';
+import NotificationScreen from './Screens/Notification';
+
+
+
+
+//SVG
+import HomeSvg from './Img/SVG/svg10.svg';
+import HomeActiveSvg from './Img/SVG/svg19.svg';
+import ProfilSvg from './Img/SVG/svg13.svg';
+import ProfilActiveSvg from './Img/SVG/svg17.svg';
+import SettingsSvg from './Img/SVG/svg12.svg';
+import SettingsActiveSvg from './Img/SVG/svg18.svg';
+import SavedSvg from './Img/SVG/svg14.svg';
+import SavedActiveSvg from './Img/SVG/svg15.svg';
+import NotificationSvg from './Img/SVG/svg11.svg';
+import NotificationActiveSvg from './Img/SVG/svg16.svg';
 
 export const AuthContext = React.createContext();    // this will be used in the other screens to change data here (used to control the app view)
 const Stack = createStackNavigator();
+
+
+//Notification configuration
+PushNotification.configure({
+  onRegister: function(token) {
+    console.log( 'TOKEN:', token );
+},
+
+onNotification: function(notification) {
+    console.log( 'NOTIFICATION:', notification );
+},
+senderID: "YOUR GCM SENDER ID",
+permissions: {
+    alert: true,
+    badge: true,
+    sound: true
+},
+popInitialNotification: true,
+requestPermissions: Platform.OS === 'ios',
+});
+
+
+const HomeStack = createStackNavigator();
+
+function HomeStackScreen() {
+  return (
+    <Tab.Navigator initialRouteName='Home' tabBarOptions={{ activeTintColor: 'rgba(39, 96, 244, 0.6)', keyboardHidesTabBar: true, tabStyle: { height: 50, paddingVertical: 5 } }}  >
+      <Tab.Screen name="Settings" component={SettingStackScreens} options={{ tabBarIcon: ({ focused }) => focused ? <SettingsActiveSvg /> : <SettingsSvg /> }} />
+      <Tab.Screen name="Notification" component={NotificationScreen} options={{ tabBarBadge: 3, tabBarIcon: ({ focused }) => focused ? <NotificationActiveSvg /> : <NotificationSvg /> }} />
+      <Tab.Screen name="Home" component={HomeScreensScreen} options={{ tabBarIcon: ({ focused }) => focused ? <HomeActiveSvg /> : <HomeSvg /> }} />
+      <Tab.Screen name="Saved" component={SavedScreen} options={{ tabBarIcon: ({ focused }) => focused ? <SavedActiveSvg /> : <SavedSvg /> }} />
+      <Tab.Screen name="Profil" component={ProfileStackScreen} options={{ tabBarIcon: ({ focused }) => focused ? <ProfilActiveSvg /> : <ProfilSvg /> }} />
+    </Tab.Navigator>
+  );
+}
+
+const HomeScreens = createStackNavigator();
+
+function HomeScreensScreen() {
+  return (
+    <HomeScreens.Navigator screenOptions={{ headerShown: false }}>
+      <HomeScreens.Screen name="Home" component={Home} />
+      <HomeScreens.Screen name="SousSpecialite" component={SousSpecialite}
+        options={({ route }) => ({ title: route.params.title, headerShown: true, headerTintColor: '#5B4DA9' })}
+        navigationOptions={() => ({
+          headerLeft: (<HeaderBackButton />)
+        })} />
+      <HomeScreens.Screen name="ListeDocument" component={ListeDocument}
+        options={({ route }) => ({ title: route.params.title, headerShown: true, headerTintColor: '#5B4DA9' })}
+        navigationOptions={() => ({
+          headerLeft: (<HeaderBackButton />)
+        })} />
+      <HomeScreens.Screen name="post" component={Post}
+        options={({ route }) => ({ title: route.params.title, headerShown: true, headerTintColor: '#5B4DA9' })}
+        navigationOptions={() => ({
+          headerLeft: (<HeaderBackButton />)
+        })} />
+      <HomeScreens.Screen name="commentSection" component={CommentSection}
+        options={({ route }) => ({ title: route.params.title, headerShown: true, headerTintColor: '#5B4DA9' })} />
+    </HomeScreens.Navigator>
+  );
+}
+
+const ProfileStack = createStackNavigator();
+
+function ProfileStackScreen() {
+  return (
+    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+      <ProfileStack.Screen name='Profil' component={Profil}  />
+      <ProfileStack.Screen name='MyMarks' component={MyMarks}  options={({ route }) => ({ title: route.params.title, headerShown: true, headerTintColor: '#5B4DA9' })} />
+    </ProfileStack.Navigator>
+  );
+}
+
+const SettingStack = createStackNavigator();
+
+function SettingStackScreens(){
+  return(
+    <SettingStack.Navigator screenOptions={{headerShown:false}}>
+      <SettingStack.Screen name='settings' component={SettingScreen} />
+      <SettingStack.Screen name='About' component={AboutScreen} />
+      <SettingStack.Screen name='FeedBack' component={sendFeedBackScreen} />
+    </SettingStack.Navigator>
+  )
+}
+
+
+const Tab = createBottomTabNavigator();
 
 const App = ({ navigation }) => {
 
@@ -66,10 +178,14 @@ const App = ({ navigation }) => {
   );
 
 
-
+const testPush =()=>{
+  PushNotification.localNotificationSchedule({
+    message: "My Notification Message", // (required)
+    date: new Date(Date.now() + (5 * 1000)) // in 60 secs
+  });
+}
   useEffect(() => {
-
-
+    testPush();
     bootstrapAsync(authContext);
   }, []);
 
@@ -84,7 +200,10 @@ const App = ({ navigation }) => {
         dispatch({ type: 'RESTORE_TOKEN', token: data });
       }
       ,
-      signOut: async () => dispatch({ type: 'SIGN_OUT' }),     // function that handel Sign Out
+      signOut: async () => {   // function that handel Sign Out
+        await AsyncStorage.removeItem('Token')
+        dispatch({ type: 'SIGN_OUT' })
+      },     
     }),
     []
   );
@@ -94,54 +213,50 @@ const App = ({ navigation }) => {
     return <SplashScreen />;
   }
 
+
   return (
     <AuthContext.Provider value={authContext}>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {
-            state.userToken === null ? (    // if the token is not verified
-              <>
-                <Stack.Screen name="Welcome" component={Welcome} />
-                <Stack.Screen name="Signin" component={Signin} />
-                <Stack.Screen name="SignUp" component={SignUp}
-                  navigationOptions={() => ({ 
-                    headerLeft: (<HeaderBackButton />) 
-                  })}
-                  options={{
-                    headerTitle: '',
-                    headerShown: true,
-                    headerTransparent: true,
-                    headerTintColor:'white'
-                  }} />
-                <Stack.Screen name="PersonalInformation" component={PersonalInformation} />
-                <Stack.Screen name="ForgotPassword" component={ForgotPassword}
-                  navigationOptions={() => ({
-                    headerLeft: (<HeaderBackButton />)
-                  })}
-                  options={{
-                    headerTitle: '',
-                    headerShown: true,
-                    headerTransparent: true,
-                    headerTintColor: '#5B4DA9'
-                  }} />
-                <Stack.Screen name="ValidateCode" component={ValidateCode} />
-                <Stack.Screen name="ResetPassword" component={ResetPassword} />
-              </>
-            ) : (                         // if the token is verified
-                <>
-                  <Stack.Screen name="Home" component={Home} options={{ title: 'Home', headerTitleAlign: "center" }} />
-                  <Stack.Screen name="SousSpecialite" component={SousSpecialite} />
-                  <Stack.Screen name="ListeDocument" component={ListeDocument} />
-                  <Stack.Screen name="post" component={Post} />
-                  <Stack.Screen name="comment section" component={CommentSection} />
-                  <Stack.Screen name='quizz' component={quizz} />
-                  <Stack.Screen name='ResultQuizz' component={ResultQuizz} />
-                  <Stack.Screen name='Profil' component={Profil} />
-                  <Stack.Screen name='MyMarks' component={MyMarks} />
-                </>
-              )
-          }
-        </Stack.Navigator>
+        {
+          state.userToken === null ? (    // if the token is not verified
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="Welcome" component={Welcome} />
+              <Stack.Screen name="Signin" component={Signin} />
+              <Stack.Screen name="SignUp" component={SignUp}
+                navigationOptions={() => ({
+                  headerLeft: (<HeaderBackButton />)
+                })}
+                options={{
+                  headerTitle: '',
+                  headerShown: true,
+                  headerTransparent: true,
+                  headerTintColor: 'white'
+                }} />
+              <Stack.Screen name="PersonalInformation" component={PersonalInformation} />
+              <Stack.Screen name="ForgotPassword" component={ForgotPassword}
+                navigationOptions={() => ({
+                  headerLeft: (<HeaderBackButton />)
+                })}
+                options={{
+                  headerTitle: '',
+                  headerShown: true,
+                  headerTransparent: true,
+                  headerTintColor: '#5B4DA9'
+                }} />
+              <Stack.Screen name="ValidateCode" component={ValidateCode} />
+              <Stack.Screen name="ResetPassword" component={ResetPassword} />
+            </Stack.Navigator>
+          ) : (                         // if the token is verified
+              <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+                <HomeStack.Screen name="HomeStack" component={HomeStackScreen} />
+                <HomeStack.Screen name='quizz' component={quizz} />
+                <HomeStack.Screen name='ResultQuizz' component={ResultQuizz} />
+                <HomeStack.Screen name='QuizzAnswer' component={QuizzAnswer} />
+              </HomeStack.Navigator>
+            )
+        }
+
+
       </NavigationContainer>
     </AuthContext.Provider>
   );
