@@ -1,0 +1,412 @@
+    p {
+        color: #535353;
+    }
+    
+    a:hover {
+        text-decoration: none;
+    }
+    
+    button {
+        background-color: transparent;
+        border: 0;
+    }
+    
+    .loginContainer {
+        height: 100%;
+        width: 100%!important;
+        border-radius: 0;
+    }
+    
+    .LogInfoInput {
+        border-radius: 10px;
+        border: 1px solid #C1C1C1;
+        padding: 12px 30px 12px 16px;
+        outline: none;
+        transition: 0.2s;
+    }
+    
+    .LogInfoInput:focus {
+        border: 3px solid #a7a4a4;
+    }
+    
+    .InputSvg {
+        position: absolute;
+        top: calc(50% - 10px);
+        right: 5%
+    }
+    
+    .LoginBtn {
+        box-shadow: 0px 0px 18px rgba(0, 0, 0, 0.25);
+        border-radius: 20px!important;
+        border: 0!important;
+        width: 20%;
+    }
+    
+    .link:link,
+    .link:visited,
+    .link:active,
+    .link:hover {
+        text-decoration: none;
+    }
+    
+    .link span {
+        color: white;
+        font-size: 16px;
+        text-decoration: none;
+        margin-left: 10px;
+        transition: 0.1s;
+    }
+    
+    .active span {
+        font-size: 20px;
+        font-weight: bold;
+    }
+    
+    .active svg {
+        height: 30px;
+        width: 30px;
+    }
+    
+    .SideBarContainer {
+        background-color: #5B4DA9;
+    }
+    
+    .LogoutBtn {
+        border: 0;
+        background-color: transparent;
+        text-decoration: none;
+    }
+    
+    .LogoutBtn:focus,
+    button:focus,
+    input:focus {
+        outline: none !important;
+    }
+    
+    .SidebarHeader span {
+        color: white;
+        margin-left: 20px;
+        font-size: 18px;
+    }
+    
+    .Bcrumb {
+        font-size: 18;
+        color: #5B4DA9;
+    }
+    
+    .Bcrumb::before {
+        content: '/ ';
+    }
+    
+    .BcrumbActive {
+        color: #636363;
+    }
+    
+    .BcrumbContainer {
+        border-bottom: 1px solid #5B4DA9;
+    }
+    
+    .DashbordCardContainer {
+        height: 250px;
+    }
+    
+    .DashbordCard {
+        border: 1px solid #202020;
+        border-radius: 15px;
+    }
+    
+    .InfoHeaderTxt {
+        color: #636363;
+        font-size: 15px;
+    }
+    
+    .InfoWeaklyTxt {
+        color: #73B95B;
+        font-size: 15px;
+    }
+    
+    .InfoNumberTxt {
+        font-size: 40px;
+    }
+    
+    td button {
+        font-size: 13px;
+    }
+    
+    .paginationBtn {
+        background-color: white;
+        border: 0;
+    }
+    
+    .supPhoto {
+        position: absolute;
+        bottom: 5%;
+        right: 10%;
+    }
+    
+    .SearchSvg {
+        position: absolute;
+        right: 5%;
+        top: calc(50% - 12px);
+    }
+    
+    #MailText {
+        resize: none;
+    }
+    
+    .SpecialiteCardContainer {
+        height: 400px;
+    }
+    
+    .SpecialiteCard {
+        border-radius: 15px;
+    }
+    
+    .SpecialiteCardHeader {
+        height: 16%;
+        border-radius: 15px 15px 0 0;
+    }
+    
+    .SpecialiteHeaderTxt {
+        font-weight: bold;
+        font-size: 19px;
+        color: #FFFFFF;
+    }
+    
+    .SpecialityFooterTxt {
+        font-weight: bold;
+        font-size: 14px;
+        color: #FFFFFF;
+        border: 5px dashed rgb(243, 243, 243);
+        border-radius: 6px;
+        transition: 0.2s;
+    }
+    
+    .SpecialityFooterTxt:hover {
+        color: #dddbdbec;
+        border: 5px dashed #dddbdbec;
+    }
+    
+    .SpecialityFooterTxt svg path {
+        transition: 0.2s;
+    }
+    
+    .SpecialityFooterTxt:hover svg path {
+        fill: #dddbdbec;
+    }
+    
+    .SpecialiteCardBody {
+        height: 61%;
+        overflow: auto;
+    }
+    
+    .SpecialiteCardFooter {
+        height: 23%;
+    }
+    
+    .SousSpecialiteCardContainer {
+        width: 90%;
+        height: 67px;
+        border-radius: 15px;
+        transition: 0.2s;
+    }
+    
+    .SousSpecialiteCardContainer:hover {
+        background-color: #322c50!important;
+    }
+    
+    .ImageSSpecialite {
+        height: 100%;
+        width: 30%;
+        background-color: white;
+        border-radius: 15px 0 15px 15px;
+    }
+    
+    .SSpecialiteName {
+        width: 70%;
+        color: white;
+        font-weight: bold;
+        display: flex;
+        align-self: center;
+        justify-content: center;
+    }
+    
+    .AddSpecialiteCard {
+        background-color: #68886F;
+        border-radius: 15px;
+        transition: 0.3s;
+    }
+    
+    .AddSpecialiteTxt {
+        font-size: 19px;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .AddSpecialiteCard:hover {
+        background-color: #59a56c;
+    }
+    
+    .documentContainer {
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+        border-radius: 15px;
+        transition: 0.2s;
+    }
+    
+    .DocumentTxt {
+        font-size: 14px!important;
+        color: #444444!important;
+    }
+    
+    .documentContainer:hover {
+        box-shadow: 0px 0px 15px rgba(17, 0, 255, 0.801);
+    }
+    
+    .AddDoc {
+        color: #57B6FB;
+    }
+    
+    .DescriptionHeader {
+        font-size: 20px;
+        color: #757575;
+    }
+    
+    .QuestionHeader {
+        font-size: 16px;
+        color: #757575;
+    }
+    
+    .ReponseHeader {
+        font-size: 16px;
+    }
+    
+    .CorrecAnswerTxt {
+        color: #57A755;
+    }
+    
+    .QuestionContainer {
+        border-radius: 15px;
+    }
+    
+    .reponseContainer {
+        height: 67vh;
+        overflow: auto;
+    }
+    
+    .DescriptionTxt {
+        font-size: 17px;
+        text-indent: 20px;
+        color: #303030;
+    }
+    
+    .QuestionTxt {
+        font-size: 14px;
+        text-indent: 16px;
+        color: #303030;
+    }
+    
+    .ReponseTxt {
+        font-size: 14px;
+        text-indent: 16px;
+        color: #303030;
+    }
+    
+    .DocumentTitleHeader {
+        font-size: 30px;
+    }
+    
+    .FichierHeader {
+        font-size: 20px;
+        color: #757575;
+    }
+    
+    .FichierTxt {
+        font-size: 20px;
+        text-decoration-line: underline;
+        color: #4892D7;
+    }
+    
+    .pasValider {
+        color: #c53a3a!important;
+    }
+    
+    #CommentInput {
+        resize: none;
+        width: 90%;
+        border-radius: 15px!important;
+        padding-right: 20vw!important;
+    }
+    
+    .EnvoyerBtn {
+        position: absolute;
+        top: calc(50% - 19px);
+        right: 7%;
+        color: #3385FF;
+    }
+    
+    .EnvoyerBtn:focus {
+        box-shadow: none!important;
+    }
+    
+    .EnvoyerBtn:hover {
+        color: #3385FF;
+    }
+    
+     ::-webkit-scrollbar {
+        width: 7px;
+    }
+    /* Track */
+    
+     ::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 5px rgb(192, 191, 191);
+        border-radius: 10px;
+    }
+    /* Handle */
+    
+     ::-webkit-scrollbar-thumb {
+        background: #6c649c;
+        border-radius: 10px;
+    }
+    /* Handle on hover */
+    
+     ::-webkit-scrollbar-thumb:hover {
+        background: #3613fd;
+    }
+    
+    @media only screen and (max-width: 768px) {
+        #AddDoc {
+            display: none!important;
+        }
+        #menu {
+            position: absolute;
+            z-index: 2;
+        }
+    }
+    
+    @media only screen and (min-width: 768px) {
+        /* For desktop: */
+        .containerImg {
+            background-image: url('./Image/LoginBackground.jpg');
+            background-position: top left;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        .loginContainer {
+            width: 50vw!important;
+            height: 75%!important;
+            border-radius: 0 0 40px 40px;
+            padding: 20px;
+        }
+        #AddDoc {
+            display: block!important;
+        }
+        #CommentInput {
+            resize: none;
+            width: 90%;
+            border-radius: 15px!important;
+            padding-right: 10vw!important;
+        }
+        .reponseContainer {
+            height: 73vh;
+        }
+    }

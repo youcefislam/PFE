@@ -681,7 +681,7 @@ app.post('/commentaires', verifyToken, (req, res) => {
             db.query(sql, (req.body.Notified ? req.body.Notified : req.body.Documentid), async(err, result) => {
                 if (err) throw err;
                 let resultJSON = [];
-                await result.map((v, index) => {
+                await result.map((v, index) => {			//TODO Try to remove this shit, use username instead of the id of user in the 												reponse table
                     let unit = {};
                     unit.id_reponse = v.id_reponse;
                     unit.contenu = v.contenu;
