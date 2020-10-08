@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Switch, ActivityIndicator } from 'react-native';
-import { requestSousSpecialite } from '../address';
-import { AuthContext } from '../App';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Switch, ActivityIndicator,Image } from 'react-native';
+import { requestSousSpecialite, MyAddress } from '../address';
+import { AuthContext, translate } from '../App';
 import { BoxShadow } from 'react-native-shadow';
 
 
@@ -16,7 +16,7 @@ import NotFollowedSvg from '../Img/SVG/svg28.svg';
 
 
 
-const SousSpecialityView = ({ item, navigation,specialiteid }) => {
+const SousSpecialityView = ({ item, navigation, specialiteid }) => {
 
     const shadowOpt = {
         width: 288,
@@ -32,10 +32,10 @@ const SousSpecialityView = ({ item, navigation,specialiteid }) => {
 
     return (
         <BoxShadow setting={shadowOpt}>
-            <TouchableOpacity style={Styles.specialityCard} onPress={() => { navigation.navigate("ListeDocument", {specialiteid:specialiteid.specialiteid, SousSpecialiteid: item.id_sous_specialite, title: item.nom,isFollowed:item.isFollowed }) }} activeOpacity={0.8}>
+            <TouchableOpacity style={Styles.specialityCard} onPress={() => { navigation.navigate("ListeDocument", { specialiteid: specialiteid.specialiteid, SousSpecialiteid: item.id_sous_specialite, title: item.nom, isFollowed: item.isFollowed }) }} activeOpacity={0.8}>
                 <View style={Styles.SpecialityImage}>
+                    <Image source={{ "uri": MyAddress + item.Image_SS } } style={Styles.ProfilImage} resizeMode='cover' />
                     <View style={{ position: 'absolute', top: 10, right: 20 }}>
-                        {/* <NotFollowedSvg /> */}
                         {
                             item.isFollowed ? (<NotFollowedSvg />) : (<FollowedSvg />)
                         }
@@ -75,8 +75,8 @@ const Home = ({ route, navigation }) => {
     const [isLoading, setisLoading] = useState(true)
 
     useEffect(() => {
-        return navigation.addListener('focus',()=>{
-            requestSousSpecialite(specialite.specialiteid, setSousSpecialities,setisLoading, signOut);
+        return navigation.addListener('focus', () => {
+            requestSousSpecialite(specialite.specialiteid, setSousSpecialities, setisLoading, signOut);
         })
     }, [navigation])
 
@@ -84,7 +84,9 @@ const Home = ({ route, navigation }) => {
         <View style={Styles.container} >
             <View style={Styles.SSListContainer}>
                 <View style={Styles.SwitchContainer}>
-                    <Text style={{ fontSize: 12 }} >Followed Only</Text>
+                    <Text style={{ fontSize: 12 }} >
+                        {translate("FollowedOnly")}
+                    </Text>
                     <Switch
                         style={Styles.SwitchComponent}
                         trackColor={{ false: "#d9d9d9", true: "#b3d9ff" }}
@@ -95,7 +97,7 @@ const Home = ({ route, navigation }) => {
                 </View>
                 {
                     isLoading ? (
-                        <View style={{flex:1,justifyContent:'center'}}>
+                        <View style={{ flex: 1, justifyContent: 'center' }}>
                             <ActivityIndicator size={40} color='#5F33EC' />
                         </View>
                     ) : (
@@ -129,6 +131,12 @@ const Styles = StyleSheet.create({
         color: "#767676",
         marginLeft: 10,
 
+    },
+    ProfilImage: {
+        height: 94,
+        width: 286,
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
     },
     InfoTxt: {
         fontSize: 10,
@@ -164,7 +172,7 @@ const Styles = StyleSheet.create({
     SpecialityImage: {
         height: 94,
         width: 286,
-        backgroundColor: '#C4C4C4',
+        // backgroundColor: '#C4C4C4',
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15
     },

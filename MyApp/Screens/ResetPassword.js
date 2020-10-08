@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, ImageBackground, StatusBar } from 'react-native';
 import { ChangePassword, passwordMsg, passwordConfirmationMsg, handlePasswordConfirm, handlePassword } from '../address';
-
+import { translate } from '../App';
 import { useDimensions } from '@react-native-community/hooks';
 import { BoxShadow } from 'react-native-shadow';
 import DoneBtnSvg from '../Img/SVG/svg9.svg';
 import PasswordSvg from '../Img/SVG/svg4.svg';
+
 
 const ResetPassword = ({ route, navigation }) => {
 
@@ -32,7 +33,7 @@ const ResetPassword = ({ route, navigation }) => {
                 <View style={styles.contentStyle}>
                     <View style={styles.centerAlign}>
                         <Text style={styles.HeaderTxt}>
-                            Great ! Now Enter a New Password
+                            {translate("TextReset1")}
                         </Text>
                     </View>
                     <View style={styles.centerAlign}>
@@ -40,7 +41,7 @@ const ResetPassword = ({ route, navigation }) => {
                             <TextInput
                                 style={styles.Input}
                                 secureTextEntry
-                                placeholder='New Password'
+                                placeholder={translate("TextReset2")}
                                 placeholderTextColor="#5A4CA7"
                                 returnKeyType='next'
                                 autoFocus={true}
@@ -56,7 +57,7 @@ const ResetPassword = ({ route, navigation }) => {
                                 ref={ref => { secondInput = ref; }}
                                 style={styles.Input}
                                 secureTextEntry
-                                placeholder='Confirm New Password'
+                                placeholder={translate("TextReset3")}
                                 placeholderTextColor="#5A4CA7"
                                 returnKeyType='done'
                                 onChangeText={(value) => setConfirmPassword(value)}
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
         borderColor: '#5B4DA9',
         borderRadius: 15,
         paddingLeft: 20,
-        paddingRight:40,
+        paddingRight: 40,
         margin: 10,
         width: 289,
         height: 46,
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
     },
     passSvg: {
         position: 'absolute',
-        right: 24, 
+        right: 24,
         top: 23
     },
 })

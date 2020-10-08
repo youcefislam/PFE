@@ -13,6 +13,7 @@ import {
 
 import ViewPager from '@react-native-community/viewpager';
 import RadioForm from 'react-native-simple-radio-button';
+import { translate } from '../App';
 // import ImagePicker from 'react-native-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import {
@@ -75,7 +76,7 @@ const PersonalInformation = () => {
                                 <TextInput
                                     style={styles.input}
                                     onChangeText={text => setFirstName(text)}
-                                    placeholder="First Name"
+                                    placeholder={translate("FirstName")}
                                     placeholderTextColor="#5A4CA7"
                                     returnKeyType="next"
                                     autoCorrect={false}
@@ -85,7 +86,7 @@ const PersonalInformation = () => {
                                     ref={ref => { secondInput = ref }}
                                     style={styles.input}
                                     onChangeText={text => setSecondName(text)}
-                                    placeholder="Second Name"
+                                    placeholder={translate("SecondName")}
                                     placeholderTextColor="#5A4CA7"
                                     autoCorrect={false}
                                     returnKeyType="next"
@@ -93,8 +94,8 @@ const PersonalInformation = () => {
                             </View>
                             <RadioForm
                                 radio_props={[
-                                    { label: 'Male', value: 'Male' },
-                                    { label: 'Female', value: 'female' }]}
+                                    { label: translate("Male"), value: 'Male' },
+                                    { label: translate("Female"), value: 'female' }]}
                                 formHorizontal={true}
                                 animation={false}
                                 buttonColor={'white'}
@@ -112,7 +113,9 @@ const PersonalInformation = () => {
                             <BoxShadow setting={shadowOpt}>
                                 <TouchableOpacity style={styles.nextBtn} onPress={next} activeOpacity={0.6}>
                                     <View style={styles.BtnTextHundle}>
-                                        <Text style={styles.nextBtnTxt}>Next</Text>
+                                        <Text style={styles.nextBtnTxt}>
+                                            {translate("Next")}
+                                        </Text>
                                     </View>
                                     <View style={styles.BtnSvgHundle}>
                                         <NextBtnSvg />
@@ -124,9 +127,9 @@ const PersonalInformation = () => {
                 </View>
                 <View key="2" style={styles.view}>
                     <ImageBackground source={require('../Img/img5.png')} style={[styles.image, { height: screenHeight - StatusBar.currentHeight }]}>
-                        <Text style={styles.Header}>Add Profile Picture</Text>
+                                <Text style={styles.Header}>{translate("AddPicture")}</Text>
                         <TouchableOpacity style={styles.ImgPicker} onPress={() => handleImagePicker(ImagePicker, setState)}>
-                                <Image source={state.srcImg} style={styles.ProfilImage} />
+                            <Image source={state.srcImg} style={styles.ProfilImage} />
                         </TouchableOpacity>
                         <View style={styles.nextBtnHundler}>
                             <BoxShadow setting={shadowOpt}>
@@ -175,7 +178,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#5A4CA7',
         borderRadius: 15,
-        paddingHorizontal:20
+        paddingHorizontal: 20
     },
     ButtonText: {
         padding: 5,
@@ -188,8 +191,8 @@ const styles = StyleSheet.create({
     ProfilImage: {
         width: 216,
         height: 216,
-        borderRadius:200,
-        resizeMode:'cover'
+        borderRadius: 200,
+        resizeMode: 'cover'
 
     },
     buttonView: {
@@ -247,17 +250,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    ImgPicker:{ 
-        marginTop:"20%",
-        borderRadius: 200, 
-        width: 216, 
-        height: 216, 
-        backgroundColor: 'white' 
+    ImgPicker: {
+        marginTop: "20%",
+        borderRadius: 200,
+        width: 216,
+        height: 216,
+        backgroundColor: 'white'
     },
-    Header:{
-        marginTop:"20%", 
-        fontSize:20,
-        color:'#fff'
+    Header: {
+        marginTop: "20%",
+        fontSize: 20,
+        color: '#fff'
     }
 });
 

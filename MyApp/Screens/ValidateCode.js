@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ImageBackground, StatusBar } from 'react-native';
 import { verfyCode } from '../address';
-
+import { translate } from '../App';
 import { useDimensions } from '@react-native-community/hooks';
 import { BoxShadow } from 'react-native-shadow';
 import SendBtnSvg from '../Img/SVG/svg8.svg';
@@ -35,10 +35,10 @@ const ValidateCode = ({ route, navigation }) => {
                     {ReTypeTex ? (<Text style={{}}>{ReTypeTex}</Text>) : (null)}
                     <View style={styles.centerAlign}>
                         <Text style={styles.HeaderTxt}>
-                            Check Your Email, and Enter the validation
+                            {translate("TextVerify1")}
                         </Text>
                         <Text style={styles.HeaderTxt}>
-                            code that you recieved
+                            {translate("TextVerify2")}
                         </Text>
                     </View>
                     <View style={styles.centerAlign}>
@@ -56,11 +56,11 @@ const ValidateCode = ({ route, navigation }) => {
                     </View>
                     <View style={styles.centerAlign}>
                         <Text style={styles.HeaderTxt}>
-                            Didn’t recieve any code ?
+                            {translate("TextVerify3")}
                         </Text>
                         <TouchableOpacity onPress={() => { navigation.goBack() }} activeOpacity={0.6}>
                             <Text style={styles.ResendTxt}>
-                                Please re-enter your email
+                                {translate("TextVerify4")}
                         </Text>
                         </TouchableOpacity>
 
@@ -69,7 +69,9 @@ const ValidateCode = ({ route, navigation }) => {
                         <BoxShadow setting={shadowOpt}>
                             <TouchableOpacity style={styles.sendBtn} onPress={() => { verfyCode(Email, VerifCode, ValidCode, setReTypeTex, navigation) }} activeOpacity={0.6}>
                                 <View style={styles.BtnTextHundle}>
-                                    <Text style={styles.sendBtnTxt}>Verify</Text>
+                                    <Text style={styles.sendBtnTxt}>
+                                        {translate("TextVerify5")}
+                                    </Text>
                                 </View>
                                 <View style={styles.BtnSvgHundle}>
                                     <SendBtnSvg />
@@ -78,9 +80,6 @@ const ValidateCode = ({ route, navigation }) => {
                         </BoxShadow>
                     </View>
                 </View>
-                {/* <TouchableOpacity style={styles.button} onPress={() => { navigation.goBack() }}>
-                    <Text style={{}}>Didn't recieve any Validation code ?</Text>
-                </TouchableOpacity> */}
             </ImageBackground>
         </View>
     );
@@ -99,8 +98,8 @@ const styles = StyleSheet.create({
     HeaderTxt: {
         color: '#5B4DA9',
         fontSize: 14,
-        marginBottom:5,
-        fontWeight:"bold",
+        marginBottom: 5,
+        fontWeight: "bold",
     },
     ResendTxt: {
         color: '#5B4DA9',

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ToastAndroid, Modal, TouchableOpacity, Alert, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ToastAndroid, Modal, TouchableOpacity, Alert, TextInput, DevSettings } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import { AuthContext } from '../App';
+import { AuthContext, translate, setTransulation } from '../App';
 
 
 
@@ -36,12 +36,12 @@ const settingScreen = ({ route, navigation }) => {
 
     const ChangeLanguage = (la) => {
 
-        Alert.alert('Confiramtion', 'Are you sure you want to change the language to ' + (la == 'ar' ? 'عربية' : la == 'en' ? 'English' : 'Francais'),
+        Alert.alert("Confirmation", translate("ConfirmText") + (la == 'en' ? 'English' : 'Francais'),
             [
                 {
-                    text: 'Yes',
+                    text: translate('Yes'),
                     onPress: () => {
-                        alert('done')
+                        setTransulation(la);
                     }
                 },
                 {
@@ -69,6 +69,11 @@ const settingScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
+            <View style={{ flex: 0.3, justifyContent: 'center', marginLeft: 20 }}>
+                <Text style={{ fontSize: 25, color: 'white', fontWeight: 'bold' }}>
+                    {translate("SettingsName")}
+                </Text>
+            </View>
             <View style={styles.SettingContaier}>
                 <Modal
                     animationType="slide"
@@ -95,11 +100,6 @@ const settingScreen = ({ route, navigation }) => {
                         <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => ChangeLanguage('en')}>
                             <Text style={{ color: 'white' }}>
                                 English
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => ChangeLanguage('ar')}>
-                            <Text style={{ color: 'white' }}>
-                                عربية
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => setStates(false)}>
@@ -151,7 +151,7 @@ const settingScreen = ({ route, navigation }) => {
                                     {confirmed ? 'Cancel' : 'No'}
                                 </Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={{ alignItems: 'center', marginHorizontal: 10 }} onPress={() => confirmed ?alert('account deleted !') : setconfirmed(true) }>
+                            <TouchableOpacity style={{ alignItems: 'center', marginHorizontal: 10 }} onPress={() => confirmed ? alert('account deleted !') : setconfirmed(true)}>
                                 <Text style={{ color: 'red', fontWeight: 'bold' }}>
                                     {confirmed ? 'Confirm' : 'Yes'}
                                 </Text>
@@ -164,19 +164,19 @@ const settingScreen = ({ route, navigation }) => {
                     <TouchableOpacity style={styles.BtnContainer} onPress={() => setStates(true)}>
                         <LanguageSvg />
                         <Text style={styles.text}>
-                            Change language
+                            {translate("ChangeLanguage")}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.BtnContainer} onPress={notifyMe}>
                         {notification ? <OffNotificationSvg /> : <NotificationSvg />}
                         <Text style={styles.text}>
-                            Notification
+                            Notifications
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.BtnContainer} onPress={() => setDeleteAcount(true)}>
                         <DeleteAccountSvg />
                         <Text style={[styles.text, { color: '#FF7070' }]}>
-                            Delete My Account
+                            {translate("DeleteMyAccount")}
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -185,21 +185,22 @@ const settingScreen = ({ route, navigation }) => {
                     <TouchableOpacity style={styles.BtnContainer} onPress={() => { navigation.navigate('FeedBack') }}>
                         <FeedbackSvg />
                         <Text style={styles.text} >
-                            Send FeedBack
+                            {translate("SendFeedBack")}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.BtnContainer} onPress={() => { navigation.navigate('About') }}>
                         <AboutSvg />
                         <Text style={styles.text}>
-                            About
+                            {translate("About")}
+
                         </Text>
                     </TouchableOpacity>
                 </View>
                 <View>
-                    <TouchableOpacity style={styles.BtnContainer} onPress={()=>signOut()}>
+                    <TouchableOpacity style={styles.BtnContainer} onPress={() => signOut()}>
                         <LogoutSvg />
                         <Text style={styles.text}>
-                            Logout
+                            {translate("Logout")}
                         </Text>
                     </TouchableOpacity>
                 </View>

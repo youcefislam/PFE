@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import CheckBox from '@react-native-community/checkbox';
 import { handleLogin } from '../address';
 import { AuthContext } from '../App';       // AuthContext to control the screens
-
+import { translate } from '../App';
 import {
   StyleSheet,
   View,
@@ -45,7 +45,7 @@ const Signin = ({ navigation }) => {
             <View style={styles.InputHundler}>
               <TextInput
                 style={styles.input}
-                placeholder="Username"
+                placeholder={translate("username")}
                 placeholderTextColor="#5A4CA7"
                 returnKeyType="next"
                 onSubmitEditing={() => secondInput.focus()}
@@ -59,7 +59,7 @@ const Signin = ({ navigation }) => {
                 ref={ref => { secondInput = ref }}
                 secureTextEntry
                 style={styles.input}
-                placeholder="Password"
+                placeholder={translate("password")}
                 placeholderTextColor="#5A4CA7"
                 onChangeText={(val) => setPassword(val)} />
               <View style={styles.passSvg}>
@@ -67,19 +67,19 @@ const Signin = ({ navigation }) => {
               </View>
             </View>
             <View style={styles.Adds}>
-              <View style={styles.RememberMestyle}>     
-              {/* TODO Handle Remember Info */}
+              <View style={styles.RememberMestyle}>
+                {/* TODO Handle Remember Info */}
                 <CheckBox
                   value={RememberUserInfo}
                   tintColors={{ true: '#5A4CA7', false: '#5A4CA7' }}
                   onChange={() => { RememberUserInfo ? setRememberUserInfo(false) : setRememberUserInfo(true) }} />
                 <TouchableOpacity onPress={() => { RememberUserInfo ? setRememberUserInfo(false) : setRememberUserInfo(true) }} activeOpacity={1} >
-                  <Text style={styles.RememberMetext}>Remember Me</Text>
+                  <Text style={styles.RememberMetext}>{translate("RememberMe")}</Text>
                 </TouchableOpacity>
               </View>
               <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                 <View>
-                  <Text style={styles.ForgotPassText}>Forgot Password ?</Text>
+                  <Text style={styles.ForgotPassText}>{translate("ForgotPassword")}</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -92,16 +92,16 @@ const Signin = ({ navigation }) => {
             </View>
             <View style={styles.BtnTextHundle}>
               <Text style={styles.buttonSignInText}>
-                Sign In
+                {translate("SignUp")}
               </Text>
             </View>
           </View>
         </TouchableOpacity>
         <View style={styles.GoSignUp}>
-          <Text style={{ color: 'white', fontSize: 11 }}>Don't have an account?</Text>
+          <Text style={{ color: 'white', fontSize: 11 }}>{translate("NoAccount")}</Text>
           <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
             <View>
-              <Text style={styles.GoToSignUp}> Sign Up</Text>
+              <Text style={styles.GoToSignUp}>{translate("SignUp")}</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -136,12 +136,12 @@ const styles = StyleSheet.create({
   BtnSvgHundle: {
     alignItems: 'center'
   },
-  BtnTextHundle:{ 
-    width: 90, 
-    marginLeft: 10, 
-    alignItems: 'center', 
-    justifyContent: 'center' 
-},
+  BtnTextHundle: {
+    width: 90,
+    marginLeft: 10,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   input: {
     width: 270,
     height: 50,

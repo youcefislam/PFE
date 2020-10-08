@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
+import { translate } from '../App';
 import {
     Text,
     View,
     StyleSheet,
     TextInput,
     TouchableOpacity,
-    ScrollView,
     KeyboardAvoidingView,
     ImageBackground,
     StatusBar,
@@ -64,7 +64,7 @@ const SignUp = ({ navigation }) => {
                             //style={handleEmail() ? styles.input : styles.inputError}
                             // autoFocus={true}
                             style={styles.input}
-                            placeholder="Email"
+                            placeholder="E-mail"
                             placeholderTextColor="#5A4CA7"
                             autoCompleteType="email"
                             returnKeyType="next"
@@ -81,7 +81,7 @@ const SignUp = ({ navigation }) => {
                             ref={ref => { secondInput = ref }}
                             style={styles.input}
                             autoCompleteType="username"
-                            placeholder="Username"
+                            placeholder={translate("username")}
                             maxLength={16}
                             placeholderTextColor="#5A4CA7"
                             autoCorrect={false}
@@ -100,7 +100,7 @@ const SignUp = ({ navigation }) => {
                             secureTextEntry
                             autoCompleteType="password"
                             placeholderTextColor="#5A4CA7"
-                            placeholder="Password"
+                            placeholder={translate("password")}
                             returnKeyType="next"
                             onSubmitEditing={() => handlePassword(Password) ? forthInput.focus() : alert(passwordMsg)}
                             onChangeText={(val) => setPassword(val)} />
@@ -115,7 +115,7 @@ const SignUp = ({ navigation }) => {
                             style={styles.input}
                             secureTextEntry
                             autoCompleteType="password"
-                            placeholder="Confirm password"
+                            placeholder={translate("confirmPass")}
                             placeholderTextColor="#5A4CA7"
                             onSubmitEditing={() => handlePasswordConfirm(Password, ConfirmPassword) ? (null) : (alert(passwordConfirmationMsg))}
                             onChangeText={(val) => setConfirmPassword(val)} />
@@ -124,7 +124,9 @@ const SignUp = ({ navigation }) => {
                         </View>
                     </View>
                     <TouchableOpacity onPress={() => ShowPattern()}>
-                        <Text style={styles.TextBtn}>Patterns</Text>
+                        <Text style={styles.TextBtn}>
+                            {translate("patterns")}
+                        </Text>
                     </TouchableOpacity>
                     <BoxShadow setting={shadowOpt}>
                         <TouchableOpacity onPress={() => handleRegister(username, Password, ConfirmPassword, Email, navigation)} activeOpacity={0.8}>
@@ -134,7 +136,7 @@ const SignUp = ({ navigation }) => {
                                 </View>
                                 <View style={styles.BtnTextHundle}>
                                     <Text style={styles.buttonSignUPText}>
-                                        Sign Up
+                                        {translate("SignUp")}
                                     </Text>
                                 </View>
                             </View>

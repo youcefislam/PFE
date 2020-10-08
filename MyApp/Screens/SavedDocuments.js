@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import {requestSavedPost } from '../address';
-import { AuthContext } from '../App';
+import { AuthContext, translate } from '../App';
 
 
 //SVG
@@ -69,7 +69,7 @@ const SavedScreen = ({ route, navigation }) => {
             {/* TODO Search Bar */}
             <View style={{flex:0.2,justifyContent:'center',marginLeft:20}}>
                 <Text style={{fontSize:25,color:'white',fontWeight:'bold'}}>
-                    Your Saved Document
+                    {translate("SavedDoc")}
                 </Text>
             </View>
             <View style={styles.SSListContainer}>

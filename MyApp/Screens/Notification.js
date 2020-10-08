@@ -34,7 +34,7 @@ const NotificationScreen = ({ navigation }) => {
             {/* TODO Search Bar */}
             <View style={{ flex: 0.2, justifyContent: 'center', marginLeft: 20 }}>
                 <Text style={{ fontSize: 25, color: 'white', fontWeight: 'bold' }}>
-                    Notification
+                    Notifications
                 </Text>
             </View>
             <View style={styles.SSListContainer}>

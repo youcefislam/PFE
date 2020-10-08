@@ -60,7 +60,7 @@ export default MyMarks;
 
 const style = StyleSheet.create({
     container: {
-        flex: 0.8,
+        flex: 0.9,
         backgroundColor: 'white',
         borderTopLeftRadius: 80,
         borderTopRightRadius: 80,

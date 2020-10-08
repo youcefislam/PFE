@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator,Image } from 'react-native';
 import { requestSpecialite } from '../address';
-import { AuthContext } from '../App';
-
+import { AuthContext, translate } from '../App';
 import { useDimensions } from '@react-native-community/hooks';
 import Carousel from 'react-native-snap-carousel';
 import LinearGradient from 'react-native-linear-gradient';
@@ -27,7 +26,9 @@ const DocumentCarousel = ({ item, navigation }) => {
                     <Text style={Styles.itemCarddesc}>{'\t' + item.description.substr(0, 200) + "..."}</Text>
                 </View>
                 <View style={Styles.LearnMore}>
-                    <Text style={Styles.LearnMoreTxt} >Learn More</Text>
+                    <Text style={Styles.LearnMoreTxt} >
+                        {translate("LearnMore")}
+                    </Text>
                     <NextBtnSvg height={12} width={12} />
                 </View>
             </View>
@@ -104,14 +105,15 @@ const Home = ({ navigation }) => {
     const screenWidth = useDimensions().screen.width;
     const [ActiveItem, setActiveItem] = useState(0);
     const [Documents, setDocuments] = useState([]);
-    const [isLoading, setisLoading] = useState(true)
+    const [isLoading, setisLoading] = useState(true);
+    const [User, setUser] = useState({})
 
     let CarouselRef;
 
 
     useEffect(() => {
-        return navigation.addListener('focus',()=>{
-            requestSpecialite(setSpecialities, setDocuments,setisLoading, signOut);
+        return navigation.addListener('focus', () => {
+            requestSpecialite(setSpecialities, setDocuments, setisLoading,setUser, signOut);
         })
     }, [navigation])
 
@@ -122,23 +124,24 @@ const Home = ({ navigation }) => {
         <View style={Styles.container}>
             {
                 isLoading ? (
-                    <View style={{flex:1,justifyContent:'center'}}>
+                    <View style={{ flex: 1, justifyContent: 'center' }}>
                         <ActivityIndicator color="#ffffff" size={100} />
                     </View>
 
                 ) : (
                         <>
-                            <View style={Styles.TopPartStyle}>
-                                <View>
+                                <View style={Styles.TopPartStyle}>
+                                <View style={{ flexGrow: 1 }}>
                                     <Text style={Styles.UserHeader}>
-                                        Hi Youcef !
+                                        {translate("HelloUser") + " "+ User.FirstName}
                                     </Text>
                                     <Text style={Styles.DocumentSuggestions}>
-                                        Here are some popular documents this week
+                                        {translate("PopularDoc")}
                                     </Text>
                                 </View>
-                                <View style={{ marginTop: 50 }}>
-                                    <View style={{ width: 43, height: 43, backgroundColor: '#fff', borderRadius: 15 }}></View>
+                                <View style={{ marginTop: 50, marginRight: 10 }}>
+                                    <Image source={User.srcImg} style={Styles.ProfilImage} />
+                                    {/* <View style={{ width: 43, height: 43, borderRadius: 15 }}></View> */}
                                 </View>
                             </View>
                             <View style={Styles.SuggestionHundler} >
@@ -187,11 +190,17 @@ const Home = ({ navigation }) => {
 }
 
 export default React.memo(Home)
+
 const Styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'flex-end',
         backgroundColor: '#5F33EC'
+    },
+    ProfilImage: {
+        width: 50, 
+        height: 50, 
+        borderRadius: 15
     },
     TopPartStyle: {
         flex: 0.3,

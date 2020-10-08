@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import { SendFeedBack } from '../address';
-import { AuthContext } from '../App';
+import { AuthContext, translate } from '../App';
 
 
 
@@ -15,13 +15,13 @@ const sendFeedBackScreen = ({ navigation }) => {
         <View style={styles.container}>
             <View style={styles.TopPartContainer}>
                 <Text style={styles.TopPartTxt}>
-                    Send Your Feedback
+                    {translate("SendFeedBack")}
                 </Text>
             </View>
             <View style={styles.InputContaier}>
                 <TextInput
                     style={{ borderWidth: 1, padding: 20, borderRadius: 15, borderColor: "#848484", height: '70%', width: '80%', textAlignVertical: "top" }}
-                    placeholder={"Write Your FeedBack Here..."}
+                    placeholder={translate("WiteFeedBack")}
                     placeholderTextColor="#848484"
                     multiline={true}
                     selectionColor='#5F33ECFF'

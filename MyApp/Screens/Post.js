@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { BoxShadow } from 'react-native-shadow';
-import { AuthContext } from '../App';
+import { AuthContext, translate } from '../App';
 
 
 import {
@@ -116,7 +116,7 @@ const Post = ({ route, navigation }) => {
                                 <View style={styles.DownladBtnContainer}>
                                     <TouchableOpacity activeOpacity={0.7} style={styles.DownladBtn} onPress={()=>DownloadFile(post.doc_path,document.title)}>
                                         <Text style={styles.DownladBtnTxt}>
-                                            Download
+                                            {translate("Download")}
                                         </Text>
                                         <View style={{ flex: 0.2 }}>
                                             <Downlaod />
@@ -158,7 +158,7 @@ const Post = ({ route, navigation }) => {
                             </View>
                             <View style={styles.QuizzContainer}>
                                 <Text style={styles.QuizzContainerTitle}>
-                                    Quizzes
+                                    Quiz
                                 </Text>
                                 <FlatList
                                     data={post.quizz}

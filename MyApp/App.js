@@ -1,12 +1,15 @@
 import 'react-native-gesture-handler';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, HeaderBackButton } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { bootstrapAsync } from './address';
+import { bootstrapAsync, getNotification } from './address';
+import i18n from "i18n-js";
+import memoize from "lodash.memoize";
 import {
   StyleSheet,
   ToastAndroid,
+  BackHandler
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import PushNotification from "react-native-push-notification";
@@ -39,8 +42,6 @@ import sendFeedBackScreen from './Screens/SendFeedBack';
 import NotificationScreen from './Screens/Notification';
 
 
-
-
 //SVG
 import HomeSvg from './Img/SVG/svg10.svg';
 import HomeActiveSvg from './Img/SVG/svg19.svg';
@@ -59,34 +60,81 @@ const Stack = createStackNavigator();
 
 //Notification configuration
 PushNotification.configure({
-  onRegister: function(token) {
-    console.log( 'TOKEN:', token );
-},
+  onRegister: function (token) {
+    console.log('TOKEN:', token);
+  },
 
-onNotification: function(notification) {
-    console.log( 'NOTIFICATION:', notification );
-},
-senderID: "YOUR GCM SENDER ID",
-permissions: {
+  onNotification: function (notification) {
+    console.log('NOTIFICATION:', notification);
+  },
+  senderID: "YOUR GCM SENDER ID",
+  permissions: {
     alert: true,
     badge: true,
     sound: true
-},
-popInitialNotification: true,
-requestPermissions: Platform.OS === 'ios',
+  },
+  popInitialNotification: true,
+  requestPermissions: Platform.OS === 'ios',
 });
+
+
+
+const translationGetters = {
+  en: () => require("./android/app/src/translations/en.json"),
+  fr: () => require("./android/app/src/translations/fr.json")
+};
+
+export const translate = memoize(
+  (key, config) => i18n.t(key, config),
+  (key, config) => (config ? key + JSON.stringify(config) : key)
+);
+
+export const setTransulation = (lang) => {
+  AsyncStorage.setItem("language", lang);
+  i18n.locale = { languageTag: lang, isRTL: false };
+  BackHandler.exitApp();
+}
+
+export const setI18nConfig = async () => {
+  const lang = await AsyncStorage.getItem("language");
+
+  const fallback = { languageTag: lang ? lang : "fr", isRTL: false };
+
+  const { languageTag, isRTL } = fallback;
+
+  translate.cache.clear();
+  i18n.translations = { [languageTag]: translationGetters[languageTag]() };
+  i18n.locale = languageTag;
+};
 
 
 const HomeStack = createStackNavigator();
 
 function HomeStackScreen() {
+
+  const [NotifBadge, setNotifBadge] = useState(0)
+
+  const testPush = (message) => {
+    PushNotification.localNotification({
+      title:"Tredoc",
+      bigPictureUrl:require('./Img/Tredoc.png'),
+      smallIcon:require('./Img/Tredoc.png'),
+      largeIcon:require('./Img/Tredoc.png'),
+      message: message, // (required)
+    });
+  }
+
+  useEffect(() => {
+    getNotification(setNotifBadge, testPush);
+  }, [])
+  
   return (
     <Tab.Navigator initialRouteName='Home' tabBarOptions={{ activeTintColor: 'rgba(39, 96, 244, 0.6)', keyboardHidesTabBar: true, tabStyle: { height: 50, paddingVertical: 5 } }}  >
-      <Tab.Screen name="Settings" component={SettingStackScreens} options={{ tabBarIcon: ({ focused }) => focused ? <SettingsActiveSvg /> : <SettingsSvg /> }} />
-      <Tab.Screen name="Notification" component={NotificationScreen} options={{ tabBarBadge: 3, tabBarIcon: ({ focused }) => focused ? <NotificationActiveSvg /> : <NotificationSvg /> }} />
-      <Tab.Screen name="Home" component={HomeScreensScreen} options={{ tabBarIcon: ({ focused }) => focused ? <HomeActiveSvg /> : <HomeSvg /> }} />
-      <Tab.Screen name="Saved" component={SavedScreen} options={{ tabBarIcon: ({ focused }) => focused ? <SavedActiveSvg /> : <SavedSvg /> }} />
-      <Tab.Screen name="Profil" component={ProfileStackScreen} options={{ tabBarIcon: ({ focused }) => focused ? <ProfilActiveSvg /> : <ProfilSvg /> }} />
+      <Tab.Screen name="Settings" component={SettingStackScreens} options={{ tabBarIcon: ({ focused }) => focused ? <SettingsActiveSvg /> : <SettingsSvg />, tabBarLabel: translate("SettingsLable") }} />
+      <Tab.Screen name="Notifications" component={NotificationScreen} options={{ tabBarBadge: NotifBadge, tabBarIcon: ({ focused }) => focused ? <NotificationActiveSvg /> : <NotificationSvg /> }} />
+      <Tab.Screen name="Home" component={HomeScreensScreen} options={{ tabBarIcon: ({ focused }) => focused ? <HomeActiveSvg /> : <HomeSvg />, tabBarLabel: translate("HomeLable") }} />
+      <Tab.Screen name="Saved" component={SavedScreen} options={{ tabBarIcon: ({ focused }) => focused ? <SavedActiveSvg /> : <SavedSvg />, tabBarLabel: translate("SavedLable") }} />
+      <Tab.Screen name="Profil" component={ProfileStackScreen} options={{ tabBarIcon: ({ focused }) => focused ? <ProfilActiveSvg /> : <ProfilSvg />, tabBarLabel: translate("ProfilLable") }} />
     </Tab.Navigator>
   );
 }
@@ -123,17 +171,17 @@ const ProfileStack = createStackNavigator();
 function ProfileStackScreen() {
   return (
     <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
-      <ProfileStack.Screen name='Profil' component={Profil}  />
-      <ProfileStack.Screen name='MyMarks' component={MyMarks}  options={({ route }) => ({ title: route.params.title, headerShown: true, headerTintColor: '#5B4DA9' })} />
+      <ProfileStack.Screen name='Profil' component={Profil} />
+      <ProfileStack.Screen name='MyMarks' component={MyMarks} options={({ route }) => ({ title: route.params.title, headerShown: true, headerTintColor: '#5B4DA9' })} />
     </ProfileStack.Navigator>
   );
 }
 
 const SettingStack = createStackNavigator();
 
-function SettingStackScreens(){
-  return(
-    <SettingStack.Navigator screenOptions={{headerShown:false}}>
+function SettingStackScreens() {
+  return (
+    <SettingStack.Navigator screenOptions={{ headerShown: false }}>
       <SettingStack.Screen name='settings' component={SettingScreen} />
       <SettingStack.Screen name='About' component={AboutScreen} />
       <SettingStack.Screen name='FeedBack' component={sendFeedBackScreen} />
@@ -177,16 +225,12 @@ const App = ({ navigation }) => {
     }
   );
 
-
-const testPush =()=>{
-  PushNotification.localNotificationSchedule({
-    message: "My Notification Message", // (required)
-    date: new Date(Date.now() + (5 * 1000)) // in 60 secs
-  });
-}
+  
   useEffect(() => {
-    testPush();
+    // testPush();
+    setI18nConfig();
     bootstrapAsync(authContext);
+    
   }, []);
 
   const authContext = useMemo(      //check whether the user is sign in or not to display the right screens
@@ -203,13 +247,14 @@ const testPush =()=>{
       signOut: async () => {   // function that handel Sign Out
         await AsyncStorage.removeItem('Token')
         dispatch({ type: 'SIGN_OUT' })
-      },     
+      },
     }),
     []
   );
 
 
-  if (state.isLoading) {   // display this screen when we are checking the token validity
+  if (state.isLoading) {
+    // display this screen when we are checking the token validity
     return <SplashScreen />;
   }
 
@@ -255,15 +300,10 @@ const testPush =()=>{
               </HomeStack.Navigator>
             )
         }
-
-
       </NavigationContainer>
     </AuthContext.Provider>
   );
 };
 
-const styles = StyleSheet.create({
-
-});
 
 export default App;

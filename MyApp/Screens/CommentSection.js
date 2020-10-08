@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, FlatList, TextInput, ActivityIndicator, StyleSheet } from 'react-native';
 import { requestComments } from '../address';
-import { AuthContext } from '../App';
+import { AuthContext, translate } from '../App';
 import RepliesSection from './RepliesSection';
 import { sendComment, sendReply } from "../address"
 
 
-const CommentView = ({ document,pressed, item, click, signOut, setPressed, isSending, setisSending, BannedWords }) => {
+const CommentView = ({ document, pressed, item, click, signOut, setPressed, isSending, setisSending, BannedWords }) => {
     const [text, settext] = useState("")
     const [ShowReply, setShowReply] = useState(false)
-    console.log(document.title+'----')
     let ReplyInput = <View style={styles.AddReplyContainer}>
         {
             (pressed === item.id_reponse) ? (
@@ -27,7 +26,7 @@ const CommentView = ({ document,pressed, item, click, signOut, setPressed, isSen
                             isSending ? (
                                 <ActivityIndicator />
                             ) : (
-                                    <Text onPress={() => { setisSending(true); sendReply(item.id_reponse,item.id_author,document.title,document, text, settext, setPressed, setisSending, BannedWords, signOut) }} style={styles.SendCommentBtnTxt}>Send</Text>
+                                    <Text onPress={() => { setisSending(true); sendReply(item.id_reponse, item.id_author, document.title, document, text, settext, setPressed, setisSending, BannedWords, signOut) }} style={styles.SendCommentBtnTxt}>Send</Text>
                                 )
                         }
                     </View>
@@ -42,16 +41,22 @@ const CommentView = ({ document,pressed, item, click, signOut, setPressed, isSen
                 <Text style={styles.userNameTxt}>{item.username}</Text>
             </View>
             <Text style={{ padding: 10 }}>{'\t' + item.contenu}</Text>
-            <Text onPress={() => click(item.id_reponse)} style={styles.ReplyBtn} >Reply</Text>
+            <Text onPress={() => click(item.id_reponse)} style={styles.ReplyBtn} >
+                {translate("Reply")}
+            </Text>
             {ReplyInput}
             {
                 ShowReply ? (
                     <>
                         <RepliesSection document={document} idComment={item.id_reponse} pressed={pressed} click={click} setPressed={setPressed} BannedWords={BannedWords} />
-                        <Text onPress={() => setShowReply(false)} style={styles.HideShowReplyBtn}>hide replies</Text>
+                        <Text onPress={() => setShowReply(false)} style={styles.HideShowReplyBtn}>
+                            {translate("HideReplies")}
+                        </Text>
                     </>
                 ) : item.HaveAnswer ? (
-                    <Text style={styles.HideShowReplyBtn} onPress={() => setShowReply(true)}>Show replies</Text>
+                    <Text style={styles.HideShowReplyBtn} onPress={() => setShowReply(true)}>
+                        {translate("ShowReplies")}
+                    </Text>
                 ) : (null)
             }
 
@@ -73,11 +78,19 @@ const CommentSection = ({ route, navigation }) => {
     const [isSending, setisSending] = useState(false);
     const [isLoading, setisLoading] = useState(true);
     const [BannedWords, setBannedWords] = useState([]);
-console.log(document)
+    var IntervalId = 0
+
     useEffect(() => {
+        IntervalId = setInterval(() => {
+            requestComments(document, setComments, setisLoading, setBannedWords, signOut)
+        }, 2000);
+        navigation.addListener('blur', () => {
+            clearInterval(IntervalId)
+        })
         return navigation.addListener('focus', () => {
             return requestComments(document, setComments, setisLoading, setBannedWords, signOut)
         })
+        
     }, [navigation])
 
     const click = (id) => {
@@ -91,7 +104,7 @@ console.log(document)
                     <View style={styles.AddCommentContainer}>
                         <View style={styles.AddCommentInConatiner}>
                             <TextInput
-                                placeholder={'Add a Comment...'}
+                                placeholder={translate("AddComment")}
                                 numberOfLines={2}
                                 onChangeText={text => setText(text)}
                                 value={text}
@@ -101,11 +114,11 @@ console.log(document)
                             <View style={styles.SendCommentBtn}>
                                 {
                                     isSending ? (
-                                        <ActivityIndicator />
+                                        <ActivityIndicator size={50} color="#5F33EC" />
                                     ) : (
 
                                             <Text onPress={() => { setisSending(true); sendComment(document.documentid, text, setText, setisSending, BannedWords, signOut) }} style={styles.SendCommentBtnTxt}>
-                                                Send
+                                                {translate("Send")}
                                             </Text>
                                         )
                                 }
@@ -131,7 +144,7 @@ console.log(document)
                         ) : (
                                 <View style={styles.NoResultContainer}>
                                     <Text style={styles.NoResultTxt}>
-                                        No Comment Found
+                                        {translate("NoComment")}
                                     </Text>
                                 </View>
                             )

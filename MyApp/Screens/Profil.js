@@ -22,13 +22,13 @@ import {
     passwordConfirmationMsg,
     SubmitEditing
 } from '../address'
-import { AuthContext } from '../App';
+import { AuthContext, translate } from '../App';
 
 
-const Profil = ({ route,navigation }) => {
+const Profil = ({ route, navigation }) => {
 
     const [Info, setInfo] = useState({})
-    const InfoUserId = route.params?route.params.id:null;
+    const InfoUserId = route.params ? route.params.id : null;
     const [Edit, setEdit] = useState(false);
     const [myProfile, setmyProfile] = useState(Info.myProfile);
     const [username, setUsername] = useState(Info.username);
@@ -82,7 +82,7 @@ const Profil = ({ route,navigation }) => {
         <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: '#5F33EC' }}>
             <View style={{ flex: 0.2, justifyContent: 'center', marginLeft: 20 }}>
                 <Text style={{ fontSize: 25, color: 'white', fontWeight: 'bold' }}>
-                    Votre Profile!
+                    {translate("VotreProfil")}
                 </Text>
             </View>
             <View style={{ flex: 0.85, backgroundColor: 'white', borderTopLeftRadius: 80, borderTopRightRadius: 80, overflow: 'hidden' }}>
@@ -115,14 +115,14 @@ const Profil = ({ route,navigation }) => {
                                                                 //style={handleUsername() ? styles.input : styles.inputError}
                                                                 style={style.inputImportant}
                                                                 autoCompleteType="username"
-                                                                placeholder="New Username"
+                                                                placeholder={translate("NewUsername")}
                                                                 placeholderTextColor="#969696"
                                                                 onSubmitEditing={() => handleUsername(NewUsername) ? (null) : (alert(UsernameMsg))}
                                                                 onChangeText={(val) => setNewUsername(val)} />
                                                         ) : ChangeEmail ? (
                                                             <TextInput
                                                                 style={style.inputImportant}
-                                                                placeholder="New Email"
+                                                                placeholder={translate("NewMail")}
                                                                 autoCompleteType="email"
                                                                 placeholderTextColor="#969696"
                                                                 onSubmitEditing={() => handleEmail(NewEmail) ? (null) : (alert(EmailMsg))}
@@ -136,7 +136,7 @@ const Profil = ({ route,navigation }) => {
                                                                         style={style.inputImportant}
                                                                         secureTextEntry
                                                                         autoCompleteType="password"
-                                                                        placeholder="*Current Password"
+                                                                        placeholder={translate("CurrentPassword")}
                                                                         placeholderTextColor="#969696"
                                                                         onChangeText={(val) => setCurrentPassword(val)} />
                                                                     <View style={style.passSvg}>
@@ -149,7 +149,7 @@ const Profil = ({ route,navigation }) => {
                                                                         style={style.inputImportant}
                                                                         secureTextEntry
                                                                         autoCompleteType="password"
-                                                                        placeholder="New Password"
+                                                                        placeholder={translate("TextReset2")}
                                                                         placeholderTextColor="#969696"
                                                                         onSubmitEditing={() => handlePassword(Password) ? (null) : alert(passwordMsg)}
                                                                         onChangeText={(val) => setPassword(val)} />
@@ -162,7 +162,7 @@ const Profil = ({ route,navigation }) => {
                                                                         style={style.inputImportant}
                                                                         secureTextEntry
                                                                         autoCompleteType="password"
-                                                                        placeholder="Confirm New Password"
+                                                                        placeholder={translate("confirmPass")}
                                                                         placeholderTextColor="#969696"
                                                                         onSubmitEditing={() => handlePassword(Password) ? (null) : alert(passwordConfirmationMsg)}
                                                                         onChangeText={(val) => setConfirmPassword(val)} />
@@ -198,21 +198,23 @@ const Profil = ({ route,navigation }) => {
                                     }
                                     <View style={style.ElementView}>
                                         {
-                                            !Edit ? (<Text style={style.FieldContent}>{'FirstName : ' + FirstName}</Text>) :
-                                                (<TextInput style={style.input} autoFocus={true} placeholder={'FirstName : ' + FirstName} onChangeText={(val) => setNewFirstName(val)} />)
+                                            !Edit ? (<Text style={style.FieldContent}>{translate("FirstName")+' : ' + FirstName}</Text>) :
+                                                (<TextInput style={style.input} autoFocus={true} placeholder={translate("FirstName")+' : ' + FirstName} onChangeText={(val) => setNewFirstName(val)} />)
                                         }
                                     </View>
                                     <View style={style.ElementView}>
                                         {
-                                            !Edit ? (<Text style={style.FieldContent}>{'SecondName :' + SecondName}</Text>) :
-                                                (<TextInput style={style.input} placeholder={'SecondName : ' + SecondName} onChangeText={(val) => setNewSecondName(val)} />)
+                                            !Edit ? (<Text style={style.FieldContent}>{translate("SecondName")+' :' + SecondName}</Text>) :
+                                                (<TextInput style={style.input} placeholder={translate("SecondName")+' : ' + SecondName} onChangeText={(val) => setNewSecondName(val)} />)
                                         }
                                     </View>
                                     <View style={style.ElementView}>
                                         {
-                                            !Edit ? (<Text style={style.FieldContent}>{'Sex : ' + Sex}</Text>) :
+                                            !Edit ? (<Text style={style.FieldContent}>{translate("Sex") + Sex}</Text>) :
                                                 (<View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
-                                                    <Text>Sex :</Text>
+                                                    <Text>
+                                                        {translate("Sex")}
+                                                    </Text>
                                                     <RadioForm
                                                         radio_props={[
                                                             { label: 'Male', value: 'Male' },
@@ -237,7 +239,7 @@ const Profil = ({ route,navigation }) => {
                                         Edit ? (
                                             <>
                                                 <TouchableOpacity style={style.MarksBtn} onPress={() => { setEdit(false); SubmitEditing(NewFirstName, NewSecondName, NewSex, NewProfilImage, setFirstName, setSecondName, setSex, setProfilImage, signOut) }}>
-                                                    <Text style={style.MarksBtnText}>Submit Edition</Text>
+                                                    <Text style={style.MarksBtnText}>Submit</Text>
                                                 </TouchableOpacity>
                                                 <TouchableOpacity style={style.MarksBtn} onPress={() => setEdit(false)}>
                                                     <Text style={style.MarksBtnText}>Cancel</Text>
@@ -249,19 +251,29 @@ const Profil = ({ route,navigation }) => {
                                                         <Text style={style.FieldContent}>{'Email :' + email}</Text>
                                                     </View>
                                                     <TouchableOpacity style={style.MarksBtn} onPress={() => { navigation.navigate('MyMarks', { title: "My Marks" }) }}>
-                                                        <Text style={style.MarksBtnText}>Show My Marks</Text>
+                                                        <Text style={style.MarksBtnText}>
+                                                            {translate("ShowMyMarks")}
+                                                        </Text>
                                                     </TouchableOpacity>
                                                     <TouchableOpacity style={style.MarksBtn} onPress={() => setEdit(true)}>
-                                                        <Text style={style.MarksBtnText}>Edit Profil</Text>
+                                                        <Text style={style.MarksBtnText}>
+                                                            {translate("EditProfil")}
+                                                        </Text>
                                                     </TouchableOpacity>
                                                     <TouchableOpacity style={style.MarksBtn} onPress={() => { setChangeUserName(true); setStates(true); }}>
-                                                        <Text style={style.MarksBtnText}>Change username</Text>
+                                                        <Text style={style.MarksBtnText}>
+                                                            {translate("ChangeUsername")}
+                                                        </Text>
                                                     </TouchableOpacity>
                                                     <TouchableOpacity style={style.MarksBtn} onPress={() => { setChangePassword(true); setStates(true); }}>
-                                                        <Text style={style.MarksBtnText}>Change password</Text>
+                                                        <Text style={style.MarksBtnText}>
+                                                            {translate("Changepassword")}
+                                                        </Text>
                                                     </TouchableOpacity>
                                                     <TouchableOpacity style={style.MarksBtn} onPress={() => { setChangeEmail(true); setStates(true); }}>
-                                                        <Text style={style.MarksBtnText}>Change Email</Text>
+                                                        <Text style={style.MarksBtnText}>
+                                                            {translate(" ChangeEmail")}
+                                                        </Text>
                                                     </TouchableOpacity>
                                                 </>
                                             ) : (null)

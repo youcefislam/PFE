@@ -1,4 +1,5 @@
 import React from 'react';
+import { translate } from '../App';
 import {
     StyleSheet,
     View,
@@ -37,7 +38,7 @@ const Welcome = ({ navigation }) => {
                             </View>
                             <View style={styles.BtnTextHundle}>
                                 <Text style={styles.buttonSignInText}>
-                                    Sign In
+                                    {translate("SignIn")}
                                 </Text>
                             </View>
                         </View>
@@ -51,7 +52,7 @@ const Welcome = ({ navigation }) => {
                             </View>
                             <View style={styles.BtnTextHundle}>
                                 <Text style={styles.buttonSignUPText}>
-                                    Sign Up
+                                    {translate("SignUp")}
                                 </Text>
                             </View>
 
@@ -59,7 +60,6 @@ const Welcome = ({ navigation }) => {
                     </TouchableOpacity>
                 </BoxShadow>
             </ImageBackground>
-            {/* <Image style={{width: 250, height: 220,margin:40}} source={require('../Img/Ccuizzy.png')} /> */}
         </KeyboardAvoidingView>
     );
 };
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
         color: '#F6CF42',
         fontSize: 40,
     },
-    BtnSvgHundle:{
+    BtnSvgHundle: {
         alignItems: 'center'
     },
     image: {
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
         resizeMode: "contain",
         justifyContent: "center",
         alignItems: 'center',
-        
+
     },
     buttonSignIn: {
         flexDirection: 'row',
@@ -102,11 +102,11 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         backgroundColor: '#5B4DA9',
     },
-    BtnTextHundle:{ 
-        width: 90, 
-        marginLeft: 10, 
-        alignItems: 'center', 
-        justifyContent: 'center' 
+    BtnTextHundle: {
+        width: 90,
+        marginLeft: 10,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     buttonSignInText: {
         color: '#5B4DA9',

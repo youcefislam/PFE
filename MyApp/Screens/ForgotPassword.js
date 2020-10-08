@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ImageBackground, StatusBar } from 'react-native';
 import { SendVerifCode } from '../address';
+import { translate } from "../App"
 
 import { useDimensions } from '@react-native-community/hooks';
 import { BoxShadow } from 'react-native-shadow';
@@ -30,16 +31,16 @@ const ForgotPassword = ({ navigation }) => {
                 <View style={styles.contentStyle}>
                     <View style={styles.centerAlign}>
                         <Text style={styles.HeaderTxt}>
-                            Forgot your Password ?
+                            {translate("TextForgot1")}
                         </Text>
                         <Text style={styles.HeaderTxt}>
-                            Enter Your E-mail and confirm your identity
+                            {translate("TextForgot2")}
                         </Text>
                     </View>
                     <View style={styles.centerAlign}>
                         <TextInput
                             style={styles.Input}
-                            placeholder="Enter Your Email"
+                            placeholder={translate("TextForgot3")}
                             placeholderTextColor="#5A4CA7"
                             autoCorrect={false}
                             onChangeText={(value) => setEmail(value)}
@@ -49,7 +50,9 @@ const ForgotPassword = ({ navigation }) => {
                         <BoxShadow setting={shadowOpt}>
                             <TouchableOpacity style={styles.sendBtn} onPress={() => SendVerifCode(Email, navigation)} activeOpacity={0.6}>
                                 <View style={styles.BtnTextHundle}>
-                                    <Text style={styles.sendBtnTxt}>Send Verifecation Code</Text>
+                                    <Text style={styles.sendBtnTxt}>
+                                        {translate("TextForgot4")}
+                                    </Text>
                                 </View>
                                 <View style={styles.BtnSvgHundle}>
                                     <SendBtnSvg />
@@ -70,22 +73,22 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white'
     },
-    centerAlign:{ 
-        alignItems: 'center' 
+    centerAlign: {
+        alignItems: 'center'
     },
-    HeaderTxt:{ 
-        color: '#5B4DA9', 
-        fontSize: 13 
+    HeaderTxt: {
+        color: '#5B4DA9',
+        fontSize: 13
     },
-    Input:{ 
-        borderWidth: 1, 
-        borderColor: '#5B4DA9', 
-        borderRadius: 15, 
-        paddingHorizontal: 20, 
-        margin: 10, 
-        width: 289, 
-        height: 46, 
-        color: '#5A4CA7' 
+    Input: {
+        borderWidth: 1,
+        borderColor: '#5B4DA9',
+        borderRadius: 15,
+        paddingHorizontal: 20,
+        margin: 10,
+        width: 289,
+        height: 46,
+        color: '#5A4CA7'
     },
     contentStyle: {
         flex: 0.6,
@@ -105,8 +108,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     sendBtnTxt: {
+        textAlign: 'center',
         color: '#5B4DA9',
-        fontSize: 13
+        fontSize: 12
     },
     BtnSvgHundle: {
         alignItems: 'center'

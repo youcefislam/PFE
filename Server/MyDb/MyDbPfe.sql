@@ -93,6 +93,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`quizz` (
   `nom_quiz` VARCHAR(255) NULL DEFAULT NULL,
   `rate` DECIMAL(2,1) NULL DEFAULT NULL,
   `number_of_rating` int default 0,
+  `Valider` TINYINT(1) NULL DEFAULT '0',
   PRIMARY KEY (`id_quiz`),
   INDEX `quiz_ibfk_1` (`id_document` ASC) VISIBLE,
   CONSTRAINT `quiz_ibfk_1`
@@ -118,6 +119,20 @@ CREATE TABLE IF NOT EXISTS `mydb`.`users` (
   PRIMARY KEY (`id_user`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
   UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+-- -----------------------------------------------------
+-- Table `mydb`.`formateur`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`formateur` (
+  `id_formateur` INT NOT NULL AUTO_INCREMENT,
+  `id_user` INT NOT NULL,
+  PRIMARY KEY (`id_formateur`),
+  CONSTRAINT `user_formateur_fk`
+      FOREIGN KEY (`id_user`)
+      REFERENCES `mydb`.`users` (`id_user`)
+)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 

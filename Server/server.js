@@ -209,7 +209,6 @@ app.post('/users/register', (req, res) => {
                         await jwt.sign({ id: id, username: username }, MySecretKey, (err, token) => { // create a token for the user & send it
                             if (err) throw err;
                             else {
-                                console.log(token)
                                 Responsemessage.token = token;
                                 Responsemessage.errors = false;
                                 Responsemessage.message = 'Your account has been created Please Check the confirmation Email !'
@@ -236,7 +235,6 @@ app.post('/users/register', (req, res) => {
                     }
                 })
             } catch (err) {
-                console.log(err);
                 res.json({ message: 'something went wrong to the api server !!' });
             };
         })
@@ -303,7 +301,6 @@ app.post('/users/ForgotPoassword', (req, res) => {
                 res.send(JSON.stringify(Responsemessage));
             })
         } catch (err) {
-            console.log(err);
             res.json({ message: 'something went wrong to the api server !!' });
         };
 
@@ -336,7 +333,6 @@ app.post('/users/ResetPassword', (req, res) => {
                     res.send(JSON.stringify(Responsemessage));
                 })
             } catch (err) {
-                console.log(err);
                 res.json({ message: 'something went wrong to the api server !!' });
             };
         })
@@ -390,7 +386,12 @@ app.post('/home', verifyToken, (req, res) => {
                 db.query('SELECT id_document,titre,description FROM document order by nbr_views DESC limit 3', (err, documents) => {
                     if (err) throw err;
                     else {
-                        res.send({ specialities, documents })
+                        db.query('SELECT FirstName,Photo FROM users WHERE id_user=?', autData.id, (err, user) => {
+                            if (err) throw err;
+                            else {
+                                res.send({ specialities, documents, user })
+                            }
+                        })
                     }
                 })
             });
@@ -541,11 +542,11 @@ app.post('/post/like_unlike', verifyToken, (req, res) => {
         if (err) res.sendStatus(403);
         else {
             let sql = req.body.liked ? 'DELETE FROM UserLikedDocument WHERE id_document=? AND id_user=?' : "INSERT INTO UserLikedDocument(id_document,id_user) VALUES (?,?)";
-            db.query(sql, [req.body.document, autData.id], (err, deslike) => {
+            db.query(sql, [req.body.document.documentid, autData.id], (err, deslike) => {
                 if (err) throw err;
                 else {
                     sql = 'UPDATE document set nbr_like = nbr_like' + (req.body.liked ? '-1' : '+1') + ' WHERE id_document=?';
-                    db.query(sql, req.body.document, (err, update) => {
+                    db.query(sql, req.body.document.documentid, (err, update) => {
                         if (err) throw err;
                         else res.sendStatus(200);
                     })
@@ -562,7 +563,7 @@ app.post('/post/save_unsave', verifyToken, (req, res) => {
         if (err) res.sendStatus(403);
         else {
             const sql = req.body.saved ? 'DELETE FROM UserSavedDocument WHERE id_document=? AND id_user=?' : "INSERT INTO UserSavedDocument(id_document,id_user) VALUES (?,?)";
-            db.query(sql, [req.body.document, autData.id], (err, saved) => {
+            db.query(sql, [req.body.document.documentid, autData.id], (err, saved) => {
                 if (err) throw err;
                 else res.sendStatus(200);
             })
@@ -640,7 +641,6 @@ app.post('/users/mark', verifyToken, (req, res) => {
             db.query(sql, [req.body.quizzid, autData.id], (err, result) => {
                 if (err) throw err;
                 else {
-                    console.log(result)
                     if (result[0]) {
                         if (result[0].mark < req.body.mark) {
                             sql = 'UPDATE mark set mark=? where id_quiz=? and id_user=?';
@@ -678,10 +678,10 @@ app.post('/commentaires', verifyToken, (req, res) => {
         if (err) res.sendStatus(403);
         else {
             const sql = 'SELECT * from reponses where id_reponse ' + (req.body.Notified ? '=?' : 'in (SELECT id_commentaire from commentaires where id_document=?)')
-            db.query(sql, (req.body.Notified ? req.body.Notified : req.body.Documentid), async(err, result) => {
+            db.query(sql, (req.body.Notified ? req.body.Notified : req.body.Documentid.documentid), async(err, result) => {
                 if (err) throw err;
                 let resultJSON = [];
-                await result.map((v, index) => {			//TODO Try to remove this shit, use username instead of the id of user in the 												reponse table
+                await result.map((v, index) => { //TODO Try to remove this shit, use username instead of the id of user in the 												reponse table
                     let unit = {};
                     unit.id_reponse = v.id_reponse;
                     unit.contenu = v.contenu;
@@ -696,7 +696,7 @@ app.post('/commentaires', verifyToken, (req, res) => {
                         }
                     })
                 })
-                await db.query('SELECT * FROM BannedWord', (err, resultBanned) => {
+                db.query('SELECT * FROM BannedWord', (err, resultBanned) => {
                     if (err) throw err;
                     else {
                         let FinResult = {
@@ -719,10 +719,10 @@ app.post('/commentaires/send', verifyToken, (req, res) => {
                 const sql2 = 'insert into commentaires(id_commentaire,id_document) values(?,?) ' //TODO OPTIMIZE WITH TRIGGERS
                 db.query(sql, [req.body.contenu, autData.id, ], (err, result) => {
                     if (err) throw err;
-                    else db.query(sql2, [result.insertId, req.body.documentid], (err, result) => {
+                    else db.query(sql2, [result.insertId, req.body.documentid.documentid], (err, result) => {
                         if (err) throw err;
                         else {
-                            db.query('UPDATE document set nbr_commentaire=nbr_commentaire+1 WHERE id_document=?', req.body.documentid, (err, done) => {
+                            db.query('UPDATE document set nbr_commentaire=nbr_commentaire+1 WHERE id_document=?', req.body.documentid.documentid, (err, done) => {
                                 if (err) throw err;
                                 else res.sendStatus(200);
                             })
@@ -797,7 +797,6 @@ app.post('/users/changeusername', verifyToken, (req, res) => {
                     if (err) {
                         if (err.code == 'ER_DUP_ENTRY') {
                             Responsemessage.message = 'username already in use';
-                            console.log(Responsemessage);
                         }
                     } else {
 
@@ -955,7 +954,7 @@ app.post('/users/updateInfo', verifyToken, (req, res) => {
                             if (err) throw err;
                             else {
                                 if (result[0].Photo !== '/public/uploads/default.jpg') {
-                                    fs.unlink(`${result[0].Photo}`, (err) => {
+                                    fs.unlink(`${result[0].Photo.substring(1)}`, (err) => {
                                         if (err) throw err;
                                     });
                                 }
@@ -1025,7 +1024,6 @@ app.get('/notification', verifyToken, (req, res) => {
             db.query("SELECT * FROM UserNotification WHERE id_user=?", autData.id, (err, result) => {
                 if (err) throw err;
                 else {
-                    console.log("dsds")
                     res.send(result);
                 }
             })

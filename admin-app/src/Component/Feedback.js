@@ -1,17 +1,21 @@
 import React from 'react';
+import Breadcrumb from './Breadcrumb';
+import '../styles.css';
+import { NavLink } from 'react-router-dom';
 
 
-class Feedback extends React.Component{
+class Feedback extends React.Component {
 
-    // constructor(props){
-    //     super(props);
-    // }
+    constructor(props) {
+        super(props);
+    }
 
     render() {
         return (
-            <div>
-                <p>Feedback</p>
-            </div>
+            <>
+                <Breadcrumb Title={['FeedBack']} />
+                
+            </>
         )
     }
 }

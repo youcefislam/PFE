@@ -1,7 +1,9 @@
-export const MyAddress = 'http://192.168.1.9:3000';
+export const MyAddress = 'http://192.168.43.82:3000';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Alert } from 'react-native'
 import RNFetchBlob from 'rn-fetch-blob'
+import { translate } from "./App"
+
 
 
 
@@ -17,17 +19,12 @@ export const SubmitionErrorMsg = 'Please check your informations again,it should
 export const EmailMsg = 'Email must be a Real & Valid Email.';
 export const UsernameMsg = "Username need to :" +
     "\n   1-Be at least 8 Chartcters long." +
-    "\n   2-contain Only charcters and Numbers. ";
+    "\n   2-contain Only charcters and Numbers.";
 
-export const AboutThisApp = `Lorem ipsum dolor sit amet, consectetur 
-adipiscing elit.
-Phasellus ac orci ac felis imperdiet varius at in erat.
-Suspendisse potenti. Phasellus ultrices ex nec 
-scelerisque pellentesque.`
 
 
 export const ShowPattern = () => {
-    Alert.alert("Patterns", "A- " + EmailMsg + "\nB- " + UsernameMsg + "\nC- " + passwordMsg + "\nD-Password Confirmation should match your password");
+    Alert.alert("Patterns", "A- " + translate("EmailMsg") + "\nB- " + translate("UsernameMsg") + "\nC- " + translate("PasswordMsg") + "\nD- " + translate("ConfirmPassMsg"));
 }
 
 
@@ -56,16 +53,6 @@ export const handleInfo = (text) => {
 
 // image picker
 export const handleImagePicker = async (ImagePicker, setState) => {
-    // let options = {
-    //     title: 'Select Profile Picture',
-    //     storageOptions: {
-    //         skipBackup: true,
-    //         path: 'images',
-    //     },
-    //     mediaType: 'photo',
-    //     maxWidth: 300,
-    //     maxHeight: 300
-    // };
     Alert.alert('Select Picture From ...', '', [{
         text: 'Library',
         onPress: async () => {
@@ -103,16 +90,6 @@ export const handleImagePicker = async (ImagePicker, setState) => {
         text: 'Cancel',
         onPress: () => { }
     }])
-    // await ImagePicker.showImagePicker(options, (response) => {
-    //     if (!response.didCancel) {
-    //         console.log(response)
-    //         setState({
-    //             srcImg: { uri: response.uri },
-    //             uri: response.uri,
-    //             fileName: response.fileName
-    //         });
-    //     }
-    // })
 }
 
 
@@ -218,7 +195,7 @@ export const handleRegister = (username, Password, ConfirmPassword, Email, navig
                 console.error(error);
             })
 
-    } else alert(SubmitionErrorMsg)
+    } else alert(translate("SubmitionErrorMsg"))
 }
 
 
@@ -334,8 +311,8 @@ export const ChangePassword = (Email, Password, ConfirmPassword, navigation) => 
                     }
                 })
 
-        } else alert(passwordConfirmationMsg);
-    } else alert(passwordMsg)
+        } else alert(translate("ConfirmPassMsg"));
+    } else alert(translate("PasswordMsg"))
 }
 
 
@@ -343,7 +320,7 @@ export const ChangePassword = (Email, Password, ConfirmPassword, navigation) => 
 
 
 //home function 
-export const requestSpecialite = async (setSpecialities, setDocuments, setisLoading, signOut) => {
+export const requestSpecialite = async (setSpecialities, setDocuments, setisLoading, setUser, signOut) => {
 
     const token = await AsyncStorage.getItem('Token');
 
@@ -365,6 +342,7 @@ export const requestSpecialite = async (setSpecialities, setDocuments, setisLoad
         .then((responseJSON) => {
             setSpecialities(responseJSON.specialities);
             setDocuments(responseJSON.documents);
+            setUser({ "srcImg": { "uri": MyAddress + responseJSON.user[0].Photo }, FirstName: responseJSON.user[0].FirstName });
             setisLoading(false);
         })
         .catch((error) => {
@@ -755,7 +733,7 @@ export const changeEmails = async (email, setemail, setStates, signOut) => {
                 setStates(false);
                 setemail(email);
             })
-    } else alert(EmailMsg)
+    } else alert(translate("EmailMsg"))
 }
 export const changePasswords = async (OldPassword, password, ConfirmPassword, setStates, signOut) => {
 
@@ -1064,10 +1042,10 @@ export const requestNotification = async (setNotification, setisLoading, signOut
 }
 
 
-export const DownloadFile = (path,title) => {
+export const DownloadFile = (path, title) => {
     const string = MyAddress + path;
     // let dirs = RNFetchBlob.fs.dirs;
-    const stringDir = '/storage/emulated/0/Download/Tredoc/'+title+'.pdf'
+    const stringDir = '/storage/emulated/0/Download/Tredoc/' + title + '.pdf'
     // console.log(stringDir)
 
     RNFetchBlob.config({
@@ -1093,4 +1071,40 @@ export const DownloadFile = (path,title) => {
             //some headers ..
         })
         .catch(err => console.error(err))
+}
+
+export const getNotification = async (setNotifBadge, testPush) => {
+
+
+    const token = await AsyncStorage.getItem('Token');
+    const notification = await AsyncStorage.getItem("Notifcation");
+    var seenNumber = 0;
+
+    fetch(MyAddress + '/notification', {
+        headers: {
+            'authorization': 'Bearer ' + token
+        }
+    })
+        .then((response) => {
+            if (response.status != 403) return response.json()
+            else {
+                alert('You are not signed In');
+            }
+        })
+        .then(async (responseJSON) => {
+            if (responseJSON) {
+                await responseJSON.map(notif => {
+                    if (notif.Seen == 0) {
+                        seenNumber++;
+                        if (notification) {
+                            if (notif.id_commentaire) {
+                                testPush(translate("CommentNotif"))
+                            } else testPush(translate("DocumentNotif") + notif.title_SS)
+                        }
+                    }
+                })
+                setNotifBadge(seenNumber)
+            }
+        })
+        .catch(error => console.error(error))
 }
