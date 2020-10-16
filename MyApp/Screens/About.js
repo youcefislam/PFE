@@ -27,7 +27,7 @@ const AboutScreen = () => {
                     {translate("WhoAreWe")}
                     </Text>
                     <Text style={styles.contentTxt}>
-                        {'\t\t' + translate("AboutThisApp")}
+                        {'\t\t' + translate("AboutUs")}
                     </Text>
                 </View>
                 <View style={styles.AuthorsContainer}>

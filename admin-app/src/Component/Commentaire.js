@@ -1,6 +1,7 @@
 import React from 'react';
 import Breadcrumb from './Breadcrumb';
 import '../styles.css';
+import axios from 'axios';
 
 class Comment extends React.Component {
     render() {
@@ -23,7 +24,7 @@ class Comment extends React.Component {
                             <button data-toggle="modal" className='btn dropdown-item' data-id={this.props.comment.id_reponse} data-target="#RepondreModal">
                                 Repondre
                                         </button>
-                            <button data-toggle="modal" className='btn dropdown-item' data-id={this.props.comment.id_reponse}  data-content={this.props.comment.contenu} data-target="#ModifyResponseModal">
+                            <button data-toggle="modal" className='btn dropdown-item' data-id={this.props.comment.id_reponse} data-content={this.props.comment.contenu} data-target="#ModifyResponseModal">
                                 Modifier
                                         </button>
                         </div>
@@ -36,7 +37,7 @@ class Comment extends React.Component {
                 </div>
                 {
                     this.props.comment.HaveAnswer ?
-                        <Reponse searchvalue={this.props.searchReponse} />
+                        <Reponse searchvalue={this.props.searchReponse} id_reponse={this.props.comment.id_reponse} />
                         : null
                 }
             </div>
@@ -50,36 +51,14 @@ class Reponse extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            Reponse: [{
-                id_reponse: 1,
-                auteur: 1,
-                username: 'islam',
-                contenu: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc pellentesque tristique urna, mattis commodo elit. Morbi gravida velit dolor. Pellentesque arcu',
-                id_precedent: null,
-                HaveAnswer: false,
-            }, {
-                id_reponse: 2,
-                auteur: 2,
-                username: 'aymen',
-                contenu: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc pellentesque tristique urna, mattis commodo elit. Morbi gravida velit dolor. Pellentesque arcu',
-                id_precedent: null,
-                HaveAnswer: false,
-            }, {
-                id_reponse: 3,
-                auteur: 3,
-                username: 'toufik',
-                contenu: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc pellentesque tristique urna, mattis commodo elit. Morbi gravida velit dolor. Pellentesque arcu',
-                id_precedent: null,
-                HaveAnswer: false,
-            }, {
-                id_reponse: 4,
-                auteur: 5,
-                username: 'youcef',
-                contenu: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc pellentesque tristique urna, mattis commodo elit. Morbi gravida velit dolor. Pellentesque arcu',
-                id_precedent: null,
-                HaveAnswer: false,
-            }]
+            Reponse: []
         }
+    }
+
+    componentDidMount(){
+        axios.get('/reponse/'+this.props.id_reponse)
+        .then(res=>{
+            this.setState({Reponse:res.data})});
     }
 
     render() {
@@ -106,7 +85,7 @@ class Reponse extends React.Component {
                                             <button data-toggle="modal" className='btn dropdown-item' data-id={val.id_reponse} data-target="#RepondreModal">
                                                 Repondre
                                             </button>
-                                            <button data-toggle="modal" className='btn dropdown-item' data-id={val.id_reponse}  data-content={val.contenu} data-target="#ModifyResponseModal">
+                                            <button data-toggle="modal" className='btn dropdown-item' data-id={val.id_reponse} data-content={val.contenu} data-target="#ModifyResponseModal">
                                                 Modifier
                                             </button>
                                         </div>
@@ -119,7 +98,7 @@ class Reponse extends React.Component {
                                 </div>
                                 {
                                     val.HaveAnswer ?
-                                        <Reponse />
+                                        <Reponse id_reponse={val.id_reponse} />
                                         : null
                                 }
                             </div>
@@ -137,35 +116,7 @@ class Commentaire extends React.Component {
         this.state = {
             SearhValue: '',
             commentsTemp: [],
-            comments: [{
-                id_reponse: 1,
-                auteur: 1,
-                username: 'islam',
-                contenu: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc pellentesque tristique urna, mattis commodo elit. Morbi gravida velit dolor. Pellentesque arcu',
-                id_precedent: null,
-                HaveAnswer: true,
-            }, {
-                id_reponse: 2,
-                auteur: 2,
-                username: 'aymen',
-                contenu: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc pellentesque tristique urna, mattis commodo elit. Morbi gravida velit dolor. Pellentesque arcu',
-                id_precedent: null,
-                HaveAnswer: true,
-            }, {
-                id_reponse: 3,
-                auteur: 3,
-                username: 'toufik',
-                contenu: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc pellentesque tristique urna, mattis commodo elit. Morbi gravida velit dolor. Pellentesque arcu',
-                id_precedent: null,
-                HaveAnswer: false,
-            }, {
-                id_reponse: 4,
-                auteur: 5,
-                username: 'youcef',
-                contenu: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc pellentesque tristique urna, mattis commodo elit. Morbi gravida velit dolor. Pellentesque arcu',
-                id_precedent: null,
-                HaveAnswer: false,
-            }]
+            comments: []
         }
     }
 
@@ -176,31 +127,36 @@ class Commentaire extends React.Component {
         }
     }
     componentDidMount() {
-        this.setState({ commentsTemp: this.state.comments })
-        window.$('#DeleteCommentModal').on('show.bs.modal', (event) => {
-            let id = window.$(event.relatedTarget).data('id')
-            window.$("#DeleteCommentModal").append(`<input name='id_reponse' type="hidden" value=${id} /> `);
-        })
-        window.$('#RepondreModal').on('show.bs.modal', (event) => {
-            let id = window.$(event.relatedTarget).data('id')
-            window.$("#RepondreModal").append(`<input name='id_reponse' type="hidden"  value=${id} /> `);
-        })
-        var forms = document.getElementsByClassName('needs-validation');
-        Array.prototype.filter.call(forms, function (form) {
-            form.addEventListener('submit', function (event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-        window.$('#ModifyResponseModal').on('show.bs.modal', (event) => {
-            // let id = window.$(event.relatedTarget).data('id')
-            window.$('#TempReponse').val(window.$(event.relatedTarget).data('content'))
-            window.$('.submitModify').attr('disabled', "");
-        })
+        axios.get('/comments/' + this.props.match.params.id_doc)
+            .then(res => {
+
+                this.setState({ commentsTemp: res.data,comments:res.data })
+                window.$('#DeleteCommentModal').on('show.bs.modal', (event) => {
+                    let id = window.$(event.relatedTarget).data('id')
+                    window.$("#DeleteCommentModal").append(`<input name='id_reponse' type="hidden" value=${id} /> `);
+                })
+                window.$('#RepondreModal').on('show.bs.modal', (event) => {
+                    let id = window.$(event.relatedTarget).data('id')
+                    window.$("#RepondreModal").append(`<input name='id_reponse' type="hidden"  value=${id} /> `);
+                })
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+                window.$('#ModifyResponseModal').on('show.bs.modal', (event) => {
+                    // let id = window.$(event.relatedTarget).data('id')
+                    window.$('#TempReponse').val(window.$(event.relatedTarget).data('content'))
+                    window.$('.submitModify').attr('disabled', "");
+                })
+            });
     }
+
 
 
     render() {
@@ -259,7 +215,7 @@ class Commentaire extends React.Component {
                     <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h5 className="modal-title" id="RepondreModalLabel">Ajouter un commentaire</h5>
+                                <h5 className="modal-title" id="RepondreModalLabel">Ajouter une reponse</h5>
                                 <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>

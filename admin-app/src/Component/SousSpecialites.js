@@ -2,12 +2,20 @@ import React from 'react';
 import Breadcrumb from './Breadcrumb';
 import '../styles.css';
 import { NavLink } from 'react-router-dom';
+import axios from 'axios';
 
 
 class Document extends React.Component {
     render() {
         return (
-            <NavLink to={"/specialites/" + this.props.params.id_ss + '/' + this.props.val.id} className='row p-2 my-2'>
+            <NavLink to={{
+                pathname: "/specialites/" + this.props.params.id_ss + '/' + this.props.val.id,
+                aboutProps: {
+                    name: this.props.location.aboutProps.name,
+                    nameS: this.props.location.aboutProps.nameS,
+                    nameD: this.props.val.name
+                }
+            }} className='row p-2 my-2'>
                 <button className='documentContainer d-flex w-100 p-3  flex-column flex-lg-row align-items-center justify-content-lg-between'>
                     <div>
                         <strong className='DocumentTxt text-bold'>
@@ -44,105 +52,7 @@ class SousSpecialites extends React.Component {
             pages: 0,
             page: 1,
             row: 6,
-            documents: [{
-                id: 1,
-                name: 'document 1',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 2,
-                name: 'document 2',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 3,
-                name: 'document 3',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 4,
-                name: 'document 4',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 5,
-                name: 'document 5',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 6,
-                name: 'document 6',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 7,
-                name: 'document 7',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 14,
-                name: 'document 14',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 8,
-                name: 'document 8',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 9,
-                name: 'document 9',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 10,
-                name: 'document 10',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 11,
-                name: 'document 11',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 12,
-                name: 'document 12',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }, {
-                id: 13,
-                name: 'document 13',
-                nbrQuizz: 9999,
-                nbrLike: 9999,
-                nbrCommentaire: 9999,
-                nbrVue: 9999
-            }]
+            documents: []
         }
     }
 
@@ -202,23 +112,26 @@ class SousSpecialites extends React.Component {
         this.setState({ PageDocument: this.pagination(listTemp, this.state.page, this.state.row), ListofDocument: listTemp })
     }
     componentDidMount() {
-        this.setState({ PageDocument: this.pagination(this.state.documents, this.state.page, this.state.row), ListofDocument: this.state.documents })
-        // console.log(this.props.match.params.id)
-        window.$('#AddDocumentModal').on('show.bs.modal', function (event) {
-            window.$("input[type!='submit']").val('');
-            window.$("textarea").val('');
-            window.$('#DocumentInput').text('Ajouter un fichier..')
-        })
-        var forms = document.getElementsByClassName('needs-validation');
-        Array.prototype.filter.call(forms, function (form) {
-            form.addEventListener('submit', function (event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
+        axios.get('/Sspeicialites/' + this.props.match.params.id_ss)
+            .then(res => {
+                this.setState({ PageDocument: this.pagination(res.data, this.state.page, this.state.row), documents: res.data, ListofDocument: res.data })
+                // console.log(this.props.match.params.id)
+                window.$('#AddDocumentModal').on('show.bs.modal', function (event) {
+                    window.$("input[type!='submit']").val('');
+                    window.$("textarea").val('');
+                    window.$('#DocumentInput').text('Ajouter un fichier..')
+                })
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            })
     }
 
 
@@ -228,7 +141,7 @@ class SousSpecialites extends React.Component {
 
         return (
             <>
-                <Breadcrumb Title={['specialités', 'Sous-spécialité 1']} />
+                <Breadcrumb Title={[this.props.location.aboutProps.nameS, this.props.location.aboutProps.name]} />
                 <div className='container'>
                     <div className='row justify-content-between'>
                         <div className='my-4 mx-4 position-relative w-50'>
@@ -254,7 +167,7 @@ class SousSpecialites extends React.Component {
                     {
                         this.state.PageDocument.length > 0 ?
                             this.state.PageDocument.map((val, index) =>
-                                <Document key={index} params={this.props.match.params} val={val} />
+                                <Document key={index} params={this.props.match.params} location={this.props.location} val={val} />
                             ) :
                             <div className='text-center display-4 text-muted '>
                                 No Result
@@ -286,6 +199,37 @@ class SousSpecialites extends React.Component {
                                             <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M16 5V7.99C16 7.99 14.01 8 14 7.99V5H11C11 5 11.01 3.01 11 3H14V0H16V3H19V5H16ZM13 9V6H10V3H2C0.9 3 0 3.9 0 5V17C0 18.1 0.9 19 2 19H14C15.1 19 16 18.1 16 17V9H13ZM2 17L5 13L7 16L10 12L14 17H2Z" fill="#A3A3A3" />
                                             </svg>
+                                        </label>
+                                    </div>
+                                    <div className='rounded-pill w-75 mx-auto bg-light my-3'>
+                                        <input name="image" type="file" id='image' accept='image/*' className='form-control-file m-2 d-none' onChange={this.chooseImg} required></input>
+                                        <label htmlFor="image" id='ImageInput' className='d-flex text-secondary justify-content-between mx-auto p-2 px-2 overflow-hidden'>
+                                            <span id='DocumentInput'>
+                                                Ajouter un enregistrement vocal..
+                                            </span>
+                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <g clip-path="url(#clip0)">
+                                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3792 1.61947C17.2978 0.540365 15.8803 0 14.4611 0C13.0436 0 11.6261 0.540365 10.5446 1.61947C10.2657 1.89779 10.0227 2.19889 9.8155 2.51628C9.92805 4.06413 11.0699 5.78288 12.5608 7.19889C14.1006 8.65885 15.9928 9.77865 17.5196 10.0553C17.5522 10.0618 17.5848 10.0667 17.6175 10.0716C17.885 9.88607 18.1395 9.67448 18.3776 9.43685C19.4591 8.35775 20.0006 6.94336 20.0006 5.52897C20.0006 4.11296 19.4607 2.69857 18.3792 1.61947ZM0.770555 18.4945C0.527508 18.7549 0.339922 19.0511 0.19964 19.3799C-0.0841872 20.0423 -0.134754 20.14 0.534033 19.8324C0.883108 19.6712 1.20445 19.4661 1.48991 19.2122C1.79494 19.4954 2.08203 19.6419 2.41316 19.6842C2.75245 19.7282 3.09337 19.6533 3.52563 19.5052C4.93661 19.0202 9.79918 15.0521 12.8267 12.5814C13.6031 11.9482 14.254 11.416 14.7188 11.0498C15.2979 11.0238 15.8721 10.9066 16.4218 10.6999C14.9423 10.1579 13.3291 9.1097 11.9785 7.82878C10.7306 6.64551 9.69642 5.25553 9.1777 3.86556C9.02437 4.35059 8.94118 4.85026 8.92487 5.35319C8.60678 5.75358 8.1419 6.3265 7.5775 7.02311C5.10952 10.0651 0.798286 15.376 0.458998 16.499C0.338291 16.8994 0.271412 17.2331 0.308929 17.5602C0.348078 17.8955 0.486729 18.1934 0.770555 18.4945ZM13.4482 10.9619C13.1089 11.237 12.7125 11.5609 12.2786 11.9141C9.29841 14.3457 4.51413 18.252 3.24344 18.6882C2.92862 18.7956 2.70025 18.8525 2.52245 18.8298C2.36749 18.8102 2.21253 18.7158 2.01841 18.5221L1.44097 17.946C1.26644 17.7718 1.18488 17.6204 1.16693 17.4642C1.14573 17.277 1.1963 17.0443 1.28601 16.748C1.57636 15.7878 5.81745 10.5615 8.24629 7.56836C8.53501 7.21191 8.79926 6.88639 9.02763 6.60645C9.23316 7.64323 9.73883 8.63281 10.5446 9.43685C11.3668 10.2572 12.3846 10.765 13.4482 10.9619Z" fill="#A7A7A7" />
+                                                </g>
+                                                <defs>
+                                                    <clipPath id="clip0">
+                                                        <rect width="20" height="20" fill="white" />
+                                                    </clipPath>
+                                                </defs>
+                                            </svg>
+
+                                        </label>
+                                    </div>
+                                    <div className='rounded-pill w-75 mx-auto bg-light my-3'>
+                                        <input name="image" type="file" id='image' accept='image/*' className='form-control-file m-2 d-none' onChange={this.chooseImg} required></input>
+                                        <label htmlFor="image" id='ImageInput' className='d-flex text-secondary justify-content-between mx-auto p-2 px-2 overflow-hidden'>
+                                            <span id='DocumentInput'>
+                                                Ajouter un vidéo..
+                                            </span>
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C18.627 0 24 5.37305 24 12C24 18.627 18.627 24 12 24C5.37305 24 0 18.627 0 12C0 5.37305 5.37305 0 12 0ZM16.2715 12.7422C16.8828 12.3477 16.8809 11.9082 16.2715 11.5586L9.95703 7.92969C9.45898 7.61719 8.93945 7.80078 8.95313 8.45117L8.97266 15.7852C9.01562 16.4902 9.41797 16.6836 10.0117 16.3574L16.2715 12.7422ZM12 2.4375C17.2812 2.4375 21.5625 6.71875 21.5625 12C21.5625 17.2812 17.2812 21.5625 12 21.5625C6.71875 21.5625 2.4375 17.2812 2.4375 12C2.4375 6.71875 6.71875 2.4375 12 2.4375Z" fill="#A7A7A7" />
+                                            </svg>
+
                                         </label>
                                     </div>
                                 </div>

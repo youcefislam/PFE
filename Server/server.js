@@ -14,6 +14,8 @@ var app = express();
 app.use(express.json({ limit: '1mb' }));
 app.use('/public/uploads', express.static('public/uploads'));
 app.use('/public/Documents', express.static('public/Documents'));
+app.use('/public/Audio', express.static('public/Audio'));
+app.use('/public/Video', express.static('public/Video'));
 
 // token's secret key
 const MySecretKey = process.env.MYSECRETKEY;
@@ -148,7 +150,7 @@ app.post('/users/login', (req, res) => {
             db.query(sql, req.body.username, (err, result) => { // select the user with the request's username
                 if (err) throw err;
 
-                var reponses = { stat: 'failed', message: 'username or password incorect' };
+                var reponses = { stat: 'failed', message: "Nom d'utilisateur ou mot de passe incorrect" };
 
                 if (result[0] !== undefined) { // if the username exist in our database
 
@@ -164,7 +166,7 @@ app.post('/users/login', (req, res) => {
                                 res.send({ token: token });
                             })
                         } else { // request's password is wrong
-                            reponses.message = 'password incorrect';
+                            reponses.message = 'Mot de passe incorrect';
                             res.send(JSON.stringify(reponses));
                         }
                     });
@@ -215,13 +217,13 @@ app.post('/users/register', (req, res) => {
                                 const url = `http://localhost:3000/confirmation/${Responsemessage.token}`;
                                 const EmailBody = `
                                 <h3>Hey ${req.body.username},</h3>
-                                <p>Thanks for getting started with cuizzy, We need a little more information 
+                                <p>Thanks for getting started with Tredoc, We need a little more information 
                                 to complete your registration, including confirmation of your email address. Click bellow to Confirm your email address</p>
                                 <a href='${url}'>${url}</a>`;
 
                                 // send mail with defined transport object
                                 transporter.sendMail({
-                                    from: '"Cuizzy" cuizzyapp@gmail.com', // sender address
+                                    from: '"Tredoc" cuizzyapp@gmail.com', // sender address
                                     to: req.body.email, // list of receivers
                                     subject: "Registration Almost Complete ✔", // Subject line
                                     text: "Hello world?", // plain text body
@@ -281,12 +283,12 @@ app.post('/users/ForgotPoassword', (req, res) => {
                         <p>${Responsemessage.code}</p><br />
                         <p>if you don't want to reset your password, please ignore this message. your password will not be reset</p>
                         <hr />
-                        <p>if you recieved this email by mistake or believe it is a spam, please forward it to cuizzysupport@gmail.com<p>
+                        <p>if you recieved this email by mistake or believe it is a spam, please forward it to tredocsupport@gmail.com<p>
                         `;
 
                         // send mail with defined transport object
                         await transporter.sendMail({
-                            from: '"Cuizzy" cuizzyapp@gmail.com', // sender address
+                            from: '"Tredoc" cuizzyapp@gmail.com', // sender address
                             to: req.body.email, // list of receivers
                             subject: "Reset Password", // Subject line
                             text: "Hello world?", // plain text body
@@ -688,10 +690,11 @@ app.post('/commentaires', verifyToken, (req, res) => {
                     unit.id_precedent = v.id_precedent;
                     unit.HaveAnswer = v.HaveAnswer;
                     unit.id_author = v.auteur;
-                    db.query('SELECT username FROM users WHERE id_user=?', v.auteur, (err, resultUser) => {
+                    db.query('SELECT username,Photo FROM users WHERE id_user=?', v.auteur, (err, resultUser) => {
                         if (err) throw err;
                         else {
-                            unit.username = resultUser[0].username
+                            unit.username = resultUser[0].username;
+                            unit.Photo = resultUser[0].Photo;
                             resultJSON.push(unit)
                         }
                     })
@@ -703,8 +706,14 @@ app.post('/commentaires', verifyToken, (req, res) => {
                             resultJSON,
                             resultBanned
                         }
-
-                        res.json(FinResult)
+                        if (req.body.id_notification) {
+                            db.query('UPDATE UserNotification SET Seen=1 WHERE id_notification=? ', req.body.id_notification, (err, resultBanned) => {
+                                if (err) throw err;
+                                else {
+                                    res.json(FinResult)
+                                }
+                            })
+                        } else res.json(FinResult)
                     }
                 })
             });
@@ -712,6 +721,7 @@ app.post('/commentaires', verifyToken, (req, res) => {
     })
 })
 app.post('/commentaires/send', verifyToken, (req, res) => {
+        console.log(req.body)
         jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
             if (err) res.sendStatus(403);
             else {
@@ -748,10 +758,11 @@ app.post('/reponses', verifyToken, (req, res) => {
                     unit.id_precedent = v.id_precedent;
                     unit.HaveAnswer = v.HaveAnswer;
                     unit.id_author = v.auteur;
-                    db.query('SELECT username FROM users WHERE id_user=?', v.auteur, (err, resultUser) => {
+                    db.query('SELECT username,Photo FROM users WHERE id_user=?', v.auteur, (err, resultUser) => {
                         if (err) throw err;
                         else {
                             unit.username = resultUser[0].username
+                            unit.Photo = resultUser[0].Photo
                             resultJSON.push(unit)
                             if (index === result.length - 1) res.json(resultJSON)
 
@@ -769,7 +780,7 @@ app.post('/users/mark/show', verifyToken, (req, res) => {
     jwt.verify(req.token, MySecretKey, (err, authData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
-            const sql = "SELECT mark.mark as 'mark',mark.id_quiz as 'quizzid',document.titre as document,sous_specialites.nom as sous_specialites ,specialites.nom as specialite FROM mark,document,quizz,specialites,sous_specialites WHERE mark.id_quiz = quizz.id_quiz and quizz.id_document = document.id_document and document.id_sous_specialite=sous_specialites.id_sous_specialite and specialites.id_specialite=sous_specialites.id_specialite and mark.id_user=?"
+            const sql = "SELECT quizz.nom_quiz as 'quizname',mark.mark as 'mark',mark.id_quiz as 'quizzid',document.titre as document,sous_specialites.nom as sous_specialites ,specialites.nom as specialite FROM mark,document,quizz,specialites,sous_specialites WHERE mark.id_quiz = quizz.id_quiz and quizz.id_document = document.id_document and document.id_sous_specialite=sous_specialites.id_sous_specialite and specialites.id_specialite=sous_specialites.id_specialite and mark.id_user=?"
             db.query(sql, authData.id, (err, result) => {
                 if (err) throw err;
                 res.send(result)
@@ -906,7 +917,7 @@ app.post('/users/ChangeEmail', verifyToken, (req, res) => {
                         `;
                     // send mail with defined transport object
                     transporter.sendMail({
-                        from: '"Cuizzy" cuizzyapp@gmail.com', // sender address
+                        from: '"Tredoc" cuizzyapp@gmail.com', // sender address
                         to: req.body.email, // list of receivers
                         subject: "Changin Email ✔", // Subject line
                         text: "Hello world?", // plain text body
@@ -974,7 +985,7 @@ app.post('/users/updateInfo', verifyToken, (req, res) => {
     })
 })
 app.post('/reponses/send', verifyToken, (req, res) => {
-
+    console.log(req.body)
     jwt.verify(req.token, MySecretKey, (err, autData) => { // verify Token
         if (err) res.sendStatus(403);
         else {
@@ -984,14 +995,13 @@ app.post('/reponses/send', verifyToken, (req, res) => {
                 else {
                     db.query('UPDATE reponses SET HaveAnswer=1 WHERE id_reponse=?', req.body.previousid, (err, result) => {
                         if (err) throw err;
-                        db.query('INSERT INTO UserNotification(id_user,id_commentaire,title_doc) VALUES (?,?,?)', [req.body.id_author, req.body.previousid, req.body.title_doc], (err, result) => {
+                        db.query('INSERT INTO UserNotification(id_user,id_commentaire,title_doc,id_document) VALUES (?,?,?,?)', [req.body.id_author, req.body.previousid, req.body.title_doc, req.body.documentid], (err, result) => {
                             if (err) throw err;
                             else {
                                 db.query('UPDATE document set nbr_commentaire=nbr_commentaire+1 WHERE id_document=?', req.body.documentid, (err, done) => {
                                     if (err) throw err;
                                     else res.sendStatus(200);
                                 })
-                                res.sendStatus(200);
                             }
                         })
                     })
@@ -1031,7 +1041,141 @@ app.get('/notification', verifyToken, (req, res) => {
     })
 })
 
+
+app.get("/api/Dashboard", (req, res) => {
+    db.query('SELECT COUNT(*) AS nbrUsers FROM users', (err, nbrUsers) => {
+        if (err) throw err;
+        else {
+            db.query('SELECT COUNT(*) AS nbrCmnts FROM reponses', (err, nbrCmnts) => {
+                if (err) throw err;
+                else {
+                    db.query('SELECT COUNT(*) AS nbrSpe FROM specialites', (err, nbrSpe) => {
+                        if (err) throw err;
+                        else {
+                            db.query('SELECT COUNT(*) AS nbrSspe FROM sous_specialites', (err, nbrSspe) => {
+                                if (err) throw err;
+                                else {
+                                    db.query('SELECT COUNT(*) AS nbrCours FROM document', (err, nbrCours) => {
+                                        if (err) throw err;
+                                        else {
+                                            db.query('SELECT COUNT(*) AS nbrQuiz FROM quizz', (err, nbrQuiz) => {
+                                                if (err) throw err;
+                                                else {
+                                                    res.send({
+                                                        nbrUsers: nbrUsers[0].nbrUsers,
+                                                        nbrCmnt: nbrCmnts[0].nbrCmnts,
+                                                        nbrSpe: nbrSpe[0].nbrSpe,
+                                                        nbrSspe: nbrSspe[0].nbrSspe,
+                                                        nbrDoc: nbrCours[0].nbrCours,
+                                                        nbrQuiz: nbrQuiz[0].nbrQuiz
+                                                    })
+                                                }
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        }
+    })
+})
+
+app.get("/api/users", (req, res) => {
+    db.query('SELECT id_user as id,username,FirstName as nom,SecondName as prenom,Sex as sex,email,insert_date as datei,Photo as photo FROM users', (err, Users) => {
+        if (err) throw err;
+        else {
+            res.send(Users);
+        }
+    })
+})
+
+app.get("/api/speicialites", (req, res) => {
+    db.query('SELECT id_specialite as id,nom as name,nbr_sousSpecialite as nbrSs,nbr_document as nbrDocument,nbr_followers as nbrFlowers FROM specialites', (err, specialite) => {
+        if (err) throw err;
+        else {
+            specialite.map((spe, index) => {
+                db.query('SELECT id_sous_specialite as id,nom as name,Image_SS as photo FROM sous_specialites WHERE id_specialite=?', spe.id, (err, Sspecialite) => {
+                    if (err) throw err;
+                    else {
+                        specialite[index].sousSpecialities = Sspecialite;
+                        if (index == specialite.length - 1) res.send(specialite);
+                    }
+                })
+            })
+        }
+    })
+})
+app.get("/api/Sspeicialites/:Sspe", (req, res) => {
+    db.query('SELECT id_document as id,titre as name,nbr_quizz as nbrQuizz,nbr_like as nbrLike,nbr_commentaire as nbrCommentaire,nbr_views as nbrVue  FROM document WHERE id_sous_specialite=?', req.params.Sspe, (err, doc) => {
+        if (err) throw err;
+        else {
+            res.send(doc);
+        }
+    })
+})
+app.get("/api/document/:Doc", (req, res) => {
+    db.query('SELECT id_document as id,titre as name,description as description,audio_path as pathAudio,video_path as pathVideo,doc_path as path  FROM document WHERE id_document=?', req.params.Doc, (err, doc) => {
+        if (err) throw err;
+        else {
+            db.query('SELECT id_quiz as id,Valider as valider,number_of_rating as nbrRates,rate as rate,nom_quiz as name FROM quizz WHERE id_document=?', req.params.Doc, (err, quiz) => {
+                if (err) throw err;
+                else {
+                    doc[0].quizz = quiz;
+                    res.send(doc[0]);
+                }
+            })
+        }
+    })
+})
+
+app.get("/api/quiz/:quiz", (req, res) => {
+    db.query('SELECT id_quiz as id,Valider as valider,nom_quiz as name FROM quizz WHERE id_quiz=?', req.params.quiz, (err, quiz) => {
+        if (err) throw err;
+        else {
+            db.query('SELECT id_question as id,reponse_1 as reponse1,reponse_2 as reponse2,reponse_3 as reponse3,reponse_4 as reponse4,juste_reponse as correct,question_text as question FROM question WHERE id_quiz=?', req.params.quiz, (err, questions) => {
+                if (err) throw err;
+                else {
+                    quiz[0].questions = questions;
+                    res.send(quiz[0]);
+                }
+            })
+        }
+    })
+})
+
+app.get('/api/comments/:doc', (req, res) => {
+    db.query('SELECT * from reponses,users where users.id_user=reponses.auteur and id_reponse in (SELECT id_commentaire from commentaires where id_document=?)', req.params.doc, (err, comments) => {
+        if (err) throw err;
+        else {
+            res.send(comments);
+        }
+    })
+})
+
+app.get('/api/reponse/:cmnt', (req, res) => {
+    db.query('SELECT * from reponses,users where users.id_user=reponses.auteur and id_precedent=?', req.params.cmnt, (err, comments) => {
+        if (err) throw err;
+        else {
+            res.send(comments);
+        }
+    })
+})
+
+
+app.get("/api/formateurs", (req, res) => {
+    db.query('SELECT users.id_user as id,users.username,users.FirstName as nom,users.SecondName as prenom,users.Sex as sex,users.email,Photo as photo FROM users,formateur WHERE users.id_user=formateur.id_user', (err, formateur) => {
+        if (err) throw err;
+        else {
+            res.send(formateur);
+        }
+    })
+})
+
 // start The Server Listner
 app.listen(3000, () => {
+
     console.log("server connected on port 3000");
 })

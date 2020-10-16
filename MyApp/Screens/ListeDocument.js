@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { requestListeDocument, FollowUnfollowRequest } from '../address';
-import { AuthContext } from '../App';
+import { AuthContext, translate } from '../App';
 
 
 //SVG
@@ -85,7 +85,7 @@ const Home = ({ route, navigation }) => {
                                         ) : (
                                                 <TouchableOpacity onPress={follow} style={[Styles.FollowBtn, { borderColor: isFollowed ? "#E06767" : "#5F33EC" }]} >
                                                     <Text style={[Styles.FollowBtnTxt, { color: isFollowed ? "#E06767" : "#5F33EC" }]}>
-                                                        {isFollowed ? 'unfollow' : 'Follow'}
+                                                        {isFollowed ? translate("Unfollow") : translate("Follow")}
                                                     </Text>
                                                 </TouchableOpacity>
                                             )

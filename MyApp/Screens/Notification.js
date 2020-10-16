@@ -6,7 +6,7 @@ import { AuthContext } from '../App';
 
 const NotificationView = ({ item, navigation }) => {
     return (
-        <TouchableOpacity style={{ width: '90%', alignSelf: 'center' }} onPress={() => item.id_commentaire ? navigation.navigate('commentSection', {  title: item.title_doc, Notified: item.id_commentaire }) : navigation.navigate("post", { documentid: item.id_document, title: item.title })}>
+        <TouchableOpacity style={{ width: '90%', alignSelf: 'center' }} onPress={() => item.id_commentaire ? navigation.navigate('commentSection', {  title: item.title_doc, Notified: item.id_commentaire, id_notification : item.id_notification,documentid:{documentid:item.id_document,title:item.title_doc} }) : navigation.navigate("post", { documentid: item.id_document, title: item.title })}>
             <Text style={{ fontSize: 15 }}>
                 {item.id_commentaire?'Votre commentaire a recu une reponse':'greate'}
             </Text>

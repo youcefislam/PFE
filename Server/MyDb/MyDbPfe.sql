@@ -14,6 +14,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema mydb
 -- -----------------------------------------------------
+DROP DATABASE `mydb`;
 CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
 USE `mydb` ;
 
@@ -74,6 +75,8 @@ CREATE TABLE IF NOT EXISTS `mydb`.`document` (
   `nbr_views` INT NULL DEFAULT '0',
   `nbr_quizz` INT NULL DEFAULT '0',
   `doc_path` VARCHAR(200) NULL DEFAULT NULL,
+  `video_path` VARCHAR(200) NULL DEFAULT NULL,
+  `audio_path` VARCHAR(200) NULL DEFAULT NULL,
   `Date` date default null,
   PRIMARY KEY (`id_document`),
   INDEX `id_sous_specialite` (`id_sous_specialite` ASC) VISIBLE,
@@ -144,7 +147,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Rates` (
   `id_quiz` INT NOT NULL,
   `id_user` INT NOT NULL,
   `rate` DECIMAL(2,1) NULL DEFAULT NULL,
-  PRIMARY KEY (`id_quiz`),
+  PRIMARY KEY (`id_quiz`,`id_user`),
   INDEX `rate_users_fk` (`id_user` ASC) VISIBLE,
   CONSTRAINT `rate_quizz_fk`
     FOREIGN KEY (`id_quiz`)

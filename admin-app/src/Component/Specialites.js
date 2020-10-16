@@ -2,10 +2,11 @@ import React from 'react';
 import Breadcrumb from './Breadcrumb';
 import '../styles.css';
 import { NavLink } from 'react-router-dom';
-
+import axios from 'axios';
 
 class Specialites extends React.Component {
 
+    
     constructor(props) {
         super(props);
         this.colors = [{
@@ -32,105 +33,24 @@ class Specialites extends React.Component {
         this.currentColor = -1;
         this.state = {
             specialities: [
-                {
-                    id: 1,
-                    name: 'Specialité 1',
-                    nbrSs: 9999,
-                    nbrDocument: 9999,
-                    nbrFlowers: 9999,
-                    sousSpecialities: [
-                        {
-                            id: 1,
-                            name: 'Sous-Specialité 1'
-                        }, {
-                            id: 2,
-                            name: 'Sous-Specialité 2'
-                        }, {
-                            id: 3,
-                            name: 'Sous-Specialité 3'
-                        }, {
-                            id: 4,
-                            name: 'Sous-Specialité 3'
-                        }, {
-                            id: 5,
-                            name: 'Sous-Specialité 3'
-                        }, {
-                            id: 6,
-                            name: 'Sous-Specialité 3'
-                        }, {
-                            id: 8,
-                            name: 'Sous-Specialité 3'
-                        }, {
-                            id: 9,
-                            name: 'Sous-Specialité 3'
-                        }
-                    ]
-                }, {
-                    id: 2,
-                    name: 'Specialité 2',
-                    nbrSs: 9999,
-                    nbrDocument: 9999,
-                    nbrFlowers: 9999,
-                    sousSpecialities: [
-                        {
-                            id: 1,
-                            name: 'Sous-Specialité 1'
-                        }, {
-                            id: 2,
-                            name: 'Sous-Specialité 2'
-                        }, {
-                            id: 3,
-                            name: 'Sous-Specialité 3'
-                        }
-                    ]
-                }, {
-                    id: 3,
-                    name: 'Specialité 3',
-                    nbrSs: 9999,
-                    nbrDocument: 9999,
-                    nbrFlowers: 9999,
-                    sousSpecialities: [
-                        {
-                            id: 1,
-                            name: 'Sous-Specialité 1'
-                        }, {
-                            id: 2,
-                            name: 'Sous-Specialité 2'
-                        }, {
-                            id: 3,
-                            name: 'Sous-Specialité 3'
-                        }
-                    ]
-                }, {
-                    id: 4,
-                    name: 'Specialité 4',
-                    nbrSs: 9999,
-                    nbrDocument: 9999,
-                    nbrFlowers: 9999,
-                    sousSpecialities: [
-                        {
-                            id: 1,
-                            name: 'Sous-Specialité 1'
-                        }, {
-                            id: 2,
-                            name: 'Sous-Specialité 2'
-                        }, {
-                            id: 3,
-                            name: 'Sous-Specialité 3'
-                        }
-                    ]
-                }
             ],
             ToShowData: []
         }
     }
 
 
-    SousSpecilaite = ({ sspecialite, colors }) => {
+    SousSpecilaite = ({ sspecialite, colors, Sname}) => {
         return (
-            <NavLink to={"/specialites/" + sspecialite.id} >
+            <NavLink to={{
+                pathname:"/specialites/" + sspecialite.id,
+                aboutProps:{
+                    name:sspecialite.name,
+                    nameS:Sname
+                }
+            }} >
                 <button Style={"background-color: " + colors.cards + ";"} className='SousSpecialiteCardContainer d-flex flex-row mx-auto my-3'>
                     <div className='ImageSSpecialite'>
+                        <img src={"http://localhost:3000"+sspecialite.photo} alt="specialite Photo" Style="width:100%;height:100%;object-fit: cover;border-radius: 15px 0 15px 15px;" />
                     </div>
                     <div className='SSpecialiteName'>
                         {sspecialite.name}
@@ -146,7 +66,7 @@ class Specialites extends React.Component {
             <div className='col-lg-6 col-xl-4 p-3 SpecialiteCardContainer'>
                 <div Style={"background-color: " + colors.body} className="h-100 SpecialiteCard d-flex flex-column">
                     <div Style={`background-color:  ${colors.header};`} className='SpecialiteCardHeader d-flex align-items-center p-3'>
-                        <span className='SpecialiteHeaderTxt'>{specialite.name}</span>
+                        <span className='SpecialiteHeaderTxt'>{specialite.name.substr(0, 30) + (specialite.name.length > 30 ? ".." : '')}</span>
                         <button className='ml-auto' data-toggle="modal" data-name={specialite.name} data-nbrss={specialite.nbrSs} data-nbrdocument={specialite.nbrDocument} data-nbrflowers={specialite.nbrFlowers} data-target="#InfoSpeicialiteModal">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M11 7H13V9H11V7ZM11 11H13V17H11V11ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="white" />
@@ -155,7 +75,7 @@ class Specialites extends React.Component {
                     </div>
                     <div className='SpecialiteCardBody'>
                         {
-                            specialite.sousSpecialities.map((sspecialite, index) => <this.SousSpecilaite key={index} sspecialite={sspecialite} colors={colors} />)
+                            specialite.sousSpecialities.map((sspecialite, index) => <this.SousSpecilaite key={index} sspecialite={sspecialite} colors={colors} Sname={specialite.name} />)
                         }
                     </div>
                     <div className='SpecialiteCardFooter d-flex align-items-center justify-content-center'>
@@ -185,35 +105,38 @@ class Specialites extends React.Component {
     }
 
     componentDidMount() {
-        this.setState({ ToShowData: this.state.specialities })
-        window.$('#InfoSpeicialiteModal').on('show.bs.modal', function (event) {
-            var modal = window.$(this);
-            var button = window.$(event.relatedTarget)
-            modal.find('.infoModalTitle').text(button.data('name'));
-            modal.find('.modal-title-input').attr('placeholder', button.data('name'))
-            window.$("#modify").removeClass('d-none');
-            window.$('#submit').addClass('d-none');
-            window.$('.modal-title-input').addClass('d-none');
-            window.$('.modal-title').removeClass('d-none');
-            modal.find('#SSpecialiteLable').text(button.data('nbrss') + ' Sous-spécialités');
-            modal.find('#nbrDocument').text(button.data('nbrdocument') + ' Documents');
-            modal.find('#nbrFlowers').text(button.data('nbrflowers') + ' suiveurs/suiveuses');
-            window.$('.ModifyTitle').attr('disabled', "");
-        })
-        window.$('.modal').on('show.bs.modal', function (event) {
-            window.$("input[type!='submit']").val('');
-            window.$("#ImageName").text('Ajouter une photo..');
-        })
-        var forms = document.getElementsByClassName('needs-validation');
-        Array.prototype.filter.call(forms, function (form) {
-            form.addEventListener('submit', function (event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
+        axios.get("/speicialites")
+            .then(res => {
+                this.setState({ ToShowData: res.data, specialities: res.data })
+                window.$('#InfoSpeicialiteModal').on('show.bs.modal', function (event) {
+                    var modal = window.$(this);
+                    var button = window.$(event.relatedTarget)
+                    modal.find('.infoModalTitle').text(button.data('name'));
+                    modal.find('.modal-title-input').attr('placeholder', button.data('name'))
+                    window.$("#modify").removeClass('d-none');
+                    window.$('#submit').addClass('d-none');
+                    window.$('.modal-title-input').addClass('d-none');
+                    window.$('.modal-title').removeClass('d-none');
+                    modal.find('#SSpecialiteLable').text(button.data('nbrss') + ' Sous-spécialités');
+                    modal.find('#nbrDocument').text(button.data('nbrdocument') + ' Documents');
+                    modal.find('#nbrFlowers').text(button.data('nbrflowers') + ' suiveurs/suiveuses');
+                    window.$('.ModifyTitle').attr('disabled', "");
+                })
+                window.$('.modal').on('show.bs.modal', function (event) {
+                    window.$("input[type!='submit']").val('');
+                    window.$("#ImageName").text('Ajouter une photo..');
+                })
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            });
     }
 
     modify = () => {
@@ -226,7 +149,7 @@ class Specialites extends React.Component {
     render() {
         return (
             <>
-                <Breadcrumb Title={['Spécialité']} />
+                <Breadcrumb Title={['Spécialités']} />
                 <div className="continer">
                     <div className='my-4 mx-4 position-relative w-50'>
                         <input className='form-control w-100 px-4 pr-5  rounded-pill' onInput={this.SearhValue} id='SearchInput' type="text" placeholder='Rechercher..' />

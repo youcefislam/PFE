@@ -2,6 +2,7 @@ import React from 'react';
 import Breadcrumb from './Breadcrumb';
 import '../styles.css';
 import { NavLink } from 'react-router-dom';
+import axios from 'axios'
 
 
 
@@ -15,51 +16,19 @@ class Document extends React.Component {
             nameFile: 'Ajouter Un Fichier',
             document: {
                 id: 1,
-                name: 'Document 1',
-                description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae gravida leo. Suspendisse consequat egestas pretium. Quisque ultrices lorem at massa tincidunt, sit amet venenatis quam dictum. Nunc elit tortor, blandit eu bibendum sed, facilisis et purus. Cras pulvinar felis sed libero tristique, non accumsan turpis faucibus. Nullam vulputate arcu sit amet laoreet porttitor. Duis scelerisque ligula eu augue molestie aliquet. Donec posuere dictum lacinia',
+                name: '',
+                description: '',
                 path: 'www.localhost.com/3000/public/Documents/document1.pdf',
-                quizz: [{
-                    id: 1,
-                    name: 'Quizz 1',
-                    rate: 5,
-                    nbrRates: 9999,
-                    valider: true
-                }, {
-                    id: 2,
-                    name: 'Quizz 2',
-                    rate: 5,
-                    nbrRates: 9999,
-                    valider: false
-                }, {
-                    id: 3,
-                    name: 'Quizz 3',
-                    rate: 5,
-                    nbrRates: 9999,
-                    valider: false
-                }, {
-                    id: 4,
-                    name: 'Quizz 4',
-                    rate: 5,
-                    nbrRates: 9999
-                }, {
-                    id: 5,
-                    name: 'Quizz 5',
-                    rate: 5,
-                    nbrRates: 9999,
-                    valider: true
-                }, {
-                    id: 6,
-                    name: 'Quizz 6',
-                    rate: 5,
-                    nbrRates: 9999,
-                    valider: true
-                }]
+                pathVideo: 'www.localhost.com/3000/public/Documents/document1.mp4',
+                pathAudio: 'www.localhost.com/3000/public/Documents/document1.mp3',
+                quizz: []
             },
             choice: 3,
             nbrQuestion: 0
         }
         this.addQuestions = false;
     }
+
 
 
     AddQuestionsContent = () => {
@@ -191,60 +160,64 @@ class Document extends React.Component {
     }
 
     componentDidMount() {
-        window.$('#AddQuizzModal').on('show.bs.modal', () => {
-            this.setState({ nbrQuestion: 0 })
-        })
-        window.$('.modal').on('show.bs.modal', () => {
-            window.$("input[type!='submit']").val('');
-            window.$("#NameFile").text('Ajouter un fichier..');
-            var forms = document.getElementsByClassName('needs-validation');
-            Array.prototype.filter.call(forms, function (form) {
-                form.classList.remove('was-validated');
-            });
-        })
-        var forms = document.getElementsByClassName('needs-validation');
-        Array.prototype.filter.call(forms, function (form) {
-            form.addEventListener('submit', function (event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
+        axios.get("/document/" + this.props.match.params.id_doc)
+            .then(res => {
+                this.setState({ document: res.data })
+                window.$('#AddQuizzModal').on('show.bs.modal', () => {
+                    this.setState({ nbrQuestion: 0 })
+                })
+                window.$('.modal').on('show.bs.modal', () => {
+                    window.$("input[type!='submit']").val('');
+                    window.$("#NameFile").text('Ajouter un fichier..');
+                    var forms = document.getElementsByClassName('needs-validation');
+                    Array.prototype.filter.call(forms, function (form) {
+                        form.classList.remove('was-validated');
+                    });
+                })
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
 
-        window.$('#ModifyDescriptionModal').on('show.bs.modal', () => {
-            window.$('.submitBtn').attr('disabled', "");
-            window.$('#TempDescription').val(this.state.document.description);
-        })
+                window.$('#ModifyDescriptionModal').on('show.bs.modal', () => {
+                    window.$('.submitBtn').attr('disabled', "");
+                    window.$('#TempDescription').val(this.state.document.description);
+                })
 
-        window.$('#ModifyTitreModal').on('show.bs.modal', () => {
-            window.$('.submitBtn').attr('disabled', "");
-            window.$('#TempTitle').val(this.state.document.name)
-        })
-        window.$('#ModifyFilenModal').on('show.bs.modal', () => {
-            window.$('.submitBtn').attr('disabled', "");
-        })
-        window.$('#ValidateQuizzModal').submit((event) => {
-            // var form = window.$(this).closest('form');
-            // console.log(form)
-            // console.log(event.originalEvent.submitter.dataset.validation);   //this is the value of validation 
-            // event.preventDefault();
-            // form = form.serializeArray();
+                window.$('#ModifyTitreModal').on('show.bs.modal', () => {
+                    window.$('.submitBtn').attr('disabled', "");
+                    window.$('#TempTitle').val(this.state.document.name)
+                })
+                window.$('#ModifyFilenModal').on('show.bs.modal', () => {
+                    window.$('.submitBtn').attr('disabled', "");
+                })
+                window.$('#ValidateQuizzModal').submit((event) => {
+                    // var form = window.$(this).closest('form');
+                    // console.log(form)
+                    // console.log(event.originalEvent.submitter.dataset.validation);   //this is the value of validation 
+                    // event.preventDefault();
+                    // form = form.serializeArray();
 
-            // form = form.concat([
-            //     { name: "customer_id", value: window.username },
-            //     { name: "post_action", value: "Update Information" }
-            // ]);
+                    // form = form.concat([
+                    //     { name: "customer_id", value: window.username },
+                    //     { name: "post_action", value: "Update Information" }
+                    // ]);
 
-            // $.post('/change-user-details', form, function (d) {
-            //     if (d.error) {
-            //         alert("There was a problem updating your user details")
-            //     }
-            // });
-            // $('body').append(form);     
-            // $(form).submit();
-        })
+                    // $.post('/change-user-details', form, function (d) {
+                    //     if (d.error) {
+                    //         alert("There was a problem updating your user details")
+                    //     }
+                    // });
+                    // $('body').append(form);     
+                    // $(form).submit();
+                })
+            })
     }
 
 
@@ -252,7 +225,7 @@ class Document extends React.Component {
     render() {
         return (
             <>
-                <Breadcrumb Title={['specialités', 'Sous-spécialité 1', 'Document 1']} />
+                <Breadcrumb Title={[this.props.location.aboutProps.name, this.props.location.aboutProps.nameS, this.props.location.aboutProps.nameD]} />
                 <div className='container'>
                     <div className='row justify-content-between mx-3 my-5'>
                         <div className='w-25 d-flex border-dark justify-content-between border-bottom'>
@@ -270,7 +243,7 @@ class Document extends React.Component {
                                 Supprimer
                             </button>
                             <button className='h-100 mx-2 rounded-pill px-3' Style='background :#4CD071;'>
-                                <NavLink to={"/specialites/" + this.props.match.params.id_ss + '/' + this.props.match.params.id_doc +'/commentaire/'} className='text-white'>
+                                <NavLink to={"/specialites/" + this.props.match.params.id_ss + '/' + this.props.match.params.id_doc + '/commentaire/'} className='text-white'>
                                     Commentaires
                             </NavLink>
                             </button>
@@ -293,23 +266,66 @@ class Document extends React.Component {
                             </p>
                         </div>
                     </div>
-                    <div className='row m-3 justify-content-between'>
-                        <div>
-                            <span className='FichierHeader'>
-                                Fichier :
-                            </span>
-                            <a className='FichierTxt' rel="noopener noreferrer" href={"https://" + this.state.document.path} target="_blank" >
-                                <span>
-                                    {this.state.document.path}
-                                </span>
-                            </a>
-                        </div>
-                        <button className='mx-3' data-toggle="modal" data-target="#ModifyFilenModal">
-                            <svg width="20" height="20" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3.125 17.9687V21.875H7.03125L18.5521 10.3542L14.6458 6.44792L3.125 17.9687ZM6.16667 19.7917H5.20833V18.8333L14.6458 9.39583L15.6042 10.3542L6.16667 19.7917ZM21.5729 5.86458L19.1354 3.42708C18.9271 3.21875 18.6667 3.125 18.3958 3.125C18.125 3.125 17.8646 3.22917 17.6667 3.42708L15.7604 5.33333L19.6667 9.23958L21.5729 7.33333C21.9792 6.92708 21.9792 6.27083 21.5729 5.86458Z" fill="#757575" />
-                            </svg>
-                        </button>
-                    </div>
+                    {
+                        this.state.document.path ?
+                            <div className='row m-3 justify-content-between'>
+                                <div>
+                                    <span className='FichierHeader'>
+                                        Document :
+                                    </span>
+                                    <a className='FichierTxt' rel="noopener noreferrer" href={"http://localhost:3000" + this.state.document.path} target="_blank" >
+                                        <span>
+                                            {"http://localhost:3000" + this.state.document.path}
+                                        </span>
+                                    </a>
+                                </div>
+                                <button className='mx-3' data-toggle="modal" data-target="#ModifyFilenModal">
+                                    <svg width="20" height="20" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3.125 17.9687V21.875H7.03125L18.5521 10.3542L14.6458 6.44792L3.125 17.9687ZM6.16667 19.7917H5.20833V18.8333L14.6458 9.39583L15.6042 10.3542L6.16667 19.7917ZM21.5729 5.86458L19.1354 3.42708C18.9271 3.21875 18.6667 3.125 18.3958 3.125C18.125 3.125 17.8646 3.22917 17.6667 3.42708L15.7604 5.33333L19.6667 9.23958L21.5729 7.33333C21.9792 6.92708 21.9792 6.27083 21.5729 5.86458Z" fill="#757575" />
+                                    </svg>
+                                </button>
+                            </div> : null
+                    }
+                    {
+                        this.state.document.pathVideo ?
+                            <div className='row m-3 justify-content-between'>
+                                <div>
+                                    <span className='FichierHeader'>
+                                        Vidéo :
+                                    </span>
+                                    <a className='FichierTxt' rel="noopener noreferrer" href={"http://localhost:3000" + this.state.document.pathVideo} target="_blank" >
+                                        <span>
+                                            {"http://localhost:3000" + this.state.document.pathVideo}
+                                        </span>
+                                    </a>
+                                </div>
+                                <button className='mx-3' data-toggle="modal" data-target="#ModifyFilenModal">
+                                    <svg width="20" height="20" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3.125 17.9687V21.875H7.03125L18.5521 10.3542L14.6458 6.44792L3.125 17.9687ZM6.16667 19.7917H5.20833V18.8333L14.6458 9.39583L15.6042 10.3542L6.16667 19.7917ZM21.5729 5.86458L19.1354 3.42708C18.9271 3.21875 18.6667 3.125 18.3958 3.125C18.125 3.125 17.8646 3.22917 17.6667 3.42708L15.7604 5.33333L19.6667 9.23958L21.5729 7.33333C21.9792 6.92708 21.9792 6.27083 21.5729 5.86458Z" fill="#757575" />
+                                    </svg>
+                                </button>
+                            </div> : null
+                    }
+                    {
+                        this.state.document.pathAudio ?
+                            <div className='row m-3 justify-content-between'>
+                                <div>
+                                    <span className='FichierHeader'>
+                                        Audio :
+                                    </span>
+                                    <a className='FichierTxt' rel="noopener noreferrer" href={"http://localhost:3000" + this.state.document.pathAudio} target="_blank" >
+                                        <span>
+                                            {"http://localhost:3000" + this.state.document.pathAudio}
+                                        </span>
+                                    </a>
+                                </div>
+                                <button className='mx-3' data-toggle="modal" data-target="#ModifyFilenModal">
+                                    <svg width="20" height="20" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3.125 17.9687V21.875H7.03125L18.5521 10.3542L14.6458 6.44792L3.125 17.9687ZM6.16667 19.7917H5.20833V18.8333L14.6458 9.39583L15.6042 10.3542L6.16667 19.7917ZM21.5729 5.86458L19.1354 3.42708C18.9271 3.21875 18.6667 3.125 18.3958 3.125C18.125 3.125 17.8646 3.22917 17.6667 3.42708L15.7604 5.33333L19.6667 9.23958L21.5729 7.33333C21.9792 6.92708 21.9792 6.27083 21.5729 5.86458Z" fill="#757575" />
+                                    </svg>
+                                </button>
+                            </div> : null
+                    }
                     <div className='container'>
                         <div className='row justify-content-between'>
                             <span className='mx-4 my-auto'>
@@ -327,7 +343,15 @@ class Document extends React.Component {
                         {
                             this.state.document.quizz.length > 0 ?
                                 this.state.document.quizz.map((val, index) =>
-                                    <NavLink key={index} to={"/specialites/" + this.props.match.params.id_ss + '/' + this.props.match.params.id_doc + '/' + val.id} className='row p-2 my-2'>
+                                    <NavLink key={index} to={{
+                                        pathname: "/specialites/" + this.props.match.params.id_ss + '/' + this.props.match.params.id_doc + '/' + val.id,
+                                        aboutProps: {
+                                            name: this.props.location.aboutProps.name,
+                                            nameS: this.props.location.aboutProps.nameS,
+                                            nameD: this.props.location.aboutProps.nameS,
+                                            nameQ: val.name
+                                        }
+                                    }} className='row p-2 my-2'>
                                         <button className='documentContainer d-flex w-100 p-3  flex-column flex-lg-row align-items-center justify-content-lg-between'>
                                             <div>
                                                 <strong className='DocumentTxt text-bold'>

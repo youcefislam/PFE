@@ -21,6 +21,8 @@ import Heart from '../Img/SVG/svg36.svg';
 import Like from '../Img/SVG/svg37.svg';
 import Comments from '../Img/SVG/svg38.svg';
 import Stars from '../Img/SVG/svg39.svg';
+import Video from '../Img/SVG/svg54.svg';
+import Audio from '../Img/SVG/svg55.svg';
 
 const QuizzView = ({ document, item, navigation }) => {
 
@@ -65,7 +67,7 @@ const Post = ({ route, navigation }) => {
         return navigation.addListener('focus', () => {
             requestPost(document.documentid, setPost, setisLoading, signOut);
         })
-    }, [navigation])
+    }, [])
 
 
     const LikeUnlike = () => {
@@ -114,14 +116,42 @@ const Post = ({ route, navigation }) => {
                                     </Text>
                                 </View>
                                 <View style={styles.DownladBtnContainer}>
-                                    <TouchableOpacity activeOpacity={0.7} style={styles.DownladBtn} onPress={()=>DownloadFile(post.doc_path,document.title)}>
-                                        <Text style={styles.DownladBtnTxt}>
-                                            {translate("Download")}
-                                        </Text>
-                                        <View style={{ flex: 0.2 }}>
-                                            <Downlaod />
-                                        </View>
-                                    </TouchableOpacity>
+                                    {
+                                        post.doc_path ?
+                                            <TouchableOpacity activeOpacity={0.7} style={styles.DownladBtn} onPress={() => DownloadFile(post.doc_path, document.title)}>
+                                                <Text style={styles.DownladBtnTxt}>
+                                                    Document
+                                                </Text>
+                                                <View style={{ flex: 0.3 }}>
+                                                    <Downlaod />
+                                                </View>
+                                            </TouchableOpacity>
+                                            : null
+                                    }
+                                    {
+                                        post.video_path ?
+                                            <TouchableOpacity activeOpacity={0.7} style={styles.WatchBtn} onPress={() => navigation.navigate("VideoPlayerScreen", { post: post })} >
+                                                <Text style={styles.WatchBtnTxt}>
+                                                    {translate("Video")}
+                                                </Text>
+                                                <View style={{ flex: 0.3 }}>
+                                                    <Video />
+                                                </View>
+                                            </TouchableOpacity>
+                                            : null
+                                    }
+                                    {
+                                        post.audio_path ?
+                                            <TouchableOpacity activeOpacity={0.7} style={styles.ListenBtn} onPress={() => navigation.navigate("AudioPlayerScreen", { post: post })} >
+                                                <Text style={styles.ListenBtnTxt}>
+                                                    Audio
+                                                </Text>
+                                                <View style={{ flex: 0.3 }}>
+                                                    <Audio />
+                                                </View>
+                                            </TouchableOpacity>
+                                            : null
+                                    }
                                 </View>
                             </View>
                             <View style={styles.DocStatusContainer}>
@@ -213,11 +243,13 @@ const styles = StyleSheet.create({
     },
     DownladBtnContainer: {
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        flexDirection: "row"
     },
     DownladBtn: {
-        width: 212,
+        width: 100,
         height: 49,
+        marginHorizontal: 5,
         borderWidth: 1,
         borderColor: '#6E95FA',
         justifyContent: 'center',
@@ -227,6 +259,40 @@ const styles = StyleSheet.create({
     },
     DownladBtnTxt: {
         color: '#6E95FA',
+        fontWeight: 'bold',
+        flex: 0.9,
+        textAlign: 'center'
+    },
+    WatchBtn: {
+        width: 100,
+        height: 49,
+        marginHorizontal: 5,
+        borderWidth: 1,
+        borderColor: '#AE29CF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 15,
+        flexDirection: 'row'
+    },
+    WatchBtnTxt: {
+        color: '#AE29CF',
+        fontWeight: 'bold',
+        flex: 0.9,
+        textAlign: 'center'
+    },
+    ListenBtn: {
+        width: 100,
+        height: 49,
+        marginHorizontal: 5,
+        borderWidth: 1,
+        borderColor: '#F35050',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 15,
+        flexDirection: 'row'
+    },
+    ListenBtnTxt: {
+        color: '#F35050',
         fontWeight: 'bold',
         flex: 0.9,
         textAlign: 'center'

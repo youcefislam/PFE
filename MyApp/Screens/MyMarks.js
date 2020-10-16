@@ -16,9 +16,10 @@ const MarkItemContainer = ({ item, navigation }) => {
     return (
         <View style={style.MarkView} >
             <View style={style.MarkInfo}>
-                <Text style={style.title}><Text style={style.InfoTitle}>Specialite : </Text>{item.specialite}</Text>
-                <Text style={style.title}><Text style={style.InfoTitle}>Sous Specialite : </Text>{item.sous_specialites}</Text>
-                <Text style={style.title}><Text style={style.InfoTitle}>Document : </Text>{item.document}</Text>
+                <Text style={style.title}><Text style={style.InfoTitle}>Spécialité : </Text>{item.specialite}</Text>
+                <Text style={style.title}><Text style={style.InfoTitle}>Sous Spécialité : </Text>{item.sous_specialites}</Text>
+                <Text style={style.title}><Text style={style.InfoTitle}>Cours : </Text>{item.document}</Text>
+                <Text style={style.title}><Text style={style.InfoTitle}>Quiz : </Text>{item.quizname}</Text>
             </View>
             <Text style={style.mark}>{item.mark + "/10"}</Text>
             <TouchableOpacity style={style.retakebtn} onPress={() => navigation.navigate("quizz", { id_quiz: item.quizzid })}>

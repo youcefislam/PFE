@@ -20,7 +20,7 @@ const DocumentCarousel = ({ item, navigation }) => {
         <TouchableOpacity style={Styles.ItemCard} onPress={() => navigation.navigate('post', { documentid: item.id_document, title: item.titre })} activeOpacity={0.8} >
             <View style={{ flexDirection: 'column' }}>
                 <View style={{ flex: 0.2 }}>
-                    <Text style={Styles.itemCardName}>{item.titre}</Text>
+                    <Text style={Styles.itemCardName}>{item.titre.substr(0, 20) +(item.titre.length>20?"...":'') }</Text>
                 </View>
                 <View style={{ flex: 0.7 }}>
                     <Text style={Styles.itemCarddesc}>{'\t' + item.description.substr(0, 200) + "..."}</Text>

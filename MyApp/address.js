@@ -1,4 +1,4 @@
-export const MyAddress = 'http://192.168.43.82:3000';
+export const MyAddress = 'http://192.168.1.9:3000';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Alert } from 'react-native'
 import RNFetchBlob from 'rn-fetch-blob'
@@ -159,6 +159,7 @@ export const handleLogin = (username, password, signIn) => {
                     console.error(err);
                 }
             } else if (responseJson.message) {
+                console.log(responseJson)
                 alert(responseJson.message)
             }
         })
@@ -488,7 +489,6 @@ export const requestPost = async (Documentid, setPost, setisLoading, signOut) =>
         })
 }
 export const requestComments = async (Document, setComments, setisLoading, setBannedWords, signOut) => {
-
     let token = await AsyncStorage.getItem('Token');
     fetch(MyAddress + '/commentaires', { // get the comments
         method: 'post',
@@ -496,7 +496,7 @@ export const requestComments = async (Document, setComments, setisLoading, setBa
             'Content-Type': 'application/json',
             'authorization': 'Bearer ' + token
         },
-        body: JSON.stringify({ Documentid: Document.documentid, Notified: Document.Notified }),
+        body: JSON.stringify({ Documentid: Document.documentid, Notified: Document.Notified, id_notification:Document.id_notification }),
     })
         .then((response) => {
             if (response.status !== 403) { // if the token is valide
@@ -607,9 +607,10 @@ export const AddRating = async (quizzid, Rating, signOut) => {
     })
 
 }
-//replies
-export const sendReply = async (previousid, id_author, title_doc, text, settext, setPressed, setisSending, BannedWords, signOut) => {
+//replies                   (item.id_reponse, item.id_author, document.title, document, text, settext, setPressed, setisSending, BannedWords, signOut)
+export const sendReply = async (previousid, id_author, title_doc, documentid, text, settext, setPressed, setisSending, BannedWords, signOut) => {
     let comment = text.replace(/\s\s+/g, ' ');
+    console.log(documentid)
     var valid = true;
     for (let val in BannedWords) {
         if (comment.search(BannedWords[val].word) !== -1) {
@@ -628,7 +629,7 @@ export const sendReply = async (previousid, id_author, title_doc, text, settext,
                     'Content-Type': 'application/json',
                     'authorization': 'Bearer ' + token
                 },
-                body: JSON.stringify({ contenu: comment, previousid: previousid, title_doc, id_author }),
+                body: JSON.stringify({ contenu: comment, previousid: previousid, title_doc, id_author, documentid }),
             })
                 .then((response) => {
                     if (response.status !== 403) { // if the token is verified

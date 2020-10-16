@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, FlatList, TextInput, ActivityIndicator, StyleSheet } from 'react-native';
-import { requestComments } from '../address';
+import { View, Text, FlatList, TextInput, ActivityIndicator, StyleSheet, Image } from 'react-native';
+import { requestComments,MyAddress } from '../address';
 import { AuthContext, translate } from '../App';
 import RepliesSection from './RepliesSection';
 import { sendComment, sendReply } from "../address"
@@ -15,7 +15,7 @@ const CommentView = ({ document, pressed, item, click, signOut, setPressed, isSe
                 <View style={styles.AddReplyInputContainer}>
                     <TextInput
                         numberOfLines={2}
-                        placeholder={'Add a reply...'}
+                        placeholder={translate("AddaReply")}
                         onChangeText={text => settext(text)}
                         value={text}
                         autoFocus={true}
@@ -26,7 +26,7 @@ const CommentView = ({ document, pressed, item, click, signOut, setPressed, isSe
                             isSending ? (
                                 <ActivityIndicator />
                             ) : (
-                                    <Text onPress={() => { setisSending(true); sendReply(item.id_reponse, item.id_author, document.title, document, text, settext, setPressed, setisSending, BannedWords, signOut) }} style={styles.SendCommentBtnTxt}>Send</Text>
+                            <Text onPress={() => { setisSending(true); sendReply(item.id_reponse, item.id_author, document.title, document.documentid, text, settext, setPressed, setisSending, BannedWords, signOut) }} style={styles.SendCommentBtnTxt}>{translate("Send")}</Text>
                                 )
                         }
                     </View>
@@ -37,7 +37,9 @@ const CommentView = ({ document, pressed, item, click, signOut, setPressed, isSe
     return (
         <View style={styles.CommentContainer}>
             <View style={styles.CommentHeader}>
-                <View style={styles.UserImgContainer}></View>
+                <View style={styles.UserImgContainer}>
+                    <Image source={{ "uri": MyAddress + item.Photo }} style={styles.ProfilImage} />
+                </View>
                 <Text style={styles.userNameTxt}>{item.username}</Text>
             </View>
             <Text style={{ padding: 10 }}>{'\t' + item.contenu}</Text>
@@ -90,7 +92,7 @@ const CommentSection = ({ route, navigation }) => {
         return navigation.addListener('focus', () => {
             return requestComments(document, setComments, setisLoading, setBannedWords, signOut)
         })
-        
+
     }, [navigation])
 
     const click = (id) => {
@@ -137,7 +139,7 @@ const CommentSection = ({ route, navigation }) => {
                                 style={styles.commentFlatList}
                                 data={comments}
                                 keyExtractor={(item) => item.id_reponse.toString()}
-                                renderItem={({ item }) => <CommentView document={document} pressed={pressed} item={item} click={click} signOut={signOut} setPressed={setPressed} isSending={isSending} setisSending={setisSending} BannedWords={BannedWords} />}
+                                renderItem={({ item }) => <CommentView document={document.documentid} pressed={pressed} item={item} click={click} signOut={signOut} setPressed={setPressed} isSending={isSending} setisSending={setisSending} BannedWords={BannedWords} />}
                                 removeClippedSubviews={false}
                                 refreshing={true}
                             />
@@ -234,12 +236,15 @@ const styles = StyleSheet.create({
     UserImgContainer: {
         width: 35,
         height: 35,
-        borderWidth: 1,
-        borderColor: '#BABABA',
+        borderRadius: 200
+    },
+    ProfilImage:{
+        width: 35,
+        height: 35,
         borderRadius: 200
     },
     userNameTxt: {
-        marginLeft: 3,
+        marginLeft: 8,
         fontSize: 20,
         fontWeight: 'bold',
         alignSelf: 'center'

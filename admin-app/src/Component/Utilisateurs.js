@@ -2,6 +2,8 @@ import React from 'react';
 import Breadcrumb from './Breadcrumb';
 import $ from "jquery";
 import '../styles.css';
+import axios from 'axios';
+
 
 class Utilisateurs extends React.Component {
     constructor(props) {
@@ -13,118 +15,6 @@ class Utilisateurs extends React.Component {
             },
             ListOfusers: [],
             users: [
-                {
-                    id: 1,
-                    username: 'youcef',
-                    nom: 'nom',
-                    prenom: 'prenom',
-                    sex: 'H',
-                    email: 'username@gmail.com',
-                    datei: '2020-1-26',
-                    dateo: '2020-4-10',
-                    photo: '/uploads/photo/photo1294324832.jpg',
-                },
-                {
-                    id: 2,
-                    username: 'islam',
-                    nom: 'nom',
-                    prenom: 'prenom',
-                    sex: 'H',
-                    email: 'username@gmail.com',
-                    datei: '2020-1-26',
-                    dateo: '2020-4-10',
-                    photo: '/uploads/photo/photo1294324832.jpg',
-                }, {
-                    id: 3,
-                    username: 'toufik',
-                    nom: 'nom',
-                    prenom: 'prenom',
-                    sex: 'H',
-                    email: 'username@gmail.com',
-                    datei: '2020-1-26',
-                    dateo: '2020-4-10',
-                    photo: '/uploads/photo/photo1294324832.jpg',
-                }, {
-                    id: 4,
-                    username: 'aymen',
-                    nom: 'nom',
-                    prenom: 'prenom',
-                    sex: 'H',
-                    email: 'username@gmail.com',
-                    datei: '2020-1-26',
-                    dateo: '2020-4-10',
-                    photo: '/uploads/photo/photo1294324832.jpg',
-                }, {
-                    id: 5,
-                    username: 'ayoub',
-                    nom: 'nom',
-                    prenom: 'prenom',
-                    sex: 'H',
-                    email: 'username@gmail.com',
-                    datei: '2020-1-26',
-                    dateo: '2020-4-10',
-                    photo: '/uploads/photo/photo1294324832.jpg',
-                }, {
-                    id: 6,
-                    username: 'username',
-                    nom: 'nom',
-                    prenom: 'prenom',
-                    sex: 'H',
-                    email: 'username@gmail.com',
-                    datei: '2020-1-26',
-                    dateo: '2020-4-10',
-                    photo: '/uploads/photo/photo1294324832.jpg',
-                }, {
-                    id: 7,
-                    username: 'username',
-                    nom: 'nom',
-                    prenom: 'prenom',
-                    sex: 'H',
-                    email: 'username@gmail.com',
-                    datei: '2020-1-26',
-                    dateo: '2020-4-10',
-                    photo: '/uploads/photo/photo1294324832.jpg',
-                }, {
-                    id: 8,
-                    username: 'username',
-                    nom: 'nom',
-                    prenom: 'prenom',
-                    sex: 'H',
-                    email: 'username@gmail.com',
-                    datei: '2020-1-26',
-                    dateo: '2020-4-10',
-                    photo: '/uploads/photo/photo1294324832.jpg',
-                }, {
-                    id: 9,
-                    username: 'username',
-                    nom: 'nom',
-                    prenom: 'prenom',
-                    sex: 'H',
-                    email: 'username@gmail.com',
-                    datei: '2020-1-26',
-                    dateo: '2020-4-10',
-                    photo: '/uploads/photo/photo1294324832.jpg',
-                }, {
-                    id: 10,
-                    username: 'username',
-                    nom: 'nom',
-                    prenom: 'prenom',
-                    sex: 'H',
-                    email: 'username@gmail.com',
-                    datei: '2020-1-26',
-                    dateo: '2020-4-10',
-                    photo: '/uploads/photo/photo1294324832.jpg',
-                }, {
-                    id: 11,
-                    username: 'username',
-                    nom: 'nom',
-                    prenom: 'prenom',
-                    sex: 'H',
-                    email: 'username@gmail.com',
-                    datei: '2020-1-26',
-                    dateo: '2020-4-10',
-                    photo: '/uploads/photo/photo1294324832.jpg',
-                }
             ],
             page: 1,
             row: 6,
@@ -184,7 +74,8 @@ class Utilisateurs extends React.Component {
         // var modal = $("#ModifyModel")
         // modal.find('.modal-title').text('New message to ')
         document.getElementById('ModifyModelBody').innerHTML = `
-        <div class="w-50 my-3 position-relative rounded-circle p-3 " style="background-color: #eee; height:200px; width:200px;">
+        <div class="w-50 my-3 position-relative rounded-circle p-3">
+            <img src="http://localhost:3000${val.photo}" alt="user Photo" class="rounded-circle" style="width:200px;height:200px;">
             <button class='supPhoto close DeleteModify' value='photo'>
                 <svg width="27" height="27" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="13.5" cy="13.5" r="13.5" fill="#FF7E7E" />
@@ -212,7 +103,7 @@ class Utilisateurs extends React.Component {
         </div>
         <div>
             Sex : 
-            ${val.sex === 'H' ? 'Homme' : 'Femme'}
+            ${val.sex}
             <button type="button" class="close mx-2 DeleteModify" value='sex'>
                 <span aria-hidden="true">&times;</span>
             </button>    
@@ -233,17 +124,20 @@ class Utilisateurs extends React.Component {
         this.setState({ ToShowData: this.pagination(listTemp, this.state.page, this.state.row), ListOfusers: listTemp })
     }
     componentDidMount() {
-        this.setState({ ToShowData: this.pagination(this.state.users, this.state.page, this.state.row), ListOfusers: this.state.users })
-        var forms = document.getElementsByClassName('needs-validation');
-        Array.prototype.filter.call(forms, function (form) {
-            form.addEventListener('submit', function (event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
+        axios.get('/users')
+            .then(res => {
+                this.setState({ users: res.data, ToShowData: this.pagination(res.data, this.state.page, this.state.row), ListOfusers: res.data })
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            });
     }
 
 
@@ -273,7 +167,6 @@ class Utilisateurs extends React.Component {
                                 <th scope="col">Sex</th>
                                 <th scope="col">E-mail</th>
                                 <th scope="col">Date d'inscription</th>
-                                <th scope="col">Date Online</th>
                                 <th scope="col">Photo</th>
                                 <th scope="col">Action</th>
                             </tr>
@@ -284,15 +177,14 @@ class Utilisateurs extends React.Component {
                                     <tr key={val.id}>
                                         <th scope="row">{val.id}</th>
                                         <td data-toggle="tooltip" title={val.username}>
-                                            {val.username.substr(0, 8) + (val.username.length > 8 ? ".." : '')}
+                                            {val.username}
                                         </td>
                                         <td data-toggle="tooltip" title={val.nom}>{val.nom.substr(0, 8) + (val.nom.length > 8 ? ".." : '')}</td>
-                                        <td data-toggle="tooltip" title={val.prenom}>{val.prenom.substr(0, 8) + (val.prenom.length > 8 ? ".." : '')}</td>
+                                        <td data-toggle="tooltip" title={val.prenom}>{val.prenom}</td>
                                         <td>{val.sex}</td>
-                                        <td data-toggle="tooltip" title={val.email}>{val.email.substr(0, 8) + (val.email.length > 8 ? ".." : '')}</td>
-                                        <td data-toggle="tooltip" title={val.datei}>{val.datei.substr(0, 8) + (val.datei.length > 8 ? ".." : '')}</td>
-                                        <td data-toggle="tooltip" title={val.dateo}>{val.dateo.substr(0, 8) + (val.dateo.length > 8 ? ".." : '')}</td>
-                                        <td data-toggle="tooltip" title={val.photo}>{val.photo.substr(0, 20) + (val.photo.length > 8 ? ".." : '')}</td>
+                                        <td data-toggle="tooltip" title={val.email}>{val.email.substr(0, 13) + (val.email.length > 13 ? ".." : '')}</td>
+                                        <td data-toggle="tooltip" title={val.datei}>{val.datei}</td>
+                                        <td data-toggle="tooltip" title={val.photo}>{val.photo.substr(0, 17) + (val.photo.length > 8 ? ".." : '')}</td>
                                         <td className='d-flex align-items-center' >
                                             <button className='text-primary p-2 border-0 bg-transparent' onClick={() => this.modify(val)} data-toggle="modal" data-target="#ModifyModel">
                                                 Modifier
@@ -311,7 +203,7 @@ class Utilisateurs extends React.Component {
                     </table>
                     {
                         this.state.ToShowData.length === 0 ? <div className='text-center display-4 text-muted '>
-                                No Result
+                            No Result
                         </div> : null
                     }
                     <nav aria-label="Page navigation example">

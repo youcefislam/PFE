@@ -69,7 +69,7 @@ const SignUp = ({ navigation }) => {
                             autoCompleteType="email"
                             returnKeyType="next"
                             autoCorrect={false}
-                            onSubmitEditing={() => handleEmail(Email) ? (secondInput.focus()) : (alert(EmailMsg))}
+                            onSubmitEditing={() => handleEmail(Email) ? (secondInput.focus()) : (alert(translate("EmailMsg")))}
                             onChangeText={(val) => setEmail(val)} />
                         <View style={styles.inputSvg}>
                             <InputSvg />
@@ -86,7 +86,7 @@ const SignUp = ({ navigation }) => {
                             placeholderTextColor="#5A4CA7"
                             autoCorrect={false}
                             returnKeyType="next"
-                            onSubmitEditing={() => handleUsername(username) ? (thirdInput.focus()) : (alert(UsernameMsg))}
+                            onSubmitEditing={() => handleUsername(username) ? (thirdInput.focus()) : (alert(translate("UsernameMsg")))}
                             onChangeText={(val) => setUsername(val)} />
                         <View style={styles.inputSvg}>
                             <InputSvg />
@@ -102,7 +102,7 @@ const SignUp = ({ navigation }) => {
                             placeholderTextColor="#5A4CA7"
                             placeholder={translate("password")}
                             returnKeyType="next"
-                            onSubmitEditing={() => handlePassword(Password) ? forthInput.focus() : alert(passwordMsg)}
+                            onSubmitEditing={() => handlePassword(Password) ? forthInput.focus() : alert(translate("PasswordMsg"))}
                             onChangeText={(val) => setPassword(val)} />
                         <View style={styles.inputSvg}>
                             <InputSvg />
@@ -117,7 +117,7 @@ const SignUp = ({ navigation }) => {
                             autoCompleteType="password"
                             placeholder={translate("confirmPass")}
                             placeholderTextColor="#5A4CA7"
-                            onSubmitEditing={() => handlePasswordConfirm(Password, ConfirmPassword) ? (null) : (alert(passwordConfirmationMsg))}
+                            onSubmitEditing={() => handlePasswordConfirm(Password, ConfirmPassword) ? (null) : (alert(translate("passwordConfirmationMsg")))}
                             onChangeText={(val) => setConfirmPassword(val)} />
                         <View style={styles.inputSvg}>
                             <InputSvg />

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
 import * as Progress from 'react-native-progress';
 import { InitQuestions } from '../address'
-import { AuthContext } from '../App';
+import { AuthContext,translate } from '../App';
 
 
 const quizz = ({ route, navigation }) => {
@@ -103,7 +103,7 @@ const quizz = ({ route, navigation }) => {
                                 </View>
                                 <View style={{ flex: 2 }}>
                                     <TouchableOpacity style={style.passButton} onPress={() => SubmitAnswer('')} activeOpacity={0.5}>
-                                        <Text style={{ color: '#79AEF2' }}>Pass This Question</Text>
+                                        <Text style={{ color: '#79AEF2' }}>{translate("PassThisQuestion")}</Text>
                                     </TouchableOpacity>
                                     <FlatList style={style.bottomPart}
                                         contentContainerStyle={style.AnswerView}
@@ -124,11 +124,11 @@ const quizz = ({ route, navigation }) => {
                                 <>
                                     <View style={{ flex: 0.4, justifyContent: 'space-between' }}>
                                         <Text style={{ fontSize: 23, color: 'white' }}>
-                                            Congrat's You're Done
+                                            {translate("Congrat")}
                                         </Text>
                                         <TouchableOpacity style={{ padding: 10, backgroundColor: 'white', borderRadius: 15, alignItems: 'center', justifyContent: 'center', }} onPress={GoToResultQuiz}>
                                             <Text style={{ color: "#79AEF2" }}>
-                                                Show My Result
+                                            {translate("ShowMyResult")}
                                         </Text>
                                         </TouchableOpacity>
                                     </View>

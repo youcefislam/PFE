@@ -13,9 +13,11 @@ import Feedback from './Component/Feedback';
 import SousSpecialites from "./Component/SousSpecialites";
 import Document from './Component/Document';
 import Quizz from './Component/Quizz';
-import Commentaire from './Component/Commentaire'
+import Commentaire from './Component/Commentaire';
+import Formateurs from './Component/Formateur';
 
 import $ from "jquery";
+
 
 
 class App extends React.Component {
@@ -52,6 +54,7 @@ class App extends React.Component {
                 <div className='col p-0 overflow-auto vh-100'>
                   <Route exact path="/" render={(props) => <Dashboard {...props} />} />
                   <Route exact path="/Utilisateurs" render={(props) => <Utilisateurs {...props} />} />
+                  <Route exact path="/Formateurs" render={(props) => <Formateurs {...props} />} />
                   <Route exact path="/specialites" render={(props) => <Specialites {...props} />} />
                   <Route exact path="/specialites/:id_ss" render={(props) => <SousSpecialites {...props} />} />
                   <Route exact path="/specialites/:id_ss/:id_doc" render={(props) => <Document {...props} />} />

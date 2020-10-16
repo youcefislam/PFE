@@ -1,6 +1,7 @@
 import React from 'react'
 import Breadcrumb from './Breadcrumb';
 import '../styles.css';
+import axios from 'axios';
 
 class Reponse extends React.Component {
     render() {
@@ -57,7 +58,7 @@ class Question extends React.Component {
                 </div>
                 {
                     Object.entries(this.props.val).map(([key, value], index) =>
-                        <Reponse key={index} value={value} keyReponse={key} keyQuestion={this.props.questionKey} />
+                        value ? <Reponse key={index} value={value} keyReponse={key} keyQuestion={this.props.questionKey} /> : null
                     )
                 }
                 <div className='row my-3 mx-5 w-100 justify-content-between'>
@@ -82,39 +83,10 @@ class Quizz extends React.Component {
         this.state = {
             choice: 3,
             Quizz: {
-                valid: false,
+                valid: 0,
                 id: 1,
                 name: 'Quizz 1',
-                questions: [{
-                    id: 1,
-                    question: 'Lorem ipdsqdsqdsqqdsqqdsqdsqdsqdsqsum dolor sit amet, consectetur adipiscing elit. Cras vitae gravida leo. Suspendisse consequat egestas pretium. Quisque ultrices lorem at massa tincidunt, sit amet venenatis quam dictum. Nunc elit tortor, blandit eu bibendum sed, facilisis et purus. Cras pulvinar felis sed libero tristique, non accumsan turpis faucibus. Nullam vulputate arcu sit amet laoreet porttitor. Duis scelerisque ligula eu augue molestie aliquet. Donec posuere dictum lacinia',
-                    reponse1: 'Lorem dsadzsdaipsum dolor sit qdsqqdsqamet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    reponse2: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    reponse3: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    correct: 1
-                }, {
-                    id: 2,
-                    question: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae gravida leo. Suspendisse consequat egestas pretium. Quisque ultrices lorem at massa tincidunt, sit amet venenatis quam dictum. Nunc elit tortor, blandit eu bibendum sed, facilisis et purus. Cras pulvinar felis sed libero tristique, non accumsan turpis faucibus. Nullam vulputate arcu sit amet laoreet porttitor. Duis scelerisque ligula eu augue molestie aliquet. Donec posuere dictum lacinia',
-                    reponse1: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    reponse2: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    reponse3: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    reponse4: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    correct: 3
-                }, {
-                    id: 3,
-                    question: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae gravida leo. Suspendisse consequat egestas pretium. Quisque ultrices lorem at massa tincidunt, sit amet venenatis quam dictum. Nunc elit tortor, blandit eu bibendum sed, facilisis et purus. Cras pulvinar felis sed libero tristique, non accumsan turpis faucibus. Nullam vulputate arcu sit amet laoreet porttitor. Duis scelerisque ligula eu augue molestie aliquet. Donec posuere dictum lacinia',
-                    reponse1: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    reponse2: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    reponse3: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    reponse4: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    correct: 4
-                }, {
-                    id: 4,
-                    question: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vitae gravida leo. Suspendisse consequat egestas pretium. Quisque ultrices lorem at massa tincidunt, sit amet venenatis quam dictum. Nunc elit tortor, blandit eu bibendum sed, facilisis et purus. Cras pulvinar felis sed libero tristique, non accumsan turpis faucibus. Nullam vulputate arcu sit amet laoreet porttitor. Duis scelerisque ligula eu augue molestie aliquet. Donec posuere dictum lacinia',
-                    reponse1: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    reponse2: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut laoreet quam in sollicitudin ultrices. Nunc ',
-                    correct: 1
-                },]
+                questions: []
             }
         }
     }
@@ -141,64 +113,70 @@ class Quizz extends React.Component {
     }
 
     componentDidMount() {
-        window.$('.modal').on('show.bs.modal', () => {
-            window.$("input[type!='submit']").val('');
-            var forms = document.getElementsByClassName('needs-validation');
-            Array.prototype.filter.call(forms, function (form) {
-                form.classList.remove('was-validated');
-            });
-        })
-        window.$('#ModifyQuestionModal').on('show.bs.modal', (event) => {
-            let button = window.$(event.relatedTarget).data('question')
-            window.$('#ModifyQuestionModalLabel').text('Modifier la question ' + (button + 1));
-            window.$('#TempQuestion').val(this.state.Quizz.questions[button].question);
-            window.$('.submitTitre').attr('disabled', "");
-        })
-        window.$('#ModifReponseModal').on('show.bs.modal', (event) => {
-            let question = window.$(event.relatedTarget).data('question');
-            let reponse = window.$(event.relatedTarget).data('reponse');
-            window.$('#ModifReponseModalLabel').text('Modifier la reponse ' + reponse[7] + ' du question ' + (question + 1));
-            window.$('#TempReponse').val(this.state.Quizz.questions[question][reponse]);
-            window.$('.submitTitre').attr('disabled', "");
-        })
-        window.$('#ModifyTitreModal').on('show.bs.modal', () => {
-            window.$('#TempTitle').val(this.state.Quizz.name)
-            window.$('.submitTitre').attr('disabled', "");
-        })
-        window.$('#ModifCorrectModal').on('show.bs.modal', (event) => {
-            window.$('.submitTitre').attr('disabled', "");
-            let button = window.$(event.relatedTarget).data('question')
-            window.$('#ModifCorrectModalLabel').text('Modifier la bonne reponse du question ' + (button + 1));
-            let question = this.state.Quizz.questions[button]
-            window.$('#SelectCorrect').empty()
-            Object.entries(question).map(([key, value]) =>
-                (key[0] === 'r') ?
-                    window.$('#SelectCorrect').append(`<option value="${key[7]}" id='Option${this.state.choice}' ${key[7] === this.state.Quizz.questions[button].correct.toString() ? "selected" : ""} >Reponse ${key[7]}</option>`)
-                    : null
-            )
-        })
-        var forms = document.getElementsByClassName('needs-validation');
-        Array.prototype.filter.call(forms, function (form) {
-            form.addEventListener('submit', function (event) {
-                if (form.checkValidity() === false) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-        window.$('#AddQuestionModal').submit((event) => {
-            if (!window.$('#SelectCorrectToADD').val()) {
-                window.$('#SelectCorrectToADD').get(0).setCustomValidity('Invalid');
-                // event.preventDefault();
-            }
-        })
+        axios.get("/quiz/" + this.props.match.params.id_quiz)
+            .then(res => {
+                console.log(res.data)
+                this.setState({ Quizz: res.data });
+                window.$('.modal').on('show.bs.modal', () => {
+                    window.$("input[type!='submit']").val('');
+                    var forms = document.getElementsByClassName('needs-validation');
+                    Array.prototype.filter.call(forms, function (form) {
+                        form.classList.remove('was-validated');
+                    });
+                })
+                window.$('#ModifyQuestionModal').on('show.bs.modal', (event) => {
+                    let button = window.$(event.relatedTarget).data('question')
+                    window.$('#ModifyQuestionModalLabel').text('Modifier la question ' + (button + 1));
+                    window.$('#TempQuestion').val(this.state.Quizz.questions[button].question);
+                    window.$('.submitTitre').attr('disabled', "");
+                })
+                window.$('#ModifReponseModal').on('show.bs.modal', (event) => {
+                    let question = window.$(event.relatedTarget).data('question');
+                    let reponse = window.$(event.relatedTarget).data('reponse');
+                    window.$('#ModifReponseModalLabel').text('Modifier la reponse ' + reponse[7] + ' du question ' + (question + 1));
+                    window.$('#TempReponse').val(this.state.Quizz.questions[question][reponse]);
+                    window.$('.submitTitre').attr('disabled', "");
+                })
+                window.$('#ModifyTitreModal').on('show.bs.modal', () => {
+                    window.$('#TempTitle').val(this.state.Quizz.name)
+                    window.$('.submitTitre').attr('disabled', "");
+                })
+                window.$('#ModifCorrectModal').on('show.bs.modal', (event) => {
+                    window.$('.submitTitre').attr('disabled', "");
+                    let button = window.$(event.relatedTarget).data('question')
+                    window.$('#ModifCorrectModalLabel').text('Modifier la bonne reponse du question ' + (button + 1));
+                    let question = this.state.Quizz.questions[button]
+                    window.$('#SelectCorrect').empty()
+                    Object.entries(question).map(([key, value]) =>
+                        (key[0] === 'r') ?
+                            window.$('#SelectCorrect').append(`<option value="${key[7]}" id='Option${this.state.choice}' ${key[7] === this.state.Quizz.questions[button].correct.toString() ? "selected" : ""} >Reponse ${key[7]}</option>`)
+                            : null
+                    )
+                })
+                var forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+                window.$('#AddQuestionModal').submit((event) => {
+                    if (!window.$('#SelectCorrectToADD').val()) {
+                        window.$('#SelectCorrectToADD').get(0).setCustomValidity('Invalid');
+                        // event.preventDefault();
+                    }
+                })
+            })
+
     }
 
     render() {
         return (
             <>
-                <Breadcrumb Title={['specialités', 'Sous-spécialité 1', 'Document 1', 'Quizz 1']} />
+                <Breadcrumb Title={[this.props.location.aboutProps.name, this.props.location.aboutProps.nameS, this.props.location.aboutProps.nameD,this.props.location.aboutProps.nameQ]} />
                 <div className='container'>
                     <div className='row justify-content-between mx-3 my-5'>
                         <div className='w-25 d-flex border-dark justify-content-between border-bottom'>
@@ -216,7 +194,7 @@ class Quizz extends React.Component {
                                 Supprimer
                             </button>
                             {
-                                !this.state.Quizz.valid ?
+                                this.state.Quizz.valider==0 ?
                                     <button className='h-100 mx-2 rounded-pill px-3 text-white' Style="background :#4CD071" data-toggle="modal" data-target="#ValidQuizzModal">
                                         Valider
                                     </button> : null

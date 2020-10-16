@@ -40,6 +40,9 @@ import SettingScreen from './Screens/Settings';
 import AboutScreen from './Screens/About';
 import sendFeedBackScreen from './Screens/SendFeedBack';
 import NotificationScreen from './Screens/Notification';
+import VideoPlayerScreen from './Screens/VideoPlayerScreen';
+import AudioPlayerScreen from './Screens/AudioPlayerScreen';
+
 
 
 //SVG
@@ -110,24 +113,29 @@ export const setI18nConfig = async () => {
 
 const HomeStack = createStackNavigator();
 
-function HomeStackScreen() {
+function HomeStackScreen({ navigation }) {
 
   const [NotifBadge, setNotifBadge] = useState(0)
 
   const testPush = (message) => {
     PushNotification.localNotification({
-      title:"Tredoc",
-      bigPictureUrl:require('./Img/Tredoc.png'),
-      smallIcon:require('./Img/Tredoc.png'),
-      largeIcon:require('./Img/Tredoc.png'),
+      title: "Tredoc",
       message: message, // (required)
     });
   }
 
   useEffect(() => {
-    getNotification(setNotifBadge, testPush);
+    // IntervalId = setInterval(() => {
+    //   getNotification(setNotifBadge, testPush);
+    // }, 2000);
+    // navigation.addListener('blur', () => {
+    //   clearInterval(IntervalId)
+    // })
+    return navigation.addListener('focus', () => {
+      getNotification(setNotifBadge, testPush);
+    })
   }, [])
-  
+
   return (
     <Tab.Navigator initialRouteName='Home' tabBarOptions={{ activeTintColor: 'rgba(39, 96, 244, 0.6)', keyboardHidesTabBar: true, tabStyle: { height: 50, paddingVertical: 5 } }}  >
       <Tab.Screen name="Settings" component={SettingStackScreens} options={{ tabBarIcon: ({ focused }) => focused ? <SettingsActiveSvg /> : <SettingsSvg />, tabBarLabel: translate("SettingsLable") }} />
@@ -162,6 +170,10 @@ function HomeScreensScreen() {
         })} />
       <HomeScreens.Screen name="commentSection" component={CommentSection}
         options={({ route }) => ({ title: route.params.title, headerShown: true, headerTintColor: '#5B4DA9' })} />
+      <HomeScreens.Screen name="VideoPlayerScreen" component={VideoPlayerScreen}
+        options={({ route }) => ({ headerTintColor: '#5B4DA9' })} />
+      <HomeScreens.Screen name="AudioPlayerScreen" component={AudioPlayerScreen}
+        options={({ route }) => ({ headerTintColor: '#5B4DA9' })} />
     </HomeScreens.Navigator>
   );
 }
@@ -225,22 +237,22 @@ const App = ({ navigation }) => {
     }
   );
 
-  
+
   useEffect(() => {
     // testPush();
     setI18nConfig();
     bootstrapAsync(authContext);
-    
+
   }, []);
 
   const authContext = useMemo(      //check whether the user is sign in or not to display the right screens
     () => ({
       signIn: async (data) => {
-        ToastAndroid.show('Welcome !', ToastAndroid.SHORT);
+        ToastAndroid.show(translate('Welcome'), ToastAndroid.SHORT);
         dispatch({ type: 'SIGN_IN', token: data });
       },
       restoreToken: (data) => {
-        ToastAndroid.show('Welcome !', ToastAndroid.SHORT);
+        ToastAndroid.show(translate('Welcome'), ToastAndroid.SHORT);
         dispatch({ type: 'RESTORE_TOKEN', token: data });
       }
       ,

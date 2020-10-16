@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, FlatList, TextInput, ActivityIndicator, StyleSheet } from 'react-native';
-import { requestReplies } from '../address';
-import { AuthContext } from '../App';
+import { View, Text, FlatList, TextInput, ActivityIndicator, StyleSheet, Image } from 'react-native';
+import { requestReplies,MyAddress } from '../address';
+import { AuthContext, translate } from '../App';
 import { sendReply } from "../address"
 
 
-const ReplyView = ({ document,pressed, item, click, signOut, setPressed, isSending, setisSending, BannedWords }) => {
+const ReplyView = ({ document, pressed, item, click, signOut, setPressed, isSending, setisSending, BannedWords }) => {
     const [ShowMore, setShowMore] = useState(false)
     const [TextReply, setTextReply] = useState("")
 
@@ -16,7 +16,7 @@ const ReplyView = ({ document,pressed, item, click, signOut, setPressed, isSendi
                     <TextInput
                         numberOfLines={2}
                         onChangeText={text => setTextReply(text)}
-                        placeholder={'Add a reply...'}
+                        placeholder={translate("AddaReply")}
                         value={TextReply}
                         autoFocus={true}
                         multiline={true}
@@ -26,7 +26,7 @@ const ReplyView = ({ document,pressed, item, click, signOut, setPressed, isSendi
                             isSending ? (
                                 <ActivityIndicator />
                             ) : (
-                                    <Text onPress={() => { setisSending(true); sendReply(item.id_reponse,item.id_author,document.title, TextReply, setTextReply, setPressed, setisSending, BannedWords, signOut) }} style={styles.sendBtnTxt}>Send</Text>
+                                    <Text onPress={() => { setisSending(true); sendReply(item.id_reponse, item.id_author, document.title, document.documentid, TextReply, setTextReply, setPressed, setisSending, BannedWords, signOut) }} style={styles.sendBtnTxt}>{translate("Send")}</Text>
                                 )
                         }
                     </View>
@@ -37,19 +37,21 @@ const ReplyView = ({ document,pressed, item, click, signOut, setPressed, isSendi
     return (
         <View style={styles.ReplyContainer}>
             <View style={styles.ReplyHeader}>
-                <View style={styles.UserImgContainer}></View>
+                <View style={styles.UserImgContainer}>
+                    <Image source={{ "uri": MyAddress + item.Photo }} style={styles.ProfilImage} />
+                </View>
                 <Text style={styles.usernameTxt}>{item.username}</Text>
             </View>
             <Text style={{ padding: 10, fontSize: 12 }}>{'\t' + item.contenu}</Text>
-            <Text onPress={() => click(item.id_reponse)} style={styles.ReplyBtn}>Reply</Text>
+            <Text onPress={() => click(item.id_reponse)} style={styles.ReplyBtn}>{translate("Reply")}</Text>
             {smthn}
             {ShowMore ? (
                 <>
-                    <RepliesSection idComment={item.id_reponse} pressed={pressed} click={click} setPressed={setPressed} BannedWords={BannedWords} />
-                    <Text style={styles.showLessMoreBtn} onPress={() => setShowMore(false)}>Show less</Text>
+                    <RepliesSection document={document} idComment={item.id_reponse} pressed={pressed} click={click} setPressed={setPressed} BannedWords={BannedWords} />
+                    <Text style={styles.showLessMoreBtn} onPress={() => setShowMore(false)}>{translate("ShowLess")}</Text>
                 </>
             ) : item.HaveAnswer ? (
-                <Text style={styles.showLessMoreBtn} onPress={() => setShowMore(true)}>Show More</Text>
+                <Text style={styles.showLessMoreBtn} onPress={() => setShowMore(true)}>{translate("ShowMore")}</Text>
             ) : (null)
             }
         </View>
@@ -67,11 +69,11 @@ const RepliesSection = (props) => {
     useEffect(() => {
         requestReplies(props.idComment, setReplies, setisLoading, signOut);
     }, [])
-    
+
     const click = props.click
     const pressed = props.pressed
     const setPressed = props.setPressed;
-    const document= props.document;
+    const document = props.document;
     return (
         <View style={styles.container}>
             {
@@ -90,70 +92,73 @@ const RepliesSection = (props) => {
 }
 
 const styles = StyleSheet.create({
-    container: { 
-        paddingLeft: "5%", 
-        borderLeftColor: "#B7B7B7", 
-        borderLeftWidth: 1 
+    container: {
+        paddingLeft: "5%",
+        borderLeftColor: "#B7B7B7",
+        borderLeftWidth: 1
     },
-    AddReplyContainer: { 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        backgroundColor: 'white' 
+    AddReplyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'white'
     },
-    AddReplyInputContainer: { 
-        flexDirection: 'row', 
-        marginVertical: 10 
+    AddReplyInputContainer: {
+        flexDirection: 'row',
+        marginVertical: 10
     },
-    AddReplyInput: { 
-        borderWidth: 1, 
-        borderColor: "#DADADA", 
-        height: '100%', 
-        flex: 1, 
-        backgroundColor: '#F9F9F9', 
-        paddingLeft: 10, 
-        paddingRight: 45 
+    AddReplyInput: {
+        borderWidth: 1,
+        borderColor: "#DADADA",
+        height: '100%',
+        flex: 1,
+        backgroundColor: '#F9F9F9',
+        paddingLeft: 10,
+        paddingRight: 45
     },
-    sendBtnContainer: { 
-        position: "absolute", 
-        right: 10, 
-        alignSelf: "center" 
+    sendBtnContainer: {
+        position: "absolute",
+        right: 10,
+        alignSelf: "center"
     },
-    sendBtnTxt: { 
-        fontWeight:'bold',
-        color: '#5891E7' 
+    sendBtnTxt: {
+        fontWeight: 'bold',
+        color: '#5891E7'
     },
-    ReplyContainer: { 
-        width: '100%', 
-        marginBottom: 10 
+    ReplyContainer: {
+        width: '100%',
+        marginBottom: 10
     },
-    ReplyHeader: { 
-        flexDirection: 'row' 
+    ReplyHeader: {
+        flexDirection: 'row'
     },
-    UserImgContainer: { 
-        width: 35, 
-        height: 35, 
-        borderWidth: 1, 
-        borderColor: '#BABABA', 
-        borderRadius: 200 
+    UserImgContainer: {
+        width: 35,
+        height: 35,
+        borderRadius: 200
     },
-    usernameTxt: { 
-        marginLeft: 3, 
-        fontSize: 15, 
-        fontWeight: 'bold', 
-        alignSelf: 'center' 
+    ProfilImage: {
+        width: 35,
+        height: 35,
+        borderRadius: 200
     },
-    ReplyBtn: { 
-        fontWeight: 'bold', 
-        alignSelf: 'flex-end' 
+    usernameTxt: {
+        marginLeft: 3,
+        fontSize: 15,
+        fontWeight: 'bold',
+        alignSelf: 'center'
     },
-    showLessMoreBtn: { 
-        width: '90%', 
-        textAlign: 'center', 
-        color: "#AFAFAF", 
-        borderWidth: 1, 
-        borderColor: "#AFAFAF", 
-        alignSelf: "center", 
-        marginVertical: 4 
+    ReplyBtn: {
+        fontWeight: 'bold',
+        alignSelf: 'flex-end'
+    },
+    showLessMoreBtn: {
+        width: '90%',
+        textAlign: 'center',
+        color: "#AFAFAF",
+        borderWidth: 1,
+        borderColor: "#AFAFAF",
+        alignSelf: "center",
+        marginVertical: 4
     }
 
 
