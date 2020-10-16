@@ -22,7 +22,7 @@
         "@react-navigation/stack": "^5.9.0",
         "i18n-js": "^3.7.1",
         "lodash.memoize": "^4.1.2",
-        "node-fetch": "^2.6.0",
+        "node-fetch": "^2.6.1",
         "react": "16.9.0",
         "react-native": "0.61.5",
         "react-native-gesture-handler": "^1.7.0",
